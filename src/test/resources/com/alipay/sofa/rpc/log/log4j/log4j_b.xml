@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "http://toolkit.alibaba-inc.com/dtd/log4j/log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+  <appender name="defaultb" class="org.apache.log4j.ConsoleAppender">
+    <param name="append" value="true"/>
+    <param name="encoding" value="UTF-8"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+             value="%d [%X{loginUserEmail}/%X{loginUserID}/%X{remoteAddr}/%X{clientId} - %X{requestURIWithQueryString}] %-5p %c{2} - %m%n"/>
+    </layout>
+  </appender>
+
+  <!-- logger-->
+
+  <logger name="com.foo.Bar2" additivity="false">
+    <level value="info"/>
+    <appender-ref ref="defaultb"/>
+  </logger>
+
+  <logger name="com.foo.Bar3" additivity="false">
+    <level value="info"/>
+    <appender-ref ref="${hello}"/>
+  </logger>
+
+
+</log4j:configuration>

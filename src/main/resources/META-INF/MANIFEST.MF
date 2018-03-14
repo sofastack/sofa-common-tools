@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Export-Package: com.alipay.sofa.common.log,
+ com.alipay.sofa.common.log.global,
+ com.alipay.sofa.common.log.env,
+ com.alipay.sofa.common.log.factory
+Implementation-Title: sofa-middleware-log
+Implementation-Version: 1.6.1
+Built-By: shangyu
+Tool: Bundlor 1.0.0.RELEASE
+Bundle-Name: SLF4J API
+Created-By: Apache Maven
+Bundle-Vendor: SpringSource
+Build-Jdk: 1.6.0_16
+Bundle-Version: 1.6.1
+Bundle-ManifestVersion: 2
+Bundle-Description: sofa middleware log adapter
+Bundle-SymbolicName: sofa.middleware.log
+Import-Package: org.slf4j.impl;version="[1.6.1, 2.0.0)",
+ org.slf4j;version="[1.6.1, 2.0.0)",
+ org.apache.log4j,
+ org.apache.log4j.config,
+ org.apache.log4j.helpers,
+ org.apache.log4j.xml,
+ org.apache.log4j.spi
+Archiver-Version: Plexus Archiver

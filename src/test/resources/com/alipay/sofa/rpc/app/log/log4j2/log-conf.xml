@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+
+  <Properties>
+    <Property name="RPC_LOG_PATH">${sys:logging.test.path}</Property>
+    <Property name="APP_NAME">${sys:appname}</Property>
+  </Properties>
+
+  <appenders>
+
+    <RollingFile name="ROOT-APPENDER" fileName="${logging.test.path}/${appname}/common-default.log" append="true"
+                 filePattern="${logging.test.path}/${appname}/common-default.log.%d{yyyy-MM-dd}">
+      <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+      <PatternLayout>
+        <pattern>%d %-5p %-32t - %m%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <!-- 按天分日志文件:重要的是 filePattern 配置到按照天 -->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+  </appenders>
+
+  <loggers>
+    <root level="info">
+      <appender-ref ref="ROOT-APPENDER"/>
+    </root>
+  </loggers>
+</configuration>
