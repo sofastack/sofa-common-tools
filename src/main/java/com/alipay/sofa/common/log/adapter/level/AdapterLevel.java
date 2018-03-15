@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.adapter.level;
 
-import com.alipay.sofa.common.log.AssertUtil;
+import com.alipay.sofa.common.utils.AssertUtil;
 
 /**
  * AdapterLevel

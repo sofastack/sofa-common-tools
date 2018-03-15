@@ -20,6 +20,7 @@ import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.*;
 import com.alipay.sofa.common.log.proxy.TemporaryILoggerFactoryPool;
+import com.alipay.sofa.common.utils.ReportUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 

@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.proxy;
 
-import com.alipay.sofa.common.log.AssertUtil;
+import com.alipay.sofa.common.utils.AssertUtil;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 

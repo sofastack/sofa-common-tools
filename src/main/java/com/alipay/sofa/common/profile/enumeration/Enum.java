@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.profile.enumeration;
 
-import com.alipay.sofa.common.profile.ClassLoaderUtil;
-import com.alipay.sofa.common.profile.StringUtil;
+import com.alipay.sofa.common.utils.ClassLoaderUtil;
+import com.alipay.sofa.common.utils.StringUtil;
 import com.alipay.sofa.common.profile.enumeration.internal.NumberType;
 
 import java.io.InvalidClassException;

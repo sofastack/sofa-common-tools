@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.common.log;
 
+import com.alipay.sofa.common.utils.AssertUtil;
+
 import java.util.*;
 
 /**

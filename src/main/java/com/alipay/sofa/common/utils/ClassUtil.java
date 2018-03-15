@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.profile;
+package com.alipay.sofa.common.utils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
