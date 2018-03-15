@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.exception;
 
-import com.alipay.sofa.common.log.ReportUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
 import org.junit.Test;
 

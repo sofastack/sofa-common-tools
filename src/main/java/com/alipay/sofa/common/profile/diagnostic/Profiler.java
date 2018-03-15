@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.profile.diagnostic;
 
-import com.alipay.sofa.common.profile.ObjectUtil;
-import com.alipay.sofa.common.profile.StringUtil;
+import com.alipay.sofa.common.utils.ObjectUtil;
+import com.alipay.sofa.common.utils.StringUtil;
 import com.alipay.sofa.common.profile.enumeration.IntegerEnum;
 
 import java.text.MessageFormat;

@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.log.env;
 
-import com.alipay.sofa.common.log.AssertUtil;
-import com.alipay.sofa.common.log.ReportUtil;
+import com.alipay.sofa.common.utils.AssertUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 import org.apache.logging.log4j.util.Strings;
 
 import static com.alipay.sofa.common.log.Constants.*;

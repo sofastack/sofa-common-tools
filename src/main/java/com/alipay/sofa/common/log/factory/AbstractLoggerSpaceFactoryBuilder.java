@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.factory;
 
-import com.alipay.sofa.common.log.AssertUtil;
+import com.alipay.sofa.common.utils.AssertUtil;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.env.LogEnvUtils;

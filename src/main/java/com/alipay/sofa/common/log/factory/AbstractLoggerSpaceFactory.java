@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.factory;
 
-import com.alipay.sofa.common.log.ReportUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
