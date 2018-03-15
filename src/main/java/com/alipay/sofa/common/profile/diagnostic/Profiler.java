@@ -41,15 +41,11 @@ public final class Profiler {
     }
 
     public static void start(String message) {
-        entryStack.set(new Profiler.Entry(message,
-                null,
-                null));
+        entryStack.set(new Profiler.Entry(message, null, null));
     }
 
     public static void start(Profiler.Message message) {
-        entryStack.set(new Profiler.Entry(message,
-                null,
-                null));
+        entryStack.set(new Profiler.Entry(message, null, null));
     }
 
     public static void reset() {
@@ -81,8 +77,7 @@ public final class Profiler {
     }
 
     public static long getDuration() {
-        Profiler.Entry entry = (Profiler.Entry) entryStack
-                .get();
+        Profiler.Entry entry = (Profiler.Entry) entryStack.get();
         return entry != null ? entry.getDuration() : -1L;
     }
 
@@ -95,8 +90,7 @@ public final class Profiler {
     }
 
     public static String dump(String prefix1, String prefix2) {
-        Profiler.Entry entry = (Profiler.Entry) entryStack
-                .get();
+        Profiler.Entry entry = (Profiler.Entry) entryStack.get();
         return entry != null ? entry.toString(prefix1, prefix2) : "";
     }
 
@@ -105,8 +99,7 @@ public final class Profiler {
     }
 
     private static Profiler.Entry getCurrentEntry() {
-        Profiler.Entry subEntry = (Profiler.Entry) entryStack
-                .get();
+        Profiler.Entry subEntry = (Profiler.Entry) entryStack.get();
         Profiler.Entry entry = null;
         if (subEntry != null) {
             do {
@@ -127,9 +120,9 @@ public final class Profiler {
     }
 
     public static final class MessageLevel extends IntegerEnum {
-        private static final long serialVersionUID = 3257849896026388537L;
-        public static final Profiler.MessageLevel NO_MESSAGE = (Profiler.MessageLevel) create();
-        public static final Profiler.MessageLevel BRIEF_MESSAGE = (Profiler.MessageLevel) create();
+        private static final long                 serialVersionUID = 3257849896026388537L;
+        public static final Profiler.MessageLevel NO_MESSAGE       = (Profiler.MessageLevel) create();
+        public static final Profiler.MessageLevel BRIEF_MESSAGE    = (Profiler.MessageLevel) create();
         public static final Profiler.MessageLevel DETAILED_MESSAGE = (Profiler.MessageLevel) create();
 
         public MessageLevel() {
@@ -137,23 +130,20 @@ public final class Profiler {
     }
 
     public static final class Entry {
-        private final List subEntries;
-        private final Object message;
+        private final List           subEntries;
+        private final Object         message;
         private final Profiler.Entry parentEntry;
         private final Profiler.Entry firstEntry;
-        private final long baseTime;
-        private final long startTime;
-        private long endTime;
+        private final long           baseTime;
+        private final long           startTime;
+        private long                 endTime;
 
-        private Entry(Object message,
-                      Profiler.Entry parentEntry,
-                      Profiler.Entry firstEntry) {
+        private Entry(Object message, Profiler.Entry parentEntry, Profiler.Entry firstEntry) {
             this.subEntries = new ArrayList(4);
             this.message = message;
             this.startTime = System.currentTimeMillis();
             this.parentEntry = parentEntry;
-            this.firstEntry = (Profiler.Entry) ObjectUtil
-                    .defaultIfNull(firstEntry, this);
+            this.firstEntry = (Profiler.Entry) ObjectUtil.defaultIfNull(firstEntry, this);
             this.baseTime = firstEntry == null ? 0L : firstEntry.startTime;
         }
 
@@ -198,8 +188,7 @@ public final class Profiler {
                 return duration;
             } else {
                 for (int i = 0; i < this.subEntries.size(); ++i) {
-                    Profiler.Entry subEntry = (Profiler.Entry) this.subEntries
-                            .get(i);
+                    Profiler.Entry subEntry = (Profiler.Entry) this.subEntries.get(i);
                     duration -= subEntry.getDuration();
                 }
 
@@ -240,16 +229,14 @@ public final class Profiler {
         }
 
         private void enterSubEntry(Object message) {
-            Profiler.Entry subEntry = new Profiler.Entry(
-                    message, this, this.firstEntry);
+            Profiler.Entry subEntry = new Profiler.Entry(message, this, this.firstEntry);
             this.subEntries.add(subEntry);
         }
 
         private Profiler.Entry getUnreleasedEntry() {
             Profiler.Entry subEntry = null;
             if (!this.subEntries.isEmpty()) {
-                subEntry = (Profiler.Entry) this.subEntries
-                        .get(this.subEntries.size() - 1);
+                subEntry = (Profiler.Entry) this.subEntries.get(this.subEntries.size() - 1);
                 if (subEntry.isReleased()) {
                     subEntry = null;
                 }
@@ -276,8 +263,8 @@ public final class Profiler {
             long durationOfSelf = this.getDurationOfSelf();
             double percent = this.getPecentage();
             double percentOfAll = this.getPecentageOfAll();
-            Object[] params = new Object[]{message, new Long(startTime), new Long(duration),
-                    new Long(durationOfSelf), new Double(percent), new Double(percentOfAll)};
+            Object[] params = new Object[] { message, new Long(startTime), new Long(duration),
+                    new Long(durationOfSelf), new Double(percent), new Double(percentOfAll) };
             StringBuffer pattern = new StringBuffer("{1,number} ");
             if (this.isReleased()) {
                 pattern.append("[{2,number}ms");
@@ -305,8 +292,7 @@ public final class Profiler {
             buffer.append(MessageFormat.format(pattern.toString(), params));
 
             for (int i = 0; i < this.subEntries.size(); ++i) {
-                Profiler.Entry subEntry = (Profiler.Entry) this.subEntries
-                        .get(i);
+                Profiler.Entry subEntry = (Profiler.Entry) this.subEntries.get(i);
                 buffer.append('\n');
                 if (i == this.subEntries.size() - 1) {
                     subEntry.toString(buffer, prefix2 + "`---", prefix2 + "    ");

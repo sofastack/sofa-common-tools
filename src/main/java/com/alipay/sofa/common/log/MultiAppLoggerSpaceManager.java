@@ -227,22 +227,20 @@ public class MultiAppLoggerSpaceManager {
     }
 
     /**
-     * 用于并发场景非严格判断space是否init用；
+     * 用于并发场景非严格判断space是否init用；该场景中不和初始化场景锁同步，也就是不保证并发时严格判断正确；
      *
      * @param spaceName
      * @return
-     * @NotThreadSafe 该场景中不和初始化场景锁同步，也就是不保证并发时严格判断正确；
      */
     public static boolean isSpaceInitialized(String spaceName) {
         return isSpaceInitialized(new SpaceId(spaceName));
     }
 
     /**
-     * 用于并发场景非严格判断space是否init用；
+     * 用于并发场景非严格判断space是否init用；该场景中不和初始化场景锁同步，也就是不保证并发时严格判断正确；
      *
      * @param spaceId
      * @return
-     * @NotThreadSafe 该场景中不和初始化场景锁同步，也就是不保证并发时严格判断正确；
      */
     public static boolean isSpaceInitialized(SpaceId spaceId) {
         return spacesMap.get(spaceId) != null;

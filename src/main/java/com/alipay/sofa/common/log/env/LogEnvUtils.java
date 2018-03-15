@@ -24,7 +24,7 @@ import static com.alipay.sofa.common.log.Constants.*;
 
 /**
  * 日志环境工具类:根据不同的环境选择不同的日志实现
- * <p/>
+ * <p>
  * Created by yangguanchao on 16/9/20.
  */
 public final class LogEnvUtils {
