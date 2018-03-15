@@ -17,18 +17,18 @@
 package com.alipay.sofa.common.log.global;
 
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.ReportUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 
 /**
  * Slite2LogPathInit
- * <p/>
+ * <p>
  * Created by yangguanchao on 16/11/3.
  */
 public class Slite2LogPathInit {
 
     /***
      * 在中间件 starter 的 ApplicationContextInitializer 要调用此函数做判断,来达到设置日志路径的目的:
-     * <p/>
+     * <p>
      * 1.是否设置了全局路径参数 logging.path
      * 2.没有设置将设置路径 middlewareLoggingPath
      *

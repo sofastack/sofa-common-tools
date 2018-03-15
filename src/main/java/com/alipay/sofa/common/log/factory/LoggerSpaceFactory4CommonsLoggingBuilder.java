@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * 日志环境工具类:根据不同的环境选择不同的日志实现:日志实现仍然使用log4j,不过兼容了 commons-logging 日志打印的情况
- * <p/>
+ * <p>
  * Created by yangguanchao on 17/01/17.
  */
 public class LoggerSpaceFactory4CommonsLoggingBuilder extends AbstractLoggerSpaceFactoryBuilder {

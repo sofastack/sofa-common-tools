@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.profile.diagnostic;
 
-import com.alipay.sofa.common.profile.ObjectUtil;
-import com.alipay.sofa.common.profile.StringUtil;
+import com.alipay.sofa.common.utils.ObjectUtil;
+import com.alipay.sofa.common.utils.StringUtil;
 import com.alipay.sofa.common.profile.enumeration.IntegerEnum;
 
 import java.text.MessageFormat;
@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: Profiler.java, v 0.1 2017年08月01日 上午11:30 luoguimu123 Exp $
  */
@@ -42,15 +41,11 @@ public final class Profiler {
     }
 
     public static void start(String message) {
-        entryStack.set(new com.alipay.sofa.common.profile.diagnostic.Profiler.Entry(message,
-            (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) null,
-            (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) null));
+        entryStack.set(new Profiler.Entry(message, null, null));
     }
 
-    public static void start(com.alipay.sofa.common.profile.diagnostic.Profiler.Message message) {
-        entryStack.set(new com.alipay.sofa.common.profile.diagnostic.Profiler.Entry(message,
-            (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) null,
-            (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) null));
+    public static void start(Profiler.Message message) {
+        entryStack.set(new Profiler.Entry(message, null, null));
     }
 
     public static void reset() {
@@ -58,15 +53,15 @@ public final class Profiler {
     }
 
     public static void enter(String message) {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry currentEntry = getCurrentEntry();
+        Profiler.Entry currentEntry = getCurrentEntry();
         if (currentEntry != null) {
             currentEntry.enterSubEntry(message);
         }
 
     }
 
-    public static void enter(com.alipay.sofa.common.profile.diagnostic.Profiler.Message message) {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry currentEntry = getCurrentEntry();
+    public static void enter(Profiler.Message message) {
+        Profiler.Entry currentEntry = getCurrentEntry();
         if (currentEntry != null) {
             currentEntry.enterSubEntry(message);
         }
@@ -74,7 +69,7 @@ public final class Profiler {
     }
 
     public static void release() {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry currentEntry = getCurrentEntry();
+        Profiler.Entry currentEntry = getCurrentEntry();
         if (currentEntry != null) {
             currentEntry.release();
         }
@@ -82,8 +77,7 @@ public final class Profiler {
     }
 
     public static long getDuration() {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry entry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) entryStack
-            .get();
+        Profiler.Entry entry = (Profiler.Entry) entryStack.get();
         return entry != null ? entry.getDuration() : -1L;
     }
 
@@ -96,19 +90,17 @@ public final class Profiler {
     }
 
     public static String dump(String prefix1, String prefix2) {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry entry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) entryStack
-            .get();
+        Profiler.Entry entry = (Profiler.Entry) entryStack.get();
         return entry != null ? entry.toString(prefix1, prefix2) : "";
     }
 
-    public static com.alipay.sofa.common.profile.diagnostic.Profiler.Entry getEntry() {
-        return (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) entryStack.get();
+    public static Profiler.Entry getEntry() {
+        return (Profiler.Entry) entryStack.get();
     }
 
-    private static com.alipay.sofa.common.profile.diagnostic.Profiler.Entry getCurrentEntry() {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry subEntry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) entryStack
-            .get();
-        com.alipay.sofa.common.profile.diagnostic.Profiler.Entry entry = null;
+    private static Profiler.Entry getCurrentEntry() {
+        Profiler.Entry subEntry = (Profiler.Entry) entryStack.get();
+        Profiler.Entry entry = null;
         if (subEntry != null) {
             do {
                 entry = subEntry;
@@ -120,7 +112,7 @@ public final class Profiler {
     }
 
     public interface Message {
-        com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel getMessageLevel(com.alipay.sofa.common.profile.diagnostic.Profiler.Entry var1);
+        Profiler.MessageLevel getMessageLevel(Profiler.Entry var1);
 
         String getBriefMessage();
 
@@ -128,33 +120,30 @@ public final class Profiler {
     }
 
     public static final class MessageLevel extends IntegerEnum {
-        private static final long                                                           serialVersionUID = 3257849896026388537L;
-        public static final com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel NO_MESSAGE       = (com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel) create();
-        public static final com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel BRIEF_MESSAGE    = (com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel) create();
-        public static final com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel DETAILED_MESSAGE = (com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel) create();
+        private static final long                 serialVersionUID = 3257849896026388537L;
+        public static final Profiler.MessageLevel NO_MESSAGE       = (Profiler.MessageLevel) create();
+        public static final Profiler.MessageLevel BRIEF_MESSAGE    = (Profiler.MessageLevel) create();
+        public static final Profiler.MessageLevel DETAILED_MESSAGE = (Profiler.MessageLevel) create();
 
         public MessageLevel() {
         }
     }
 
     public static final class Entry {
-        private final List                                                     subEntries;
-        private final Object                                                   message;
-        private final com.alipay.sofa.common.profile.diagnostic.Profiler.Entry parentEntry;
-        private final com.alipay.sofa.common.profile.diagnostic.Profiler.Entry firstEntry;
-        private final long                                                     baseTime;
-        private final long                                                     startTime;
-        private long                                                           endTime;
+        private final List           subEntries;
+        private final Object         message;
+        private final Profiler.Entry parentEntry;
+        private final Profiler.Entry firstEntry;
+        private final long           baseTime;
+        private final long           startTime;
+        private long                 endTime;
 
-        private Entry(Object message,
-                      com.alipay.sofa.common.profile.diagnostic.Profiler.Entry parentEntry,
-                      com.alipay.sofa.common.profile.diagnostic.Profiler.Entry firstEntry) {
+        private Entry(Object message, Profiler.Entry parentEntry, Profiler.Entry firstEntry) {
             this.subEntries = new ArrayList(4);
             this.message = message;
             this.startTime = System.currentTimeMillis();
             this.parentEntry = parentEntry;
-            this.firstEntry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) ObjectUtil
-                .defaultIfNull(firstEntry, this);
+            this.firstEntry = (Profiler.Entry) ObjectUtil.defaultIfNull(firstEntry, this);
             this.baseTime = firstEntry == null ? 0L : firstEntry.startTime;
         }
 
@@ -162,14 +151,14 @@ public final class Profiler {
             String messageString = null;
             if (this.message instanceof String) {
                 messageString = (String) this.message;
-            } else if (this.message instanceof com.alipay.sofa.common.profile.diagnostic.Profiler.Message) {
-                com.alipay.sofa.common.profile.diagnostic.Profiler.Message messageObject = (com.alipay.sofa.common.profile.diagnostic.Profiler.Message) this.message;
-                com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel level = com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel.BRIEF_MESSAGE;
+            } else if (this.message instanceof Profiler.Message) {
+                Profiler.Message messageObject = (Profiler.Message) this.message;
+                Profiler.MessageLevel level = Profiler.MessageLevel.BRIEF_MESSAGE;
                 if (this.isReleased()) {
                     level = messageObject.getMessageLevel(this);
                 }
 
-                if (level == com.alipay.sofa.common.profile.diagnostic.Profiler.MessageLevel.DETAILED_MESSAGE) {
+                if (level == Profiler.MessageLevel.DETAILED_MESSAGE) {
                     messageString = messageObject.getDetailedMessage();
                 } else {
                     messageString = messageObject.getBriefMessage();
@@ -199,8 +188,7 @@ public final class Profiler {
                 return duration;
             } else {
                 for (int i = 0; i < this.subEntries.size(); ++i) {
-                    com.alipay.sofa.common.profile.diagnostic.Profiler.Entry subEntry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) this.subEntries
-                        .get(i);
+                    Profiler.Entry subEntry = (Profiler.Entry) this.subEntries.get(i);
                     duration -= subEntry.getDuration();
                 }
 
@@ -241,16 +229,14 @@ public final class Profiler {
         }
 
         private void enterSubEntry(Object message) {
-            com.alipay.sofa.common.profile.diagnostic.Profiler.Entry subEntry = new com.alipay.sofa.common.profile.diagnostic.Profiler.Entry(
-                message, this, this.firstEntry);
+            Profiler.Entry subEntry = new Profiler.Entry(message, this, this.firstEntry);
             this.subEntries.add(subEntry);
         }
 
-        private com.alipay.sofa.common.profile.diagnostic.Profiler.Entry getUnreleasedEntry() {
-            com.alipay.sofa.common.profile.diagnostic.Profiler.Entry subEntry = null;
+        private Profiler.Entry getUnreleasedEntry() {
+            Profiler.Entry subEntry = null;
             if (!this.subEntries.isEmpty()) {
-                subEntry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) this.subEntries
-                    .get(this.subEntries.size() - 1);
+                subEntry = (Profiler.Entry) this.subEntries.get(this.subEntries.size() - 1);
                 if (subEntry.isReleased()) {
                     subEntry = null;
                 }
@@ -306,8 +292,7 @@ public final class Profiler {
             buffer.append(MessageFormat.format(pattern.toString(), params));
 
             for (int i = 0; i < this.subEntries.size(); ++i) {
-                com.alipay.sofa.common.profile.diagnostic.Profiler.Entry subEntry = (com.alipay.sofa.common.profile.diagnostic.Profiler.Entry) this.subEntries
-                    .get(i);
+                Profiler.Entry subEntry = (Profiler.Entry) this.subEntries.get(i);
                 buffer.append('\n');
                 if (i == this.subEntries.size() - 1) {
                     subEntry.toString(buffer, prefix2 + "`---", prefix2 + "    ");
