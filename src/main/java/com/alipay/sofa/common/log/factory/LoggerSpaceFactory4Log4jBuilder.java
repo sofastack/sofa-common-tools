@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * 日志环境工具类:根据不同的环境选择不同的日志实现
- * <p/>
+ * <p>
  * Created by yangguanchao on 17/01/17.
  */
 public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryBuilder {

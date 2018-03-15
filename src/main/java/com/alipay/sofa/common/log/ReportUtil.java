@@ -20,7 +20,7 @@ package com.alipay.sofa.common.log;
  * ReportUtil
  * <p>
  * 参照:slf4j 输出信息到控制台及默认（业务app中配置的）日志
- * <p/>
+ * <p>
  * Created by yangguanchao on 16/9/24.
  */
 public class ReportUtil {

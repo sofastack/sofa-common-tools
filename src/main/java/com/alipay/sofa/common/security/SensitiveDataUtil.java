@@ -24,18 +24,17 @@ import java.util.regex.Pattern;
  *
  * 示例：
  *
- * <pre>
  * 银行卡号：
  * SensitiveDataUtil.bankCardNohide("612526198319131434") = "612526********1434"
- * <br/>
+ * <br>
  * 身份证号：
  * SensitiveDataUtil.idCardNohide("362397201201012384") = "3****************4"
- * <br/>
+ * <br>
  * 邮箱：
  * SensitiveDataUtil.emailHide("yaaachaa@163.com") = "yaa***@163.com"
  * SensitiveDataUtil.emailHideSMS("yaaachaa@163.com") = "yaa*@163.com"
  * SensitiveDataUtil.emailHideSMS("yaaachaa@netvigator.com") = "yaa*@netviga*"
- * <br/>
+ * <br>
  * 电话号码（手机或固定电话）--网站以及客户端
  * SensitiveDataUtil.phoneOrTelNoHide("15087653459") = "150******59"
  * SensitiveDataUtil.phoneOrTelNoHide("0796-1234567") = "0796-***4567"
@@ -51,17 +50,17 @@ import java.util.regex.Pattern;
  * SensitiveDataUtil.cellphoneHideSMS("3071835358") = 307*358
  * SensitiveDataUtil.cellphoneHideSMS("071835358") = 071*58
  * SensitiveDataUtil.cellphoneHideSMS("835358") = 8*8
- * <br/>
+ * <br>
  * 支付宝登录名：
  * SensitiveDataUtil.alipayLogonIdHide("15087653459") = "150******59"
  * SensitiveDataUtil.alipayLogonIdHide("yaaachaa@163.com") = "yaa***@163.com"
- * <br/>
+ * <br>
  * 非上述固定格式敏感信息的屏蔽方法：
  * SensitiveDataUtil.defualtHide("ttt") = "t*t"
- * <br/>
+ * <br>
  * 自定义屏蔽规则展示：
  * SensitiveDataUtil.customizeHide("13568794561",3,4,4) = "135****4561"
- * <br/>
+ * <br>
  * 对起始标签和结尾标签中间的内容按指定的敏感数据类型进行部分隐藏:
  * SensitiveDataUtil.filterHide(final String sourceStr,final String tagBegin, final String tagEnd,final int sensitiveDataType )
  * sourceStr为：
@@ -73,7 +72,7 @@ import java.util.regex.Pattern;
  *   &lt;GovtID&gt;432926198110191188&lt;/GovtID&gt;
  *   &lt;GovtTermDate&gt;2011-06-07&lt;/GovtTermDate&gt;
  *  &lt;/Party&gt;
- *  <br/>
+ *  <br>
  * <code>tagBegin: &lt;GovtID&gt;</code>
  * <code>tagEnd: &lt;/GovtID&gt;</code>
  * <code>sensitiveInfoType: SensitiveDataUtil.IDCARDNO_DATA</code>
@@ -151,7 +150,7 @@ public class SensitiveDataUtil {
 
     /**
      * 对支付宝登陆帐号进行部分隐藏处理：如果是手机号，显示前3和后2位；如果是email，只显示用户名的前3位+*+@域名；如果都不是， 隐藏中间四位。
-     * <br/>
+     * <br>
      *
      * @param logonId
      *            待部分隐藏处理的支付宝登陆帐号，可能是手机号或email。
@@ -174,7 +173,7 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对支付宝登陆帐号进行部分隐藏处理，适用于短信。<br/>
+     * 对支付宝登陆帐号进行部分隐藏处理，适用于短信。<br>
      *
      * @param logonId
      *            待部分隐藏处理的支付宝登陆帐号，可能是手机号或email。
@@ -222,9 +221,9 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对大陆身份证号进行部分隐藏处理，只显示前1位和后1位，其他用*代替。<br/>
+     * 对大陆身份证号进行部分隐藏处理，只显示前1位和后1位，其他用*代替。<br>
      * 如果doValidate为true且传入的数据不是合法的大陆身份证号，将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3，其他用*代替。
-     * <br/>
+     * <br>
      *
      * @param idCardNo
      *            待部分隐藏处理的身份证号。
@@ -262,9 +261,9 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对银行卡号进行部分隐藏处理， 如果银行卡位数大于等于16位只显示前6位和后4位，其他用*代替。<br/>
-     * 如果银行卡位数小于16位，则使用缺省脱敏方式。<br/>
-     * 如果doValidate为true且传入的数据不是合法的银行号，将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3，其他用*代替。<br/>
+     * 对银行卡号进行部分隐藏处理， 如果银行卡位数大于等于16位只显示前6位和后4位，其他用*代替。<br>
+     * 如果银行卡位数小于16位，则使用缺省脱敏方式。<br>
+     * 如果doValidate为true且传入的数据不是合法的银行号，将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3，其他用*代替。<br>
      *
      * @param bankCardNo
      *            待部分隐藏处理的银行卡号。
@@ -303,8 +302,8 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对电话号码（手机号或座机号码）进行部分隐藏处理，手机号只显示前3位和后4位，固定电话号码只显示区号和后4位，其他用*代替。<br/>
-     * <strong> 不支持带分机的电话号码 ，并限于大陆地区手机号</strong> <br/>
+     * 对电话号码（手机号或座机号码）进行部分隐藏处理，手机号只显示前3位和后4位，固定电话号码只显示区号和后4位，其他用*代替。<br>
+     * <strong> 不支持带分机的电话号码 ，并限于大陆地区手机号</strong> <br>
      * 如果doValidate为true且传入的数据不是合法的电话号码，将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3，其他用*代替。
      *
      * @param phoneOrTelNo
@@ -352,10 +351,12 @@ public class SensitiveDataUtil {
 
     /**
      * 手机号码通用隐藏规则（包括港澳台地区），隐藏中间四位 适用于网站以及客户端
+     * <ul>
      * <li>SensitiveDataUtil.cellphoneHide("13071835358") = 130******58
      * <li>SensitiveDataUtil.cellphoneHide("3071835358") = 30****358
      * <li>SensitiveDataUtil.cellphoneHide("071835358") = 07****58
      * <li>SensitiveDataUtil.cellphoneHide("835358") = 8****8
+     * </ul>
      *
      * @param cellphone
      * @return 隐藏后的手机号码
@@ -379,6 +380,7 @@ public class SensitiveDataUtil {
 
     /**
      * 手机号码通用隐藏规则（包括港澳台地区）， 适用于短信。
+     *
      * SensitiveDataUtil.cellphoneHideSMS("13071835358") = 130*58
      * SensitiveDataUtil.cellphoneHideSMS("3071835358") = 307*358
      * SensitiveDataUtil.cellphoneHideSMS("071835358") = 071*58
@@ -406,7 +408,7 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对Email进行部分隐藏处理，只显示用户名的前3位+***+@域名。如用户名不足3位，将显示用户名全部+***+@域名。</br>
+     * 对Email进行部分隐藏处理，只显示用户名的前3位+***+@域名。如用户名不足3位，将显示用户名全部+***+@域名。<br>
      * 如果doValidate为true且传入的数据不是email（不含‘@’）,将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3。
      *
      * @param email
@@ -447,7 +449,7 @@ public class SensitiveDataUtil {
     }
 
     /**
-     * 对短信中的Email进行部分隐藏处理，只显示用户名的前3位+*+@域名。如用户名不足3位，将显示用户名全部+*+@域名。</br>
+     * 对短信中的Email进行部分隐藏处理，只显示用户名的前3位+*+@域名。如用户名不足3位，将显示用户名全部+*+@域名。<br>
      * 如果doValidate为true且传入的数据不是email（不含‘@’）,将按敏感信息缺省隐藏方式处理，显示前1/3和后1/3。
      *
      * @param email
@@ -489,12 +491,14 @@ public class SensitiveDataUtil {
 
     /**
      * 对短信中的Email进行部分隐藏处理的简便方法，默认不做验证，由使用者自己保障。
+     * <ul>
      * <li>SensitiveDataUtil.emailHideSMS("ddddddd@hide.com") = ddd*@hide.*
      * <li>SensitiveDataUtil.emailHideSMS("ddddddd@netvigator.com") =
      * ddd*@netviga*
      * <li>SensitiveDataUtil.emailHideSMS("d@netvigator.com") = d*@netviga*
      * <li>SensitiveDataUtil.emailHideSMS("ddddddd@outlook.com") =
      * ddd*@outlook.*
+     * </ul>
      *
      * @param email
      *            待处理的Email
@@ -510,8 +514,8 @@ public class SensitiveDataUtil {
      * 中间的内容按指定的敏感数据类型<code>sensitiveInfoType</code>进行部分隐藏。
      * </p>
      * <p>
-     * 示例: 过滤证件号<br/>
-     * <br/>
+     * 示例: 过滤证件号<br>
+     * <br>
      * sourceStr为：
      *
      * <pre>
@@ -547,11 +551,11 @@ public class SensitiveDataUtil {
      * @param tagEnd
      *            结尾标签
      * @param sensitiveDataType
-     *            敏感数据类型，值可为： <code>SensitiveDataUtil.BANKCARDNO_DATA<code>、
-     *            <code>SensitiveDataUtil.IDCARDNO_DATA<code>、
-     *            <code>SensitiveDataUtil.PHONENO_DATA<code>、
-     *            <code>SensitiveDataUtil.EMAIL_DATA<code>或
-     *            <code>SensitiveDataUtil.UNKNOWN_DATA<code>。
+     *            敏感数据类型，值可为： <code>SensitiveDataUtil.BANKCARDNO_DATA</code>、
+     *            <code>SensitiveDataUtil.IDCARDNO_DATA</code>、
+     *            <code>SensitiveDataUtil.PHONENO_DATA</code>、
+     *            <code>SensitiveDataUtil.EMAIL_DATA</code>或
+     *            <code>SensitiveDataUtil.UNKNOWN_DATA</code>。
      * @return 如果hideFlag为true，返回过滤掉敏感数据后的字符串；否则返回原数据。
      */
     public static String filterHide(final String sourceStr, final String tagBegin,
@@ -606,10 +610,12 @@ public class SensitiveDataUtil {
     /**
      * 显示首/尾各1位，中间加**
      *
+     * <ul>
      * <li>SensitiveDataUtil.taobaoNickHide("中华") = 中**华
      * <li>SensitiveDataUtil.taobaoNickHide("中华人") = 中**人
      * <li>SensitiveDataUtil.taobaoNickHide("中华人民") = 中**民
      * <li>SensitiveDataUtil.taobaoNickHide("china") = c**a
+     * </ul>
      *
      * @param sensitiveData
      *            淘宝昵称
