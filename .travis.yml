@@ -4,3 +4,5 @@ sudo: false
 jdk: oraclejdk8
 
 script: mvn clean test
+
+after_success: mvn clean cobertura:cobertura coveralls:report
