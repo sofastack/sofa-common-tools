@@ -8,4 +8,4 @@ sofa-common-tools is a library that provide some utility functions to other SOFA
 
 ### Contribution
 
-TODO
+[Contribution Guide](./CONTRIBUTING.md)
