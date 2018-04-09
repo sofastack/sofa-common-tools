@@ -7,20 +7,23 @@
 
 ## 一、背景
 
-在日常开发中，应用避免不了都会打印日志，我们可能采用的通用日志接口开发框架 SLF4J，而对于具体的日志实现我们最常用的是 Logback、Log4j2 或者 Log4j。假设我们的应用依赖的二方包其要使用的日志实现是 Log4j2，而我们的应用一直使用的日志实现是 Log4j，而当我们的应用要集成这个二方包时会发现由于两边依赖的日志实现不同引入的冲突无法解决，从而导致集成失败。
+在日常开发中，应用避免不了都会打印日志，可能采用的通用日志接口开发框架 SLF4J，而对于具体的日志实现最常用的是 Logback、Log4j2 或者 Log4j。假设应用依赖的二方包其要使用的日志实现是 Log4j2，而应用一直使用的日志实现是 Log4j，而当应用要集成这个二方包时会发现由于两边依赖的日志实现不同引入的冲突无法解决，从而导致集成失败。
 
-为了解决上面描述的问题，我们常用的几种办法是：
+为了解决上面描述的问题，常用的几种办法是：
 
-* 方法 1 ：二方包修改日志实现依赖，将其改为只依赖 Log4j 的实现类；或者改为面向 SLF4J 的编程接口打印日志，然后在我们的集成应用中配置相应的 `appender` 和 `logger`
-* 方法 2 ：应用修改，修改为使用 Log4j2 的日志打印方式
+```
+1.二方包修改日志实现依赖，将其改为只依赖 Log4j 的实现类；或者改为面向 SLF4J 的编程接口打印日志，然后在集成应用中配置相应的 `appender` 和 `logger`
 
-不管方法 1 还是 方法 2，大家都需要修改相应的日志实现以统一到使用相同的日志实现去打印。那么我们有没有一种办法，在同样的一个 class path 下，都是由同一个 ClassLoader 加载的类，保证我们二方包或者引入的中间件的日志实现保证和业务期望使用的日志实现一致而不冲突呢？
+2.应用修改，修改为使用 Log4j2 的日志打印方式
+```
 
-答案是有的，我们开源的此 `sofa-common-tools` 就是在框架层面提供了解决方案，即我们的二方包或者引入的中间件也只面向日志编程接口 SLF4J 去编程不直接使用具体日志实现的 API 或者说不会和某一个日志实现绑定，具体的日志实现的选择权利交给应用开发者去选择。应用选择哪一个日志实现，我们的这个框架就自动发现并选择应用开发者的日志实现进行打印。
+不管是两种方法中的哪一种，都需要修改相应的日志实现以统一到使用相同的日志实现去打印。那么有没有一种办法，在同样的一个 class path 下，都是由同一个 ClassLoader 加载的类，保证二方包或者引入的中间件的日志实现和业务期望使用的**日志实现统一**而不至于引入多个日志实现导致的冲突或者复杂性呢？或者说引入的二方包遵循一定的标准进行配置后，能够适配到 Logback、Log4j2 或者 Log4j 打印日志，应用期望使用哪一个打印就用哪一个打印？
 
-根据 `sofa-common-tools` 的规范对常用日志实现（Logback、Log4j2 和 Log4j）均进行配置，当业务应用引入我们的二方包或者中间件时，我们根据业务应用中已有的日志实现并选择该日志实现能够正确解析的配置文件来初始化完成二方包或者中间件的日志配置。从而完成在不用业务配置额外的 `appender` 和 `logger`或者业务不用修改任何配置的情况下，完成我们日志空间打印的隔离能力。
+答案是有的，开源的此 `sofa-common-tools` 就是在框架层面提供了解决方案，即二方包或者引入的中间件也只面向日志编程接口 SLF4J 去编程不直接使用具体日志实现的 API 或者说不会和某一个日志实现绑定，具体的日志实现的选择权利交给应用开发者去选择。应用选择哪一个日志实现，这个框架就自动发现并选择应用开发者的日志实现进行打印。
+
+根据 `sofa-common-tools` 的规范对常用日志实现（Logback、Log4j2 和 Log4j）均进行配置，当应用引入二方包或者中间件时，根据应用中已有的日志实现并选择该日志实现能够正确解析的配置文件来初始化完成二方包或者中间件的日志配置，即统一应用和被引入的二方包的日志实现避免引入多个实现导致的冲突（或多个日志实现的复杂性）。从而完成在不用业务配置额外的 `appender` 和 `logger`或者业务不用修改任何配置的情况下，完成日志空间打印的隔离能力。
  
-> 前提：我们需要统一日志编程接口到 [SLF4J](https://www.slf4j.org/index.html)
+*前提：需要统一日志编程接口到 [SLF4J](https://www.slf4j.org/index.html)*
 
 ## 二、使用场景和快速开始
 
@@ -32,7 +35,7 @@
 
 假设 RPC 接入，并定义的 `SpaceId` 的关键属性是 `com.alipay.sofa.rpc`。
 
-* 1）首先，需要根据 `SpaceId` 和日志打印隔离框架的关键 API 自定义一个 LoggerFactory，如：
+* 首先，需要根据 `SpaceId` 和日志打印隔离框架的关键 API 自定义一个 LoggerFactory，如：
 
 ```java
 public class RpcLoggerFactory {
@@ -59,9 +62,9 @@ public class RpcLoggerFactory {
 }
 ```
 
-定义的 RpcLoggerFactory 主要定义自己的 `SpaceId` 并通过 `MultiAppLoggerSpaceManager.init` 完成初始化，同时抽象出一个 RpcLoggerFactory 方便代码中直接复用，初始化参数中可以针对当前的 `SpaceId` 设置一些属性参数用于在解析配置文件时完成对相应属性占位符的值替换。当然我们也提供了简化版的 API 即 `LoggerSpaceManager` 大家也可以使用。
+定义的 RpcLoggerFactory 主要定义自己的 `SpaceId` 并通过 `MultiAppLoggerSpaceManager.init` 完成初始化，同时抽象出一个 RpcLoggerFactory 方便代码中直接复用，初始化参数中可以针对当前的 `SpaceId` 设置一些属性参数用于在解析配置文件时完成对相应属性占位符的值替换。当然也提供了简化版的 API 即 `LoggerSpaceManager` 大家也可以使用。
 
-* 2）其次，在指定的 `SpaceId` 资源路径下编写针对不同日志实现 Logback、Log4j2 和 Log4j 的日志配置文件，具体的文件路径为：
+* 其次，在指定的 `SpaceId` 资源路径下编写针对不同日志实现 Logback、Log4j2 和 Log4j 的日志配置文件，具体的文件路径为：
 
 ```
 └── com
@@ -79,7 +82,7 @@ public class RpcLoggerFactory {
 
 需要注意的是在每一个日志实现目录标识下的配置文件都编写对应日志实现能够解析的配置，如 `logback` 目录下的配置 `log-conf.xml` 应该是 Logback 能够解析的配置文件，否则将会报错。 
 
-* 3）最后直接使用并测试验证
+* 最后，直接使用并测试验证
 
 ```java
 public class LoggerSpaceManagerUsage {
@@ -90,7 +93,7 @@ public class LoggerSpaceManagerUsage {
 }
 ```
 
-如果我们的 classpath 中引用的是 Logback 依赖作为我们的日志打印框架，并在 `logback/log-conf.xml` 日志打印文件配置内容如下：
+如果 classpath 中引用的是 Logback 依赖作为日志打印框架，并在 `logback/log-conf.xml` 日志打印文件配置内容如下：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -108,11 +111,10 @@ public class LoggerSpaceManagerUsage {
  <root level="DEBUG">
      <appender-ref ref="stdout" />
  </root>
-
 </configuration>
 ```
 
-最后会在控制台中包含如下的日志打印内容：
+控制台中包含如下的日志打印内容：
 
 ```
 Sofa-Middleware-Log SLF4J : Actual binding is of type [ com.alipay.sofa.rpc Logback ]
@@ -156,9 +158,9 @@ String LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "logback.middleware.log.disable
 
 ### 3.3 提供动态改变日志级别的能力
 
-考虑到主流的日志实现框架 Logback、Log4j2 和 Log4j 定义的日志级别并且没有统一起来，即没有定义一个统一的日志级别管控 API，这样就导致在 slf4j-api 这个接口层面无法提供统一的一个入口作为日志级别标准。但是我们在某种情形下需要去动态改变我们的日志级别，所以在 `sofa-common-toos` 中提供了基于`SpaceId` 和 `LoggerName` 的日志级别改变能力。
+考虑到主流的日志实现框架 Logback、Log4j2 和 Log4j 定义的日志级别并且没有统一起来，即没有定义一个统一的日志级别管控 API，这样就导致在 slf4j-api 这个接口层面无法提供统一的一个入口作为日志级别标准。但是在某种情形下需要去动态改变日志级别，所以在 `sofa-common-toos` 中提供了基于`SpaceId` 和 `LoggerName` 的日志级别改变能力。
 
-我们的日志级别定义为一个枚举类型，通过这个枚举类型并根据具体的日志实现，映射到具体的日志实现的级别上，通过此适配器方式来屏蔽不同日志实现所定义的级别差异：
+`sofa-common-tools`日志级别定义为一个枚举类型，通过这个枚举类型并根据具体的日志实现，映射到具体的日志实现的级别上，通过此适配器方式来屏蔽不同日志实现所定义的级别差异：
 
 具体提供的 API 为：
 
@@ -205,4 +207,8 @@ public enum AdapterLevel {
 ## 五、Contribution
 
 [Contribution Guide](./CONTRIBUTING.md)
+
+
+
+
 
