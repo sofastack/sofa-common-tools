@@ -3,14 +3,209 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 ![maven](https://img.shields.io/badge/maven-v1.0.12-blue.svg)
 
-### sofa-common-tools
+## sofa-common-tools
 
-sofa-common-tools is a library that provide some utility functions to other SOFA libraries.
+## 一、背景
 
-### LICENSE
+在日常开发中，应用避免不了都会打印日志，我们可能采用的通用日志接口开发框架 SLF4J，而对于具体的日志实现我们最常用的是 Logback、Log4j2 或者 Log4j。假设我们的应用依赖的二方包其要使用的日志实现是 Log4j2，而我们的应用一直使用的日志实现是 Log4j，而当我们的应用要集成这个二方包时会发现由于两边依赖的日志实现不同引入的冲突无法解决，从而导致集成失败。
+
+为了解决上面描述的问题，我们常用的几种办法是：
+
+* 方法 1 ：二方包修改日志实现依赖，将其改为只依赖 log4j 的实现类；或者改为面向 slf4j 的编程接口打印日志，然后在我们的集成应用中配置相应的 `appender` 和 `logger`
+* 方法 2 ：应用修改，修改为使用 log4j2 的日志打印方式
+
+不管方法 1 还是 方法 2，大家都需要修改相应的日志实现以统一到使用相同的日志实现去打印。那么我们有没有一种办法，在同样的一个 class path 下，都是由同一个 ClassLoader 加载的类，保证我们二方包或者引入的中间件的日志实现保证和业务期望使用的日志实现一致而不冲突呢？答案是有的，我们开源的此 `sofa-common-tools` 就是在框架层面提供了解决方案，即我们的二方包或者引入的中间件也只面向日志编程接口 SLF4J 去编程而不去依赖具体的日志实现，具体的日志实现的选择权利交给应用开发者去选择，应用选择哪一个日志实现，我们的这个框架就自动发现并选择应用开发者的日志实现进行打印，即具体的日志实现的选择以及能够自由切换日志实现的能力均是通过框架层面提供的基础功能来达到目标。
+
+总之，日志相关的依赖冲突是我们经常遇到的一个问题,Logback、Log4j2 和 Log4j 都属于日志实现的范畴，而实现是应用负责的，二方库应该只是用日志编程接口如 SLF4J，并根据相应的配置去完成日志的打印。使用 `sofa-common-tools` 的二方库或者框架能够拥有与被接入应用日志隔离的日志打印空间，以及日志实现的自动感知能力。
+ 
+> 前提：我们需要统一日志编程接口到 [SLF4J](https://www.slf4j.org/index.html)
+
+## 二、使用场景和快速开始
+
+### 2.1 使用场景和目标
+
+* 期望达到日志打印隔离的目的：使用此日志打印隔离框架的中间件或者二方库的依赖中不包括“日志实现”或者说不直接使用具体日志实现的 API，避免干扰将要接入的应用指定的日志实现，但中间件或者二方库能够自动发现应用环境（或者说 classpath）内引入的日志实现，Logback、Log4j2 或者 Log4j,并按照相应的优先级只使用其中一份配置进行日志输出。
+
+* 接入中间件或者二方库的应用开发者不用自己去配置每个中间件的日志打印样式和目录等。
+
+> 作为二方包中间件或者框架被其他应用依赖使用，而同时又期望不会对被接入应用已有的日志实现选择产生影响，此使用场景非常广泛并被广泛的使用在蚂蚁中间件团队中。
+
+### 2.2 快速开始
+
+* 假设 RPC 接入，并定义的 `SpaceId` 的关键属性是 `com.alipay.sofa.rpc`
+* 首先，需要根据 `SpaceId` 和日志打印隔离框架的关键 API 自定义一个 LoggerFactory，如：
+
+```java
+  /**
+     * RpcLoggerFactory
+     */
+    public static class RpcLoggerFactory {
+
+        private static final String RPC_LOG_SPACE = "com.alipay.sofa.rpc";
+
+        static {
+            //SpaceId init properties
+            Map spaceIdProperties = new HashMap<String, String>();
+            MultiAppLoggerSpaceManager.init(RPC_LOG_SPACE, spaceIdProperties);
+        }
+
+        public static org.slf4j.Logger getLogger(Class<?> clazz) {
+            if (clazz == null) {
+                return null;
+            }
+            return getLogger(clazz.getCanonicalName());
+        }
+
+        public static org.slf4j.Logger getLogger(String name) {
+            //From "com/alipay/sofa/rpc/log" get the xml configuration and init,then get the logger object
+            return MultiAppLoggerSpaceManager.getLoggerBySpace(name, RPC_LOG_SPACE);
+        }
+    }
+```
+
+定义的 RpcLoggerFactory 主要定义自己的 `SpaceId` 并通过 `MultiAppLoggerSpaceManager.init` 完成初始化，同时抽象出一个 RpcLoggerFactory 方便代码中直接复用，初始化参数中可以针对当前的 `SpaceId` 设置一些属性参数用于在解析配置文件时完成对相应属性占位符的值替换。当然我们也提供了简化版的 API 即 `LoggerSpaceManager` 大家也可以使用。
+
+* 其次，在指定的 `SpaceId` 资源路径下编写针对不同日志实现 Logback、Log4j2 和 Log4j 的日志配置文件，具体的文件路径为：
+
+```java
+└── com
+    └── alipay
+        └── sofa
+            └── rpc
+                └── log
+                    ├── log4j
+                    │   └── log-conf.xml
+                    ├── log4j2
+                    │   └── log-conf.xml
+                    └──  logback
+                        └── log-conf.xml
+```
+
+需要注意的是在每一个日志实现目录标识下的配置文件都编写对应日志实现能够解析的配置，如 `logback` 目录下的配置 `log-conf.xml` 应该是 Logback 能够解析的配置文件，否则将会报错。 
+
+* 最后直接使用并测试验证
+
+```
+public class LoggerSpaceManagerUsage {
+    public static void main(String[] args) {
+        Logger rpcLogger = RpcLoggerFactory.getLogger("com.alipay.foo");
+        rpcLogger.debug("hello world");
+    }
+}
+```
+
+* 如果我们的 classpath 中引用的是 Logback 依赖作为我们的日志打印框架，并在 `logback/log-conf.xml` 日志打印文件配置内容如下：
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder charset="UTF-8">
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.foo.Bar" level="${logging.level.com.alipay.sofa.rpc}" additivity="false">
+    <appender-ref ref="stdout"/>
+  </logger>
+
+ <root level="DEBUG">
+     <appender-ref ref="stdout" />
+ </root>
+
+</configuration>
+```
+
+最后会在控制台中包含如下的日志打印内容：
+
+```java
+Sofa-Middleware-Log SLF4J : Actual binding is of type [ com.alipay.sofa.rpc Logback ]
+17:42:41.083 [main] DEBUG com.alipay.foo - hello world
+```
+
+
+## 三、功能特性
+
+### 3.1 日志配置的系统属性
+
+|变量名|在日志 xml 配置文件中使用样式|默认值|系统属性指定|
+|---|---|---|---|
+|logging.path|${logging.path}| ${user.home} |-Dlogging.path=/home/admin/logs|
+|file.encoding|${file.encoding} |UTF-8 |-Dfile.encoding=UTF-8|
+|logging.level.{spaceName} ，以 RPC 为例：logging.level.com.alipay.sofa.rpc|${logging.level.com.alipay.sofa.rpc}| INFO | -Dlogging.level.com.alipay.sofa.rpc=WARN|
+|logging.path.{spaceName} ，以 RPC 为例：logging.path.com.alipay.sofa.rpc |${logging.path.com.alipay.sofa.rpc}|${logging.path.com.alipay.sofa.rpc}|-Dlogging.path.com.alipay.sofa.rpc=/home/admin/logs/appname|
+
+### 3.2 关闭日志实现打印独立功能
+
+* 关闭日志实现独立打印能力:通过系统属性`-Dsofa.middleware.log.disable=true`。也许你暂时不希望二方库或者中间件的日志打印到独立目录下，希望集中打印方便本地开发和跑测试用例时集中显示，那么可以借助上面开关，关闭日志独立打印能力,注意这个是全部关闭即禁用掉中间件的独立日志空间功能。
+
+* 关闭指定日志开关:作用是可以在大家完成编码,进行单元测试的时候,在所有的日志实现都引入 classpath后(当然都是scope为test的引入),可以采用这种方法自动化测试用例，如下面这种方式关闭掉 Logback 和 Log4j2,就可以单独测试在独立的日志空间下 Log4j 的正确使用:
+
+```java
+    //禁用logback
+    System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
+    //禁用log4j
+    System.setProperty(Constants.LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
+```
+对应的几个日志实现独立打印能力的单独系统属性开关分别如下，设置相应的系统属性为 `true` 机会关闭对应的日志实现单独打印能力:
+
+```java
+	  //Class : com.alipay.sofa.common.log.Constants
+    //禁用log4j日志实现
+    String LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "log4j.middleware.log.disable";
+    //禁用log4j2日志实现
+    String LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY ="log4j2.middleware.log.disable";
+    //禁用logback日志实现
+    String LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "logback.middleware.log.disable";
+```
+
+### 3.3 提供动态改变日志级别的能力
+
+考虑到主流的日志实现框架 Log4j、Log4j2 和 Logback 定义了自己的日志级别并且没有统一起来，即没有定义一个统一的日志级别管控 API，这样就导致在 slf4j-api 这个接口层面无法提供统一的一个入口作为日志级别标准。但是我们在某种情形下需要去动态改变我们的日志级别，所以在此基础 jar 中提供了基于`SpaceName` 和 `LoggerName` 的日志级别改变能力。
+
+我们的日志级别定义为一个枚举类型，通过这个枚举类型并根据具体的日志实现，映射到具体的日志实现的级别上，通过此适配器方式来屏蔽不同日志实现所定义的级别差异：
+
+* 具体提供的 API 为：
+
+```java
+com.alipay.sofa.common.log.LoggerSpaceManager#setLoggerLevel
+```
+
+* 而对应的日志枚举级别为：`com.alipay.sofa.common.log.adapter.level.AdapterLevel`，提供如下几种级别的适配：
+
+```java
+    /**
+     * An error in the application, possibly recoverable.
+     */
+    ERROR("error"),
+
+    /**
+     * An event that might possible lead to an error.
+     */
+    WARN("warn"),
+
+    /**
+     * An event for informational purposes.
+     */
+    INFO("info"),
+
+    /**
+     * A general debugging event.
+     */
+    DEBUG("debug"),
+
+    /**
+     * A fine-grained debug message, typically capturing the flow through the application.
+     */
+    TRACE("trace");
+    
+```
+
+## LICENSE
 
 [Apache 2.0](./LICENSE)
 
-### Contribution
+## Contribution
 
 [Contribution Guide](./CONTRIBUTING.md)
+
