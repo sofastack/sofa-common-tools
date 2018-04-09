@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.log;
+package com.alipay.sofa.common.utils;
+
+import com.alipay.sofa.common.log.Constants;
 
 /**
  * ReportUtil

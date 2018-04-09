@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.global;
 
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.ReportUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 
 /**
  * Slite2LogPathInit
