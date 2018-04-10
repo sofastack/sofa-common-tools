@@ -1,11 +1,11 @@
 ## sofa-common-tools
 
-`sofa-common-tools` 是蚂蚁金服开源的日志打印空间隔离的解决方案，使得二方包或者中间件能够拥有与应用隔离的日志空间，并能够自动感知应用的日志实现完成日志打印。
-
 ![](https://travis-ci.org/alipay/sofa-common-tools.svg?branch=master) 
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-common-tools/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-common-tools?branch=master) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 ![maven](https://img.shields.io/badge/maven-v1.0.12-blue.svg)
+
+`sofa-common-tools` 是蚂蚁金服开源的日志打印空间隔离的解决方案，是 SOFAStack 其他中间件依赖的一个通用工具包，使得中间件能够拥有与应用隔离的日志空间，并能够自动感知应用的日志实现完成日志打印。
 
 ## 一、背景
 
