@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa.common</groupId>
     <artifactId>sofa-common-tools</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com:sofastack/sofa-common-tools.git</connection>
-        <developerConnection>scm:git:ssh://github.com:sofastack/sofa-common-tools.git</developerConnection>
-        <url>http://github.com/sofastack/sofa-common-tools/tree/master</url>
+        <connection>scm:git:git://github.com/alipay/sofa-common-tools.git</connection>
+        <developerConnection>scm:git:ssh://github.com/alipay/sofa-common-tools.git</developerConnection>
+        <url>http://github.com/alipay/sofa-common-tools/tree/master</url>
     </scm>
 
     <properties>
@@ -269,7 +269,5 @@
             </distributionManagement>
         </profile>
     </profiles>
-
-
 
 </project>
