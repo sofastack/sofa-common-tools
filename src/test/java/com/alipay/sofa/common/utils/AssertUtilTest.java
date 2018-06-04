@@ -7,7 +7,7 @@ import org.junit.Test;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>六月 4, 2018</pre>
+ * @since 18/06/04
  */
 public class AssertUtilTest {
 

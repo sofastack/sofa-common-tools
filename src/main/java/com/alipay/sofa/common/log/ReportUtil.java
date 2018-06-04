@@ -17,9 +17,9 @@
 package com.alipay.sofa.common.log;
 
 /**
- * ReportUtil 主要是兼容过去很多基础 jar 的用法
+ * ReportUtil Compatible history usage
  * <p>
- * 参照:slf4j 输出信息到控制台及默认（业务app中配置的）日志
+ * Output logs to console and default logger
  * <p>
  * Created by yangguanchao on 18/06/04.
  */
