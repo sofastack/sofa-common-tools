@@ -23,6 +23,6 @@ public class ReportUtilTest {
         } catch (Exception ex) {
             isException = true;
         }
-        assertFalse(!isException);
+        assertFalse(isException);
     }
 } 
