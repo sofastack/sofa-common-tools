@@ -19,7 +19,13 @@ public class AssertUtilTest {
     public void testIsTrueForExpressionMessage() throws Exception {
         boolean isSuccess = false;
         AssertUtil.isTrue(!isSuccess, "isTrue");
-        AssertUtil.isTrue(isSuccess, "isTrue");
+        boolean isException = false;
+        try {
+            AssertUtil.isTrue(isSuccess, "isTrue");
+        } catch (Exception ex) {
+            isException = true;
+        }
+        AssertUtil.isTrue(isException);
     }
 
     /**
