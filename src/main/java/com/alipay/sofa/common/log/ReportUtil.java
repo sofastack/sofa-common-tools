@@ -23,6 +23,7 @@ package com.alipay.sofa.common.log;
  * <p>
  * Created by yangguanchao on 18/06/04.
  */
+@Deprecated
 public class ReportUtil extends com.alipay.sofa.common.utils.ReportUtil{
 
 }
