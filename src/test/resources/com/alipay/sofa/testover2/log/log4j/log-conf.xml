@@ -12,7 +12,6 @@
     </layout>
   </appender>
 
-
   <root>
     <level value="debug"/>
     <appender-ref ref="ROOT-APPENDER"/>

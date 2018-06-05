@@ -26,16 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author xuanbei
- * @since 2017/07/03
+ * @author <a href="mailto:zhanggeng.zg@antfin.com">GengZhang</a>
  */
-public class LoggerSpaceManagerOverrideUsageTest {
+public class LoggerSpaceOverrideUsageTest {
 
     @Test
-    public void testLog4j1() throws IOException {
+    public void testGetResource() throws IOException {
         LoggerSpaceFactory4LogbackBuilder builder = new LoggerSpaceFactory4LogbackBuilder(
             new SpaceInfo());
-        ClassLoader classLoader = LoggerSpaceManagerOverrideUsageTest.class.getClassLoader();
+        ClassLoader classLoader = LoggerSpaceOverrideUsageTest.class.getClassLoader();
 
         Assert.assertNull(builder.getResource(classLoader, null));
 

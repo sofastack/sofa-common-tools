@@ -60,4 +60,7 @@ public interface Constants {
     //默认的中间件日志打印路径
     String LOGGING_PATH_DEFAULT                                  = System.getProperty("user.home")
                                                                    + File.separator + "logs";
+    // 默认优先级为0，越大越高
+    int    DEFAULT_PRIORITY                                      = 0;
+
 }

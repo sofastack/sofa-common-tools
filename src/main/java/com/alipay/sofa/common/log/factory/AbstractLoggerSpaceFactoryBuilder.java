@@ -122,7 +122,7 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         } else {
             List<ConfigFile> configFiles = new ArrayList<ConfigFile>();
             for (URL url : urls) {
-                int priority = 0;
+                int priority = DEFAULT_PRIORITY;
 
                 File propertiesFile = new File(new File(url.getFile()).getParentFile(),
                     LOG_CONFIG_PROPERTIES);
@@ -133,7 +133,10 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                         inputStream = new FileInputStream(propertiesFile);
                         Properties properties = new Properties();
                         properties.load(inputStream);
-                        priority = Integer.parseInt(properties.getProperty("priority", "0"));
+                        String priorityStr = properties.getProperty("priority");
+                        if (priorityStr != null) {
+                            priority = Integer.parseInt(priorityStr);
+                        }
                     } finally {
                         if (inputStream != null) {
                             inputStream.close();
