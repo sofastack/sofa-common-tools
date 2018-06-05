@@ -33,6 +33,7 @@ public interface Constants {
     String LOG_DIRECTORY                                         = "log";
     String LOG_XML_CONFIG_FILE_NAME                              = "log-conf.xml";
     String LOG_XML_CONFIG_FILE_ENV_PATTERN                       = "log-conf-%s.xml";
+    String LOG_CONFIG_PROPERTIES                                 = "config.properties";
 
     String LOG_PATH                                              = "logging.path";
     String LOG_PATH_PREFIX                                       = "logging.path.";
@@ -59,4 +60,7 @@ public interface Constants {
     //默认的中间件日志打印路径
     String LOGGING_PATH_DEFAULT                                  = System.getProperty("user.home")
                                                                    + File.separator + "logs";
+    // 默认优先级为0，越大越高
+    int    DEFAULT_PRIORITY                                      = 0;
+
 }
