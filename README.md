@@ -3,7 +3,7 @@
 ![](https://travis-ci.org/alipay/sofa-common-tools.svg?branch=master) 
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-common-tools/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-common-tools?branch=master) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
-![maven](https://img.shields.io/badge/maven-v1.0.12-blue.svg)
+![maven](https://img.shields.io/badge/Maven-v1.0.13-brightgreen.svg)
 
 `sofa-common-tools` 是 SOFAStack 中间件依赖的一个通用工具包，通过自动感知应用的日志实现，提供中间件与应用隔离的日志空间打印能力。
 
