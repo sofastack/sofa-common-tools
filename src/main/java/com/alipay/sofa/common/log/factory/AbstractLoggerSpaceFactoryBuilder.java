@@ -24,9 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.alipay.sofa.common.log.Constants.*;
+import static com.alipay.sofa.common.log.Constants.DEFAULT_PRIORITY;
+import static com.alipay.sofa.common.log.Constants.LOG_CONFIG_PROPERTIES;
+import static com.alipay.sofa.common.log.Constants.LOG_DIRECTORY;
+import static com.alipay.sofa.common.log.Constants.LOG_LEVEL_PREFIX;
+import static com.alipay.sofa.common.log.Constants.LOG_PATH;
+import static com.alipay.sofa.common.log.Constants.LOG_PATH_PREFIX;
+import static com.alipay.sofa.common.log.Constants.LOG_XML_CONFIG_FILE_ENV_PATTERN;
+import static com.alipay.sofa.common.log.Constants.LOG_XML_CONFIG_FILE_NAME;
 
 /**
  * Created by kevin.luy@alipay.com on 16/9/22.
@@ -74,21 +82,40 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         String logConfigLocation = spaceName.replace('.', '/') + "/" + LOG_DIRECTORY + "/"
                                    + getLoggingToolName() + "/" + LOG_XML_CONFIG_FILE_NAME + suffix;
 
+        String configProperyConfigLocation = spaceName.replace('.', '/') + "/" + LOG_DIRECTORY
+                                             + "/" + getLoggingToolName() + "/"
+                                             + LOG_CONFIG_PROPERTIES + suffix;
+
         URL configFileUrl = null;
 
         try {
-            List<URL> configFileUrls = new ArrayList<URL>();
-            Enumeration<URL> urls = spaceClassloader.getResources(logConfigLocation);
+
+            //拿到 log
+            List<URL> logConfigFileUrls = new ArrayList<URL>();
+            Enumeration<URL> logUrls = spaceClassloader.getResources(logConfigLocation);
             // 可能存在多个文件。
-            if (urls != null) {
-                while (urls.hasMoreElements()) {
+            if (logUrls != null) {
+                while (logUrls.hasMoreElements()) {
                     // 读取一个文件
-                    URL url = urls.nextElement();
-                    configFileUrls.add(url);
+                    URL url = logUrls.nextElement();
+                    logConfigFileUrls.add(url);
                 }
             }
 
-            configFileUrl = getResource(spaceClassloader, configFileUrls);
+            //拿到配置文件
+            List<URL> configPropertyFileUrls = new ArrayList<URL>();
+            Enumeration<URL> configUrls = spaceClassloader
+                .getResources(configProperyConfigLocation);
+            // 可能存在多个文件。
+            if (configUrls != null) {
+                while (configUrls.hasMoreElements()) {
+                    // 读取一个文件
+                    URL url = configUrls.nextElement();
+                    configPropertyFileUrls.add(url);
+                }
+            }
+
+            configFileUrl = getResource(spaceClassloader, logConfigFileUrls, configPropertyFileUrls);
 
             //recommend this pattern "log-conf-console.xml"
             if (configFileUrl == null && suffix != null && !suffix.isEmpty()) {
@@ -114,39 +141,48 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         return configFileUrl;
     }
 
-    protected URL getResource(ClassLoader spaceClassloader, List<URL> urls) throws IOException {
-        if (urls == null || urls.isEmpty()) {
+    protected URL getResource(ClassLoader spaceClassloader, List<URL> logConfigFileUrls,
+                              List<URL> configPropertyFileUrls) throws IOException {
+        if (logConfigFileUrls == null || logConfigFileUrls.isEmpty()) {
             return null;
-        } else if (urls.size() == 1) {
-            return urls.get(0);
+        } else if (logConfigFileUrls.size() == 1) {
+            return logConfigFileUrls.get(0);
         } else {
             List<ConfigFile> configFiles = new ArrayList<ConfigFile>();
-            for (URL url : urls) {
+            for (URL logConfigUrl : logConfigFileUrls) {
                 int priority = DEFAULT_PRIORITY;
 
-                File propertiesFile = new File(new File(url.getFile()).getParentFile(),
-                    LOG_CONFIG_PROPERTIES);
-                if (propertiesFile.exists()) {
-                    // 如果同目录下存在 config.properties
-                    FileInputStream inputStream = null;
-                    try {
-                        inputStream = new FileInputStream(propertiesFile);
-                        Properties properties = new Properties();
-                        properties.load(inputStream);
-                        String priorityStr = properties.getProperty("priority");
-                        if (priorityStr != null) {
-                            priority = Integer.parseInt(priorityStr);
-                        }
-                    } finally {
-                        if (inputStream != null) {
-                            inputStream.close();
+                if (configPropertyFileUrls != null) {
+                    for (URL configPropertyUrl : configPropertyFileUrls) {
+                        final String absoluteConfigPath = new File(configPropertyUrl.getFile())
+                            .getParentFile().getAbsolutePath();
+                        final String absoluteLogPath = new File(logConfigUrl.getFile())
+                            .getParentFile().getAbsolutePath();
+                        if (absoluteConfigPath.equals(absoluteLogPath)) {
+                            InputStream inputStream = null;
+                            try {
+                                URLConnection uConn = configPropertyUrl.openConnection();
+                                uConn.setUseCaches(false);
+                                inputStream = uConn.getInputStream();
+                                Properties properties = new Properties();
+                                properties.load(inputStream);
+                                String priorityStr = properties.getProperty("priority");
+                                if (priorityStr != null) {
+                                    priority = Integer.parseInt(priorityStr);
+                                }
+                            } finally {
+                                if (inputStream != null) {
+                                    inputStream.close();
+                                }
+                            }
+                            break;
                         }
                     }
                 }
 
-                ConfigFile configFile = new ConfigFile(priority, url);
+                ConfigFile configFile = new ConfigFile(priority, logConfigUrl);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Find url {}, priority is {}", url, priority);
+                    logger.debug("Find url {}, priority is {}", logConfigUrl, priority);
                 }
                 configFiles.add(configFile);
             }
