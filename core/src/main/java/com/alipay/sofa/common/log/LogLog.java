@@ -21,6 +21,8 @@ import com.alipay.sofa.common.utils.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL;
+
 /**
  * This class used to output log statements from within the sofa-common-tools package.
  * <p>
@@ -30,13 +32,10 @@ import java.util.Map;
  * @since 1.0.15
  */
 public class LogLog {
-    public static final String              CONSOLE_LEVEL   = "sofa.middleware.log.console.level";
-    private static final String             TRACE_PREFIX    = "Sofa-Middleware-Log:TRACE ";
     private static final String             DEBUG_PREFIX    = "Sofa-Middleware-Log:DEBUG  ";
     private static final String             INFO_PREFIX     = "Sofa-Middleware-Log:INFO ";
     private static final String             ERR_PREFIX      = "Sofa-Middleware-Log:ERROR ";
     private static final String             WARN_PREFIX     = "Sofa-Middleware-Log:WARN ";
-    private static final String             FATAL_PREFIX    = "Sofa-Middleware-Log:FATAL ";
 
     private static final Map<String, Level> LEVELS          = new HashMap<String, Level>();
 
@@ -48,7 +47,7 @@ public class LogLog {
         LEVELS.put("WARN", Level.WARN);
         LEVELS.put("ERROR", Level.ERROR);
 
-        setConsoleLevel(System.getProperty(CONSOLE_LEVEL));
+        setConsoleLevel(System.getProperty(SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL));
     }
 
     public static void setConsoleLevel(String level) {
