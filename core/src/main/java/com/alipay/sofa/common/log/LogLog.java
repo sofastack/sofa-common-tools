@@ -1,0 +1,106 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.alipay.sofa.common.log;
+
+import com.alipay.sofa.common.utils.StringUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * This class used to output log statements from within the sofa-common-tools package.
+ * <p>
+ * And also it is used to output log statements to console appender.
+ *
+ * @author qilong.zql
+ * @since 1.0.15
+ */
+public class LogLog {
+    public static final String              CONSOLE_LEVEL   = "sofa.middleware.log.console.level";
+    private static final String             TRACE_PREFIX    = "Sofa-Middleware-Log:TRACE ";
+    private static final String             DEBUG_PREFIX    = "Sofa-Middleware-Log:DEBUG  ";
+    private static final String             INFO_PREFIX     = "Sofa-Middleware-Log:INFO ";
+    private static final String             ERR_PREFIX      = "Sofa-Middleware-Log:ERROR ";
+    private static final String             WARN_PREFIX     = "Sofa-Middleware-Log:WARN ";
+    private static final String             FATAL_PREFIX    = "Sofa-Middleware-Log:FATAL ";
+
+    private static final Map<String, Level> LEVELS          = new HashMap<String, Level>();
+
+    private transient static Level          consoleLogLevel = Level.WARN;
+
+    static {
+        LEVELS.put("DEBUG", Level.DEBUG);
+        LEVELS.put("INFO", Level.INFO);
+        LEVELS.put("WARN", Level.WARN);
+        LEVELS.put("ERROR", Level.ERROR);
+
+        setConsoleLevel(System.getProperty(CONSOLE_LEVEL));
+    }
+
+    public static void setConsoleLevel(String level) {
+        if (!StringUtil.isBlank(level) && LEVELS.get(level) != null) {
+            consoleLogLevel = LEVELS.get(level);
+        }
+    }
+
+    public static void debug(String msg) {
+        if (isDebug()) {
+            System.out.println(DEBUG_PREFIX + msg);
+        }
+    }
+
+    public static void info(String msg) {
+        if (isInfo()) {
+            System.out.println(INFO_PREFIX + msg);
+        }
+    }
+
+    public static void warn(String msg) {
+        if (isWarn()) {
+            System.err.println(WARN_PREFIX + msg);
+        }
+    }
+
+    public static void error(String msg, Throwable throwable) {
+        if (isError()) {
+            System.err.println(ERR_PREFIX + msg);
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        }
+    }
+
+    private static boolean isDebug() {
+        return consoleLogLevel.equals(Level.DEBUG);
+    }
+
+    private static boolean isInfo() {
+        return isDebug() || consoleLogLevel.equals(Level.INFO);
+    }
+
+    private static boolean isWarn() {
+        return isInfo() || consoleLogLevel.equals(Level.WARN);
+    }
+
+    private static boolean isError() {
+        return isWarn() || consoleLogLevel.equals(Level.ERROR);
+    }
+
+    enum Level {
+        DEBUG, INFO, WARN, ERROR
+    }
+}

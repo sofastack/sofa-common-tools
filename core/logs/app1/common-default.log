@@ -1,0 +1,6 @@
+2018-12-07 16:38:51,853 INFO  main                             - app1 test logback
+2018-12-07 16:38:54,880 INFO  main                             - app1 test log4j1
+2018-12-07 16:38:57,884 INFO  main                             - app1 test log4j2
+2018-12-07 19:59:24,154 INFO  main                             - app1 test logback
+2018-12-07 19:59:27,181 INFO  main                             - app1 test log4j1
+2018-12-07 19:59:30,182 INFO  main                             - app1 test log4j2
