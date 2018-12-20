@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.boot.initializer;
+package com.alipay.sofa.common.boot.logging.initializer;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -28,7 +28,8 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.OptionHelper;
-import com.alipay.sofa.common.boot.filter.DefaultLogbackFilterGenerator;
+import com.alipay.sofa.common.boot.logging.filter.DefaultLogbackFilterGenerator;
+import com.alipay.sofa.common.boot.logging.util.SystemPropertiesGetter;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.spi.LogbackReInitializer;
 import com.alipay.sofa.common.utils.StringUtil;
@@ -66,6 +67,7 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
                 public FilterReply decide(Marker marker, Logger logger, Level level, String format,
                                           Object[] params, Throwable t) {
                     if (!logger.isAttached(appender)) {
+                        logger.detachAndStopAllAppenders();
                         logger.setLevel(getConsoleLevel(spaceId.getSpaceName(), properties));
                         logger.addAppender(appender);
                     }
@@ -83,21 +85,21 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
     }
 
     private Level getConsoleLevel(String spaceId, Properties properties) {
-        PropertiesGetter propertiesGetter = new PropertiesGetter(properties);
+        SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
         String level = propertiesGetter.getProperty(SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL);
-        if (StringUtil.isBlank(level)) {
-            level = propertiesGetter.getProperty(
-                String.format(SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, spaceId), "INFO");
-        }
+        String defaultLevel = StringUtil.isBlank(level) ? "INFO" : level;
+        level = propertiesGetter.getProperty(
+            String.format(SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, spaceId), defaultLevel);
         return Level.toLevel(level, Level.INFO);
     }
 
     private ConsoleAppender consoleAppender(LoggerContext loggerContext, Properties properties) {
-        PropertiesGetter propertiesGetter = new PropertiesGetter(properties);
+        SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
         ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        String logPattern = propertiesGetter.getProperty(SOFA_MIDDLEWARE_LOG_CONSOLE_PATTERN,
-            SOFA_MIDDLEWARE_LOG_CONSOLE_PATTERN_DEFAULT);
+        String logPattern = propertiesGetter.getProperty(
+            SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
+            SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
         encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
         encoder.setContext(loggerContext);
         encoder.start();
@@ -108,7 +110,7 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
     }
 
     private boolean isConsoleAppenderOpen(String spaceId, Properties properties) {
-        PropertiesGetter propertiesGetter = new PropertiesGetter(properties);
+        SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
         return "true".equalsIgnoreCase(propertiesGetter
             .getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH))
                || "true".equalsIgnoreCase(propertiesGetter.getProperty(String.format(
@@ -148,26 +150,6 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
             String originValue = (String) entry.getValue();
             String value = System.getProperty(key, originValue);
             loggerContext.putProperty(key, value);
-        }
-    }
-
-    class PropertiesGetter {
-        Properties properties;
-
-        PropertiesGetter(Properties properties) {
-            this.properties = properties;
-        }
-
-        String getProperty(String key) {
-            if (StringUtil.isBlank(System.getProperty(key))) {
-                return (String) properties.get(key);
-            }
-            return System.getProperty(key);
-        }
-
-        String getProperty(String key, String defaultValue) {
-            String value = getProperty(key);
-            return StringUtil.isBlank(value) ? defaultValue : value;
         }
     }
 }

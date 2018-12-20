@@ -21,6 +21,8 @@ import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.Map;
+
 /**
  * updated by yangguanchao on 17/04/28.
  */

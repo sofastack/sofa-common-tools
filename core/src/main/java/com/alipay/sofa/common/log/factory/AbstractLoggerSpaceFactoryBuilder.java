@@ -16,11 +16,11 @@
  */
 package com.alipay.sofa.common.log.factory;
 
-import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.utils.AssertUtil;
+import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,23 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
-import static com.alipay.sofa.common.log.Constants.DEFAULT_PRIORITY;
-import static com.alipay.sofa.common.log.Constants.LOG_CONFIG_PROPERTIES;
-import static com.alipay.sofa.common.log.Constants.LOG_DIRECTORY;
-import static com.alipay.sofa.common.log.Constants.LOG_LEVEL_PREFIX;
-import static com.alipay.sofa.common.log.Constants.LOG_PATH;
-import static com.alipay.sofa.common.log.Constants.LOG_PATH_PREFIX;
-import static com.alipay.sofa.common.log.Constants.LOG_XML_CONFIG_FILE_ENV_PATTERN;
-import static com.alipay.sofa.common.log.Constants.LOG_XML_CONFIG_FILE_NAME;
+import static com.alipay.sofa.common.log.Constants.*;
 
 /**
  * Created by kevin.luy@alipay.com on 16/9/22.
@@ -69,11 +55,11 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         AssertUtil.hasText(spaceName);
         AssertUtil.notNull(spaceClassloader);
 
-        //load config file
+        // load config file
         URL configFileUrl = getSpaceLogConfigFileURL(spaceClassloader, spaceName);
 
-        // set default logging.level
-        specifySpaceLogConfigProperites(spaceName);
+        // set default logging.level and logging.path
+        specifySpaceLogConfigProperties(spaceName);
 
         return doBuild(spaceName, spaceClassloader, configFileUrl);
 
@@ -140,6 +126,13 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
             }
         }
 
+        // 是否配置 logging.config.spaceName，注意如果在 Spring Boot 环境使用且是 log4j2 文件
+        // 配置文件路径后缀必须是 log4j2/log-conf-custom.xml
+        String loggingConfig = System.getProperty(String.format(LOGGING_CONFIG_PATH, spaceName));
+        if (!StringUtil.isBlank(loggingConfig)) {
+            configFileUrl = spaceClassloader.getResource(loggingConfig);
+        }
+
         AssertUtil.state(configFileUrl != null, this + " build error: No " + getLoggingToolName()
                                                 + " config file (" + configFileUrl + ") found!");
         return configFileUrl;
@@ -201,43 +194,33 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         }
     }
 
-    private class ConfigFile {
-        final int priority;
-        final URL url;
-
-        ConfigFile(int priority, URL url) {
-            this.priority = priority;
-            this.url = url;
-        }
-    }
-
-    private void specifySpaceLogConfigProperites(String spaceName) {
-        //如果system.properties 与 properites 都含有某分配置，那么以 system.properties 为准，同时WARN警告，properties中重复定义会被抛弃；
-        Iterator<Map.Entry<Object, Object>> iterator = spaceInfo.properties().entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Object, Object> entry = iterator.next();
-            if (System.getProperties().containsKey(entry.getKey())) {
-                entry.setValue(System.getProperty((String) entry.getKey()));
-            }
-        }
-
+    private void specifySpaceLogConfigProperties(String spaceName) {
         /*
          * == 1.space's logger path
          */
         String loggingPathKey = LOG_PATH_PREFIX + spaceName;
-        if (System.getProperty(loggingPathKey) == null && System.getProperty(LOG_PATH) != null
-            && spaceInfo.properties().getProperty(loggingPathKey) == null) {
-            spaceInfo.properties().setProperty(loggingPathKey, System.getProperty(LOG_PATH));
+        String defaultLoggingPath = spaceInfo.getProperty(LOG_PATH);
+        if (spaceInfo.getProperty(loggingPathKey) == null) {
+            spaceInfo.setProperty(IS_DEFAULT_LOG_PATH, Boolean.TRUE.toString());
+            spaceInfo.setProperty(loggingPathKey, defaultLoggingPath);
         }
 
         /*
          * == 2.space's logger level
          */
         String loggingLevelKey = LOG_LEVEL_PREFIX + spaceName;
-        if (System.getProperty(loggingLevelKey) == null
-            && spaceInfo.properties().getProperty(loggingLevelKey) == null) {
-            spaceInfo.properties().setProperty(loggingLevelKey,
-                Constants.DEFAULT_MIDDLEWARE_SPACE_LOG_LEVEL);
+        if (spaceInfo.getProperty(loggingLevelKey) == null) {
+            spaceInfo.setProperty(IS_DEFAULT_LOG_LEVEL, Boolean.TRUE.toString());
+            spaceInfo.setProperty(loggingLevelKey, DEFAULT_MIDDLEWARE_SPACE_LOG_LEVEL);
+            for (int i = LOG_LEVEL.length(); i < loggingLevelKey.length(); ++i) {
+                if (loggingLevelKey.charAt(i) == '.') {
+                    String level = spaceInfo.getProperty(loggingLevelKey.substring(0, i + 1)
+                                                         + LOG_START);
+                    if (!StringUtil.isBlank(level)) {
+                        spaceInfo.setProperty(loggingLevelKey, level);
+                    }
+                }
+            }
         }
 
     }
@@ -254,5 +237,15 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
 
     protected Properties getProperties() {
         return spaceInfo.properties();
+    }
+
+    private class ConfigFile {
+        final int priority;
+        final URL url;
+
+        ConfigFile(int priority, URL url) {
+            this.priority = priority;
+            this.url = url;
+        }
     }
 }

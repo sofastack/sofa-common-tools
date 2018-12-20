@@ -21,7 +21,7 @@ import com.alipay.sofa.common.utils.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL;
 
 /**
  * This class used to output log statements from within the sofa-common-tools package.
@@ -47,7 +47,7 @@ public class LogLog {
         LEVELS.put("WARN", Level.WARN);
         LEVELS.put("ERROR", Level.ERROR);
 
-        setConsoleLevel(System.getProperty(SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL));
+        setConsoleLevel(System.getProperty(SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL));
     }
 
     public static void setConsoleLevel(String level) {

@@ -18,6 +18,7 @@ package com.alipay.sofa.common.log;
 
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4CommonsLoggingBuilder;
 import org.junit.After;
@@ -36,7 +37,9 @@ public class LoggerSpaceFactory4CommonsLoggingBuilderTest extends AbstraceLogTes
     LoggerSpaceFactory4CommonsLoggingBuilder loggerSpaceFactory4CommonsLoggingBuilder = new LoggerSpaceFactory4CommonsLoggingBuilder(
                                                                                           new SpaceId(
                                                                                               "test"),
-                                                                                          new SpaceInfo());
+                                                                                          new SpaceInfo()
+                                                                                              .putAll(LogEnvUtils
+                                                                                                  .processGlobalSystemLogProperties()));
 
     @Before
     public void init() throws Exception {
@@ -76,9 +79,9 @@ public class LoggerSpaceFactory4CommonsLoggingBuilderTest extends AbstraceLogTes
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
 
-        SpaceInfo spaceInfo = new SpaceInfo();
-        spaceInfo.properties().setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc",
-            "debug");
+        SpaceInfo spaceInfo = new SpaceInfo().setProperty(
+            Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug").putAll(
+            LogEnvUtils.processGlobalSystemLogProperties());
         LoggerSpaceFactory4CommonsLoggingBuilder loggerSpaceFactory4CommonsLoggingBuilder = new LoggerSpaceFactory4CommonsLoggingBuilder(
             new SpaceId("test"), spaceInfo);
 

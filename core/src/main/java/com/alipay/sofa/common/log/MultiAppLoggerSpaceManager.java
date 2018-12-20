@@ -90,7 +90,7 @@ public class MultiAppLoggerSpaceManager {
         //以首次的为准；
         spacesMap.putIfAbsent(spaceId, spaceInfo);
         if (props != null) {
-            spaceInfo.addProperties(props);
+            spaceInfo.putAll(props);
         }
     }
 
@@ -108,8 +108,8 @@ public class MultiAppLoggerSpaceManager {
     /**
      * 从 spaceName 的空间里寻找logger对象（而且这些 logger 是从该 spaceName 下的日志实现配置中解析而来)
      *
-     * @param name      loggerName
-     * @param spaceId   独立的loggers空间
+     * @param name    loggerName
+     * @param spaceId 独立的loggers空间
      * @return org.slf4j.Logger;
      */
     public static Logger getLoggerBySpace(String name, SpaceId spaceId) {
@@ -121,7 +121,7 @@ public class MultiAppLoggerSpaceManager {
      * @param loggerName 要更新的日志名字
      * @param spaceName 日志对应的空间名称
      * @param adapterLevel 要更新的日志级别
-     * @return 更新级别后的日志,与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
+     * @return 更新级别后的日志, 与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
      */
     public static Logger setLoggerLevel(String loggerName, String spaceName,
                                         AdapterLevel adapterLevel) {
@@ -133,7 +133,7 @@ public class MultiAppLoggerSpaceManager {
      * @param loggerName 要更新的日志名字
      * @param spaceId 日志对应的空间名称
      * @param adapterLevel 要更新的日志级别
-     * @return 更新级别后的日志,与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
+     * @return 更新级别后的日志, 与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
      */
     public static Logger setLoggerLevel(String loggerName, SpaceId spaceId,
                                         AdapterLevel adapterLevel) {
@@ -277,17 +277,15 @@ public class MultiAppLoggerSpaceManager {
             return NOP_LOGGER_FACTORY;
         }
 
-        // set log props
-        Map<String, String> globalProperties = LogEnvUtils.processGlobalSystemLogProperties();
-        spacesMap.get(spaceId).addProperties(globalProperties);
+        // set global system properties
+        spacesMap.get(spaceId).putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         // do create
         try {
             if (LogEnvUtils.isLogbackUsable(spaceClassloader)) {
                 String isLogbackDisable = System
                     .getProperty(LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
-                if (isLogbackDisable != null
-                    && Boolean.TRUE.toString().equalsIgnoreCase(isLogbackDisable)) {
+                if (Boolean.TRUE.toString().equalsIgnoreCase(isLogbackDisable)) {
                     ReportUtil.reportWarn("Logback-Sofa-Middleware-Log is disabled!  -D"
                                           + LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
                 } else {
@@ -303,8 +301,7 @@ public class MultiAppLoggerSpaceManager {
 
             if (LogEnvUtils.isLog4j2Usable(spaceClassloader)) {
                 String isLog4j2Disable = System.getProperty(LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
-                if (isLog4j2Disable != null
-                    && Boolean.TRUE.toString().equalsIgnoreCase(isLog4j2Disable)) {
+                if (Boolean.TRUE.toString().equalsIgnoreCase(isLog4j2Disable)) {
                     ReportUtil.reportWarn("Log4j2-Sofa-Middleware-Log is disabled!  -D"
                                           + LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
                 } else {
@@ -320,8 +317,7 @@ public class MultiAppLoggerSpaceManager {
 
             if (LogEnvUtils.isLog4jUsable(spaceClassloader)) {
                 String isLog4jDisable = System.getProperty(LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
-                if (isLog4jDisable != null
-                    && Boolean.TRUE.toString().equalsIgnoreCase(isLog4jDisable)) {
+                if (Boolean.TRUE.toString().equalsIgnoreCase(isLog4jDisable)) {
                     ReportUtil.reportWarn("Log4j-Sofa-Middleware-Log is disabled!  -D"
                                           + LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
                 } else {
@@ -339,8 +335,7 @@ public class MultiAppLoggerSpaceManager {
                 //此种情形:commons-logging 桥接到 log4j 实现,默认日志实现仍然是 log4j
                 String isLog4jDisable = System
                     .getProperty(LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
-                if (isLog4jDisable != null
-                    && Boolean.TRUE.toString().equalsIgnoreCase(isLog4jDisable)) {
+                if (Boolean.TRUE.toString().equalsIgnoreCase(isLog4jDisable)) {
                     ReportUtil
                         .reportWarn("Log4j-Sofa-Middleware-Log(But adapter commons-logging to slf4j) is disabled!  -D"
                                     + LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE_PROP_KEY

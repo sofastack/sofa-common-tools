@@ -14,18 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.boot;
+package com.alipay.sofa.common.boot.logging;
 
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
+import com.alipay.sofa.common.log.factory.Log4j2LoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.*;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.PropertySource;
 
 import java.util.*;
 
@@ -37,7 +43,8 @@ import static com.alipay.sofa.common.log.Constants.*;
  */
 public class CommonLoggingApplicationListener
                                              implements
-                                             ApplicationListener<ApplicationEnvironmentPreparedEvent> {
+                                             ApplicationListener<ApplicationEnvironmentPreparedEvent>,
+                                             Ordered {
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
@@ -55,6 +62,9 @@ public class CommonLoggingApplicationListener
             if (abstractLoggerSpaceFactory instanceof LogbackLoggerSpaceFactory) {
                 ((LogbackLoggerSpaceFactory) abstractLoggerSpaceFactory).reInitialize(context);
             }
+            if (abstractLoggerSpaceFactory instanceof Log4j2LoggerSpaceFactory) {
+                ((Log4j2LoggerSpaceFactory) abstractLoggerSpaceFactory).reInitialize(context);
+            }
         }
     }
 
@@ -66,8 +76,10 @@ public class CommonLoggingApplicationListener
      */
     private Map<String, String> loadApplicationEnvironment(ConfigurableEnvironment environment) {
         Map<String, String> context = new HashMap<String, String>();
-        readLogConfiguration(LOG_PATH, environment.getProperty(LOG_PATH), context);
-        readLogConfiguration(OLD_LOG_PATH, environment.getProperty(OLD_LOG_PATH), context);
+        readLogConfiguration(LOG_PATH, environment.getProperty(LOG_PATH), context,
+            Constants.LOGGING_PATH_DEFAULT);
+        readLogConfiguration(OLD_LOG_PATH, environment.getProperty(OLD_LOG_PATH), context,
+            context.get(LOG_PATH));
 
         readLogConfiguration(LOG_ENCODING_PROP_KEY, environment.getProperty(LOG_ENCODING_PROP_KEY),
             context);
@@ -83,7 +95,8 @@ public class CommonLoggingApplicationListener
             }
         }
         for (String key : configKeys) {
-            if (key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)) {
+            if (key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
+                || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)) {
                 readLogConfiguration(key, environment.getProperty(key), context);
             }
         }
@@ -96,4 +109,17 @@ public class CommonLoggingApplicationListener
         }
     }
 
+    private void readLogConfiguration(String key, String value, Map<String, String> context,
+                                      String defaultValue) {
+        if (!StringUtil.isBlank(value)) {
+            context.put(key, value);
+        } else {
+            context.put(key, defaultValue);
+        }
+    }
+
+    @Override
+    public int getOrder() {
+        return PriorityOrdered.HIGHEST_PRECEDENCE + 20;
+    }
 }

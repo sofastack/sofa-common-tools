@@ -30,13 +30,7 @@ import java.util.WeakHashMap;
  * @version $Id: ClassUtil.java, v 0.1 2017年08月01日 下午12:01 luoguimu123 Exp $
  */
 public class ClassUtil {
-    public static final char   RESOURCE_SEPARATOR_CHAR    = '/';
-    public static final char   PACKAGE_SEPARATOR_CHAR     = '.';
-    public static final String PACKAGE_SEPARATOR          = String.valueOf('.');
-    public static final char   INNER_CLASS_SEPARATOR_CHAR = '$';
-    public static final String INNER_CLASS_SEPARATOR      = String.valueOf('$');
-    private static Map         TYPE_MAP                   = Collections
-                                                              .synchronizedMap(new WeakHashMap());
+    private static Map TYPE_MAP = Collections.synchronizedMap(new WeakHashMap());
 
     public ClassUtil() {
     }

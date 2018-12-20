@@ -18,6 +18,7 @@ package com.alipay.sofa.common.log;
 
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4j2Builder;
 import org.junit.After;
@@ -36,7 +37,8 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
 
     LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
                                                                           new SpaceId("test"),
-                                                                          new SpaceInfo());
+                                                                          new SpaceInfo().putAll(LogEnvUtils
+                                                                              .processGlobalSystemLogProperties()));
 
     @Before
     @Override
@@ -75,13 +77,11 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
     @Test
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
-        // System.setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug");
 
-        SpaceInfo spaceInfo = new SpaceInfo();
-
-        spaceInfo.properties().setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc",
-            "debug");
-        spaceInfo.properties().setProperty(LOG_ENCODING_PROP_KEY, "gbk");
+        SpaceInfo spaceInfo = new SpaceInfo()
+            .setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
+            .setProperty(LOG_ENCODING_PROP_KEY, "gbk")
+            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
             new SpaceId("test"), spaceInfo);

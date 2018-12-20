@@ -199,11 +199,24 @@ public enum AdapterLevel {
 }
 ```
 
-## 四、LICENSE
+## 四、配置说明
+### sofa.middleware.log.disable
+默认配置为 false, 
+
+**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dsofa.middleware.log.disable=true**
+### logback.middleware.log.disable
+
+### log4j2.middleware.log.disable
+
+### log4j.middleware.log.disable
+
+### 自定义日志配置文件
+
+## 五、LICENSE
 
 [Apache 2.0](./LICENSE)
 
-## 五、Contribution
+## 六、Contribution
 
 [Contribution Guide](./CONTRIBUTING.md)
 

@@ -22,6 +22,7 @@ import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.util.Strings;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ import static com.alipay.sofa.common.log.Constants.*;
  * Created by yangguanchao on 16/9/20.
  */
 public final class LogEnvUtils {
+
+    private static volatile Map<String, String> globalSystemProperties;
 
     private LogEnvUtils() {
     }
@@ -94,6 +97,9 @@ public final class LogEnvUtils {
      * PID
      */
     public static Map<String, String> processGlobalSystemLogProperties() {
+        if (globalSystemProperties != null) {
+            return globalSystemProperties;
+        }
 
         Map<String, String> properties = new HashMap<String, String>();
 
@@ -103,40 +109,34 @@ public final class LogEnvUtils {
         properties.put(PROCESS_MARKER, ProcessIdUtil.getProcessId());
 
         /**
-         *  == global.以系统变量file.encoding为准,获取不到再默认设置为UTF-8
+         *  以系统变量file.encoding为准,获取不到再默认设置为UTF-8
          */
-
-        if (System.getProperty(LOG_ENCODING_PROP_KEY) == null) {
-            properties.put(LOG_ENCODING_PROP_KEY, UTF8_STR);
-        } else {
-            properties.put(LOG_ENCODING_PROP_KEY, System.getProperty(LOG_ENCODING_PROP_KEY));
-        }
+        properties.put(LOG_ENCODING_PROP_KEY, System.getProperty(LOG_ENCODING_PROP_KEY, UTF8_STR));
 
         /**
-         *  == global.logging.path
+         *  以系统变量 logging.path 和 loggingRoot 为准，优先 logging.path 配置项
          */
-
         String loggingPath = System.getProperty(LOG_PATH);
         String loggingRoot = System.getProperty(OLD_LOG_PATH);
-        //以loggingPath为准（可覆盖loggingRoot）
-        if (!StringUtil.isBlank(loggingPath) && !loggingPath.equalsIgnoreCase(loggingRoot)) {
-            properties.put(OLD_LOG_PATH, loggingPath);
-            return properties;
+        if (!StringUtil.isBlank(loggingPath)) {
+            //以loggingPath为准（可覆盖loggingRoot）
+            loggingRoot = loggingPath;
+        } else if (!StringUtil.isBlank(loggingRoot)) {
+            // only loggingRoot is configured
+            loggingPath = loggingRoot;
+        } else {
+            //还是提供一个默认值$HOME/logs,否则中间件单元测试报错,需要手动设置路径
+            loggingPath = LOGGING_PATH_DEFAULT;
+            loggingRoot = LOGGING_PATH_DEFAULT;
         }
-        // only loggingRoot is configured
-        if (!StringUtil.isBlank(loggingRoot) && StringUtil.isBlank(loggingPath)) {
-            properties.put(LOG_PATH, loggingRoot);
-        }
+        properties.put(LOG_PATH, loggingPath);
+        properties.put(OLD_LOG_PATH, loggingRoot);
 
-        //还是提供一个默认值$HOME/logs,否则中间件单元测试报错,需要手动设置路径
-        if (StringUtil.isBlank(loggingRoot) && StringUtil.isBlank(loggingPath)) {
-            properties.put(LOG_PATH, LOGGING_PATH_DEFAULT);
-            properties.put(OLD_LOG_PATH, LOGGING_PATH_DEFAULT);
-        }
-
-        //设置 logging.level.* 配置
+        //设置 logging.level.* 和 logging.path.* 配置
         for (String key : System.getenv().keySet()) {
-            if (key.toLowerCase().startsWith(LOG_LEVEL_PREFIX)) {
+            String lowerCaseKey = key.toLowerCase();
+            if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
+                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)) {
                 properties.put(key.toLowerCase(), System.getenv().get(key));
             }
         }
@@ -144,12 +144,15 @@ public final class LogEnvUtils {
             if (!(key instanceof String)) {
                 continue;
             }
-            String strKey = ((String) key).toLowerCase();
-            if (strKey.startsWith(LOG_CONFIG_PROPERTIES)) {
-                properties.put(strKey, System.getProperty(strKey));
+            String lowerCaseKey = ((String) key).toLowerCase();
+            if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
+                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)) {
+                properties.put(lowerCaseKey, System.getProperty((String) key));
             }
         }
-        return properties;
+
+        globalSystemProperties = Collections.unmodifiableMap(properties);
+        return globalSystemProperties;
     }
 
     public static String getLogConfEnvSuffix(String spaceName) {

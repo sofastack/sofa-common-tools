@@ -41,8 +41,18 @@ public class SpaceInfo {
         return properties;
     }
 
-    public void addProperties(Map properties) {
+    public SpaceInfo putAll(Map properties) {
         this.properties.putAll(properties);
+        return this;
+    }
+
+    public SpaceInfo setProperty(String key, String value) {
+        properties.setProperty(key, value);
+        return this;
+    }
+
+    public String getProperty(String key) {
+        return properties.getProperty(key);
     }
 
 }

@@ -30,6 +30,7 @@ public interface Constants {
     //app中配置,如果没有配置最终会使用（ROOT Log);
     Logger DEFAULT_LOG                                           = LoggerFactory
                                                                      .getLogger("com.alipay.sofa.common.log");
+    String LOG_START                                             = "*";
     String LOG_DIRECTORY                                         = "log";
     String LOG_XML_CONFIG_FILE_NAME                              = "log-conf.xml";
     String LOG_XML_CONFIG_FILE_ENV_PATTERN                       = "log-conf-%s.xml";
@@ -39,8 +40,12 @@ public interface Constants {
     String LOG_PATH_PREFIX                                       = "logging.path.";
 
     String OLD_LOG_PATH                                          = "loggingRoot";
+    String LOG_LEVEL                                             = "logging.level";
     String LOG_LEVEL_PREFIX                                      = "logging.level.";
+    String LOG_CONFIG_PREFIX                                     = "logging.config.";
     String DEFAULT_MIDDLEWARE_SPACE_LOG_LEVEL                    = "INFO";
+    String IS_DEFAULT_LOG_PATH                                   = "isDefaultLogPath";
+    String IS_DEFAULT_LOG_LEVEL                                  = "isDefaultLogLevel";
     // 指定特定spaceName的环境配置，值格式: {spaceName:dev, spaceName:test, spaceName:product}, 多个用 '&' 符隔开
     String LOG_ENV_SUFFIX                                        = "log.env.suffix";
     //系统变量key -D
@@ -66,17 +71,25 @@ public interface Constants {
     // 进程标识
     String PROCESS_MARKER                                        = "PID";
     // 配置前缀
-    String SOFA_MIDDLEWARE_CONFIG_PREFIX                         = "sofa.middleware.log";
+    String SOFA_MIDDLEWARE_CONFIG_PREFIX                         = "sofa.middleware.log.";
     // 设置所有日志输出到控制台
     String SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH                = "sofa.middleware.log.console";
     // 单个 spaceId 输出到控制台配置格式
     String SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH             = "sofa.middleware.log.%s.console";
+    // sofa-common-tools 自身日志开关
+    String SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL                    = "sofa.middleware.log.internal.level";
     // 控制台日志级别, 默认为 INFO
     String SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL                     = "sofa.middleware.log.console.level";
     // 单个 spaceId 控制台日志配置级别，默认为 INFO
     String SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL              = "sofa.middleware.log.%s.console.level";
     // 控制台日志格式
-    String SOFA_MIDDLEWARE_LOG_CONSOLE_PATTERN                   = "sofa.middleware.log.console.pattern";
+    String SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN           = "sofa.middleware.log.console.logback.pattern";
+    String SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN            = "sofa.middleware.log.console.log4j2.pattern";
     // 默认控制台日志格式格式
-    String SOFA_MIDDLEWARE_LOG_CONSOLE_PATTERN_DEFAULT           = "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n";
+    String SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT   = "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n";
+    String SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT    = "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %X{PID} --- [%15.15t] %-40.40logger{39} : %m%n";
+    // 指定 spaceId 的日志配置文件，logging.config.spaceId
+    String LOGGING_CONFIG_PATH                                   = "logging.config.%s";
+    // ExternalContext
+    String SOFA_LOG_FIRST_INITIALIZE                             = "sofa.log.first.initialize";
 }

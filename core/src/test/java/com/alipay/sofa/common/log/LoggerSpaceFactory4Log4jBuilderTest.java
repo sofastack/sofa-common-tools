@@ -18,6 +18,7 @@ package com.alipay.sofa.common.log;
 
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4jBuilder;
 import org.junit.After;
@@ -34,7 +35,8 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
 
     LoggerSpaceFactory4Log4jBuilder loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(
                                                                         new SpaceId("test"),
-                                                                        new SpaceInfo());
+                                                                        new SpaceInfo().putAll(LogEnvUtils
+                                                                            .processGlobalSystemLogProperties()));
 
     @Before
     @Override
@@ -76,9 +78,9 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
 
-        SpaceInfo spaceInfo = new SpaceInfo();
-        spaceInfo.properties().setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc",
-            "debug");
+        SpaceInfo spaceInfo = new SpaceInfo().setProperty(
+            Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug").putAll(
+            LogEnvUtils.processGlobalSystemLogProperties());
         loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(new SpaceId("test"),
             spaceInfo);
 

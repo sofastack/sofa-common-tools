@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.boot.filter;
+package com.alipay.sofa.common.boot.logging.filter;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.turbo.TurboFilter;
-import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.spi.FilterReply;
 import com.alipay.sofa.common.log.spi.LogbackFilterGenerator;
 import org.slf4j.Marker;
@@ -28,20 +27,19 @@ import org.slf4j.Marker;
  * @since 1.0.15
  */
 public class DefaultLogbackFilterGenerator implements LogbackFilterGenerator {
-    public static final TurboFilter FILTER          = new TurboFilter() {
+    public static final TurboFilter FILTER = new TurboFilter() {
 
-                                                        @Override
-                                                        public FilterReply decide(Marker marker,
-                                                                                  ch.qos.logback.classic.Logger logger,
-                                                                                  Level level,
-                                                                                  String format,
-                                                                                  Object[] params,
-                                                                                  Throwable t) {
-                                                            return FilterReply.DENY;
-                                                        }
+                                               @Override
+                                               public FilterReply decide(Marker marker,
+                                                                         ch.qos.logback.classic.Logger logger,
+                                                                         Level level,
+                                                                         String format,
+                                                                         Object[] params,
+                                                                         Throwable t) {
+                                                   return FilterReply.DENY;
+                                               }
 
-                                                    };
-    private static ConsoleAppender  consoleAppender = new ConsoleAppender();
+                                           };
 
     @Override
     public TurboFilter[] generatorFilters() {
