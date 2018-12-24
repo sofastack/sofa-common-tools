@@ -55,18 +55,10 @@ public class LoggerSpaceManagerTest extends AbstraceLogTestBase {
     @Test
     public void TestDisableLoggerSpaceFactory() {
         System.setProperty(SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
-        //        if (!MultiAppLoggerSpaceManager.isSpaceInitialized("com.alipay.sofa.rpc")) {
-        //            MultiAppLoggerSpaceManager.init("com.alipay.sofa.rpc", null);
-        //        }
         Logger logger = LoggerSpaceManager.getLoggerBySpace("com.foo.Bar", "com.alipay.sofa.rpc");
         Logger logger2 = LoggerSpaceManager.getLoggerBySpace("com.foo.Bar", "com.alipay.sofa.rpc");
         Assert.assertSame(logger, logger2);
         Assert.assertSame(logger, Constants.DEFAULT_LOG);
+        System.setProperty(SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "false");
     }
-
-    //    @Test(expected = IllegalStateException.class)
-    //    public void TestGetAndThenInit() {
-    //        Logger logger = LoggerSpaceManager.getLoggerBySpace("com.foo.Bar2", "com.alipay.sofa.rest");
-    //        LoggerSpaceManager.init("com.foo.Bar2", null);
-    //    }
 }
