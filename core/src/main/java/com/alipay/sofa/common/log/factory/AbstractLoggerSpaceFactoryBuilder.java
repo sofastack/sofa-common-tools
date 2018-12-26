@@ -131,8 +131,12 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
             }
         }
 
-        // 是否配置 logging.config.spaceName，注意如果在 Spring Boot 环境使用且是 log4j2 文件
-        // 配置文件路径后缀必须是 log4j2/log-conf-custom.xml
+        /**
+         * customize log config file like logging.path.config.{space id}. it can be
+         * configured via VM option or spring boot config file. Notice that when
+         * configured via VM option and use log4j2, the configure file path must
+         * end with log4j2/log-conf-custom.xml.
+         */
         String loggingConfig = System.getProperty(String.format(LOGGING_CONFIG_PATH, spaceName));
         if (!StringUtil.isBlank(loggingConfig)) {
             configFileUrl = spaceClassloader.getResource(loggingConfig);

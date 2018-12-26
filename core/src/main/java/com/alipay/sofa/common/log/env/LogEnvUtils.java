@@ -183,7 +183,8 @@ public final class LogEnvUtils {
     }
 
     /**
-     * 只引入 core 包时，保持兼容性。设置三个默认的系统变量
+     * keep compatible with previous version. Set system properties of the following attributes.
+     *
      * logging.path
      * loggingRoot
      * file.encoding

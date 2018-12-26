@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.common.boot.logging.log4j2;
 
-import com.alipay.sofa.common.log.Constants;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.*;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -33,7 +32,7 @@ import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 @Order(Integer.MAX_VALUE)
 public class SOFAConfigurationFactory extends ConfigurationFactory {
 
-    private final String[] TYPES = { "log4j2/log-conf.xml" };
+    private final String[] TYPES = { "log4j2/log-conf.xml", "log4j2/log-conf-custom.xml" };
 
     @Override
     protected String[] getSupportedTypes() {
