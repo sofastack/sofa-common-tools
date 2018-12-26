@@ -32,10 +32,11 @@ public class SystemPropertiesGetter {
     }
 
     public String getProperty(String key) {
-        if (StringUtil.isBlank(System.getProperty(key))) {
+        String value = System.getProperty(key);
+        if (StringUtil.isBlank(value)) {
             return (String) properties.get(key);
         }
-        return System.getProperty(key);
+        return value;
     }
 
     public String getProperty(String key, String defaultValue) {
