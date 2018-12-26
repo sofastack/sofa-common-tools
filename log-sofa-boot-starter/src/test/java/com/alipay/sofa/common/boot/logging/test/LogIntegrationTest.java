@@ -242,7 +242,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 space 独立配置由于 global 全局配置
+     * 测试 space 独立配置优于 global 全局配置
      * @throws IOException
      */
     @Test
