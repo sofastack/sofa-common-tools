@@ -71,6 +71,7 @@ public class LogIntegrationTest {
         System.setErr(originalErr);
         outContent.close();
         errContent.close();
+        MultiAppLoggerSpaceManager.getSpacesMapForTest().remove(new SpaceId(TEST_SPACE));
     }
 
     @Test
