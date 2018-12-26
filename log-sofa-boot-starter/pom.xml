@@ -21,6 +21,21 @@
             <artifactId>sofa-common-tools</artifactId>
         </dependency>
 
+        <!--logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!--log4j2-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -43,21 +58,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--logback -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.1.7</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- add spring dependency, set scope as provided -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -71,6 +71,28 @@
             <artifactId>spring-boot</artifactId>
             <version>1.5.16.RELEASE</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!--test-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>1.5.16.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

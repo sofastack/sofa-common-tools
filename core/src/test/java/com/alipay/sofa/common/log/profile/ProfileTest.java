@@ -19,14 +19,12 @@ package com.alipay.sofa.common.log.profile;
 import com.alipay.sofa.common.log.LoggerSpaceManager;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.profile.diagnostic.Profiler;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +47,11 @@ public class ProfileTest {
         String appName1 = "profile";
         File logFile = new File(userHome + File.separator + appName1 + File.separator
                                 + "common-default.log");
+        try {
+            FileUtils.write(logFile, "");
+        } catch (IOException e) {
+            // ignore
+        }
 
         SpaceId spaceId1 = new SpaceId(RPC_LOG_SPACE);
         spaceId1.withTag("logging.test.path", userHome);
@@ -90,7 +93,6 @@ public class ProfileTest {
         Assert.assertTrue(list.get(list.size() - 1).contains("line3"));
         Assert.assertTrue(list.get(list.size() - 2).contains("line2"));
         Assert.assertTrue(list.get(list.size() - 3).contains("line1"));
-
     }
 
     @Test
@@ -100,6 +102,11 @@ public class ProfileTest {
         String appName1 = "profile1";
         File logFile = new File(userHome + File.separator + appName1 + File.separator
                                 + "common-default.log");
+        try {
+            FileUtils.write(logFile, "");
+        } catch (IOException e) {
+            // ignore
+        }
 
         SpaceId spaceId1 = new SpaceId(RPC_LOG_SPACE);
         spaceId1.withTag("logging.test.path", userHome);

@@ -16,10 +16,7 @@
  */
 package com.alipay.sofa.common.log.env;
 
-import com.alipay.sofa.common.utils.AssertUtil;
-import com.alipay.sofa.common.utils.ProcessIdUtil;
-import com.alipay.sofa.common.utils.ReportUtil;
-import com.alipay.sofa.common.utils.StringUtil;
+import com.alipay.sofa.common.utils.*;
 import org.apache.logging.log4j.util.Strings;
 
 import java.util.Collections;
@@ -136,7 +133,8 @@ public final class LogEnvUtils {
         for (String key : System.getenv().keySet()) {
             String lowerCaseKey = key.toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
-                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)) {
+                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
+                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
                 properties.put(key.toLowerCase(), System.getenv().get(key));
             }
         }
@@ -146,12 +144,14 @@ public final class LogEnvUtils {
             }
             String lowerCaseKey = ((String) key).toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
-                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)) {
+                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
+                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
                 properties.put(lowerCaseKey, System.getProperty((String) key));
             }
         }
 
         globalSystemProperties = Collections.unmodifiableMap(properties);
+        keepCompatible(globalSystemProperties);
         return globalSystemProperties;
     }
 
@@ -180,6 +180,29 @@ public final class LogEnvUtils {
                                    + suffix);
         }
         return suffix;
+    }
+
+    /**
+     * 只引入 core 包时，保持兼容性。设置三个默认的系统变量
+     * logging.path
+     * loggingRoot
+     * file.encoding
+     */
+    public static void keepCompatible(Map<String, String> context) {
+        if (!isLogStarterExist()) {
+            return;
+        }
+        String loggingPath = System.getProperty(LOG_PATH, context.get(LOG_PATH));
+        String fileEncoding = System.getProperty(LOG_ENCODING_PROP_KEY,
+            context.get(LOG_ENCODING_PROP_KEY));
+        System.setProperty(LOG_PATH, loggingPath);
+        System.setProperty(OLD_LOG_PATH, System.getProperty(OLD_LOG_PATH, loggingPath));
+        System.setProperty(LOG_ENCODING_PROP_KEY, fileEncoding);
+    }
+
+    public static boolean isLogStarterExist() {
+        return ClassUtil
+            .isPresent("com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener");
     }
 
 }

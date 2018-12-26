@@ -20,6 +20,7 @@ import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.Log4j2LoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
@@ -80,9 +81,9 @@ public class CommonLoggingApplicationListener
             Constants.LOGGING_PATH_DEFAULT);
         readLogConfiguration(OLD_LOG_PATH, environment.getProperty(OLD_LOG_PATH), context,
             context.get(LOG_PATH));
-
         readLogConfiguration(LOG_ENCODING_PROP_KEY, environment.getProperty(LOG_ENCODING_PROP_KEY),
             context);
+        LogEnvUtils.keepCompatible(context);
 
         Set<String> configKeys = new HashSet<String>();
         Iterator<PropertySource<?>> propertySourceIterator = environment.getPropertySources()

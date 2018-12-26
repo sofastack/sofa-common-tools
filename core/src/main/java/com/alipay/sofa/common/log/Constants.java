@@ -79,7 +79,7 @@ public interface Constants {
     // sofa-common-tools 自身日志开关
     String SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL                    = "sofa.middleware.log.internal.level";
     // 控制台日志级别, 默认为 INFO
-    String SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL                     = "sofa.middleware.log.console.level";
+    String SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL                 = "sofa.middleware.log.console.level";
     // 单个 spaceId 控制台日志配置级别，默认为 INFO
     String SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL              = "sofa.middleware.log.%s.console.level";
     // 控制台日志格式

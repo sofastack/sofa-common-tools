@@ -35,6 +35,15 @@ public class ClassUtil {
     public ClassUtil() {
     }
 
+    public static boolean isPresent(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
     public static String getClassNameForObject(Object object) {
         return object == null ? null : getClassName(object.getClass().getName(), true);
     }

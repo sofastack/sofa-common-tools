@@ -86,7 +86,7 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
 
     private Level getConsoleLevel(String spaceId, Properties properties) {
         SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
-        String level = propertiesGetter.getProperty(SOFA_MIDDLEWARE_LOG_CONSOLE_LEVEL);
+        String level = propertiesGetter.getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL);
         String defaultLevel = StringUtil.isBlank(level) ? "INFO" : level;
         level = propertiesGetter.getProperty(
             String.format(SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, spaceId), defaultLevel);
@@ -111,10 +111,14 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
 
     private boolean isConsoleAppenderOpen(String spaceId, Properties properties) {
         SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
-        return "true".equalsIgnoreCase(propertiesGetter
-            .getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH))
-               || "true".equalsIgnoreCase(propertiesGetter.getProperty(String.format(
-                   SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)));
+        if (StringUtil.isBlank(propertiesGetter.getProperty(String.format(
+            SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)))) {
+            return "true".equalsIgnoreCase(propertiesGetter
+                .getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH));
+        } else {
+            return "true".equalsIgnoreCase(propertiesGetter.getProperty(String.format(
+                SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)));
+        }
     }
 
     private void markAsReInitialized(LoggerContext loggerContext) {

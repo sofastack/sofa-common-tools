@@ -39,20 +39,18 @@ public class LogLog {
 
     private static final Map<String, Level> LEVELS          = new HashMap<String, Level>();
 
-    private transient static Level          consoleLogLevel = Level.WARN;
+    private volatile static Level           consoleLogLevel = Level.WARN;
 
     static {
         LEVELS.put("DEBUG", Level.DEBUG);
         LEVELS.put("INFO", Level.INFO);
         LEVELS.put("WARN", Level.WARN);
         LEVELS.put("ERROR", Level.ERROR);
-
-        setConsoleLevel(System.getProperty(SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL));
     }
 
     public static void setConsoleLevel(String level) {
-        if (!StringUtil.isBlank(level) && LEVELS.get(level) != null) {
-            consoleLogLevel = LEVELS.get(level);
+        if (!StringUtil.isBlank(level) && LEVELS.get(level.toUpperCase()) != null) {
+            consoleLogLevel = LEVELS.get(level.toUpperCase());
         }
     }
 
@@ -84,6 +82,7 @@ public class LogLog {
     }
 
     private static boolean isDebug() {
+        setConsoleLevel(System.getProperty(SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL, "WARN"));
         return consoleLogLevel.equals(Level.DEBUG);
     }
 
