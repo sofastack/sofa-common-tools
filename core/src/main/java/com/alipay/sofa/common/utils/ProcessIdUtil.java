@@ -27,8 +27,8 @@ import java.lang.reflect.Method;
  * @since 1.0.15
  */
 public class ProcessIdUtil {
-    public static final String      DEFAULT_PROCESSID = "-";
-    private static transient String processId;
+    public static final String     DEFAULT_PROCESSID = "-";
+    private static volatile String processId;
 
     public static String getProcessId() {
         try {

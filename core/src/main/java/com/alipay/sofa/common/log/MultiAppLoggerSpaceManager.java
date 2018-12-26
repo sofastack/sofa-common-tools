@@ -44,7 +44,7 @@ public class MultiAppLoggerSpaceManager {
                                                                                       }
                                                                                   };
 
-    private static final ConcurrentHashMap<SpaceId, SpaceInfo> spacesMap          = new ConcurrentHashMap<SpaceId, SpaceInfo>();
+    private static final ConcurrentHashMap<SpaceId, SpaceInfo> SPACES_MAP         = new ConcurrentHashMap<SpaceId, SpaceInfo>();
 
     /**
      * 非必要初始化操作。（如果需要为某些space定义特殊的变量，则必须先初始化该方法）。
@@ -88,7 +88,7 @@ public class MultiAppLoggerSpaceManager {
     static void doInit(SpaceId spaceId, Map<String, String> props) {
         SpaceInfo spaceInfo = new SpaceInfo();
         //以首次的为准；
-        spacesMap.putIfAbsent(spaceId, spaceInfo);
+        SPACES_MAP.putIfAbsent(spaceId, spaceInfo);
         if (props != null) {
             spaceInfo.putAll(props);
         }
@@ -195,9 +195,9 @@ public class MultiAppLoggerSpaceManager {
             return null;
         }
         if (isSpaceILoggerFactoryExisted(spaceId)) {
-            AbstractLoggerSpaceFactory iLoggeriFactory = spacesMap.get(spaceId)
+            AbstractLoggerSpaceFactory iLoggeriFactory = SPACES_MAP.get(spaceId)
                 .getAbstractLoggerSpaceFactory();
-            spacesMap.get(spaceId).setAbstractLoggerSpaceFactory(null);
+            SPACES_MAP.get(spaceId).setAbstractLoggerSpaceFactory(null);
             Logger rootLogger = iLoggeriFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             rootLogger.warn("Log Space Name[" + spaceId.toString()
                             + "] is Removed from Current Log Space Manager!");
@@ -215,15 +215,16 @@ public class MultiAppLoggerSpaceManager {
         }
 
         AbstractLoggerSpaceFactory iLoggerFactory = NOP_LOGGER_FACTORY;
+        SpaceInfo spaceInfo = SPACES_MAP.get(spaceId);
         if (!isSpaceILoggerFactoryExisted(spaceId)) {
             synchronized (MultiAppLoggerSpaceManager.class) {
                 if (!isSpaceILoggerFactoryExisted(spaceId)) {
                     iLoggerFactory = createILoggerFactory(spaceId, spaceClassloader);
-                    spacesMap.get(spaceId).setAbstractLoggerSpaceFactory(iLoggerFactory);
+                    spaceInfo.setAbstractLoggerSpaceFactory(iLoggerFactory);
                 }
             }
         } else {
-            iLoggerFactory = spacesMap.get(spaceId).getAbstractLoggerSpaceFactory();
+            iLoggerFactory = spaceInfo.getAbstractLoggerSpaceFactory();
         }
         return iLoggerFactory;
     }
@@ -245,7 +246,7 @@ public class MultiAppLoggerSpaceManager {
      * @return
      */
     public static boolean isSpaceInitialized(SpaceId spaceId) {
-        return spacesMap.get(spaceId) != null;
+        return SPACES_MAP.get(spaceId) != null;
     }
 
     /**
@@ -264,7 +265,7 @@ public class MultiAppLoggerSpaceManager {
      */
     private static boolean isSpaceILoggerFactoryExisted(SpaceId spaceId) {
         return isSpaceInitialized(spaceId)
-               && spacesMap.get(spaceId).getAbstractLoggerSpaceFactory() != null;
+               && SPACES_MAP.get(spaceId).getAbstractLoggerSpaceFactory() != null;
     }
 
     private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId,
@@ -276,9 +277,10 @@ public class MultiAppLoggerSpaceManager {
                                   + SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
             return NOP_LOGGER_FACTORY;
         }
+        SpaceInfo spaceInfo = SPACES_MAP.get(spaceId);
 
         // set global system properties
-        spacesMap.get(spaceId).putAll(LogEnvUtils.processGlobalSystemLogProperties());
+        spaceInfo.putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         // do create
         try {
@@ -292,7 +294,7 @@ public class MultiAppLoggerSpaceManager {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
                                            + " Logback ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
-                        spaceId, spacesMap.get(spaceId));
+                        spaceId, spaceInfo);
 
                     return loggerSpaceFactory4LogbackBuilder.build(spaceId.getSpaceName(),
                         spaceClassloader);
@@ -308,7 +310,7 @@ public class MultiAppLoggerSpaceManager {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
                                            + " Log4j2 ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
-                        spaceId, spacesMap.get(spaceId));
+                        spaceId, spaceInfo);
 
                     return loggerSpaceFactory4Log4j2Builder.build(spaceId.getSpaceName(),
                         spaceClassloader);
@@ -324,7 +326,7 @@ public class MultiAppLoggerSpaceManager {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
                                            + " Log4j ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(
-                        spaceId, spacesMap.get(spaceId));
+                        spaceId, spaceInfo);
 
                     return loggerSpaceFactory4Log4jBuilder.build(spaceId.getSpaceName(),
                         spaceClassloader);
@@ -345,7 +347,7 @@ public class MultiAppLoggerSpaceManager {
                                            + " Log4j (Adapter commons-logging to slf4j)]");
 
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4CommonsLoggingBuilder(
-                        spaceId, spacesMap.get(spaceId));
+                        spaceId, spaceInfo);
 
                     return loggerSpaceFactory4Log4jBuilder.build(spaceId.getSpaceName(),
                         spaceClassloader);
@@ -362,10 +364,10 @@ public class MultiAppLoggerSpaceManager {
     }
 
     public static Map<SpaceId, SpaceInfo> getSpacesMap() {
-        return Collections.unmodifiableMap(spacesMap);
+        return Collections.unmodifiableMap(SPACES_MAP);
     }
 
     public static Map<SpaceId, SpaceInfo> getSpacesMapForTest() {
-        return spacesMap;
+        return SPACES_MAP;
     }
 }
