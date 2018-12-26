@@ -24,7 +24,7 @@ import java.util.Properties;
 
 /**
  * @author qilong.zql
- * @sicne 1.0.15
+ * @since 1.0.15
  */
 public interface LogbackReInitializer {
     void reInitialize(SpaceId spaceId, LoggerContext loggerContext, Properties properties,

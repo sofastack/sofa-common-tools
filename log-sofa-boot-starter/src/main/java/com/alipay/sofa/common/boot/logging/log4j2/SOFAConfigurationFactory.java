@@ -24,7 +24,7 @@ import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
 /**
  * https://logging.apache.org/log4j/log4j-2.6.1/manual/plugins.html
- * Processed by {@see org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor}
+ * Processed by {@literal org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor}
  *
  * @author qilong.zql
  * @since 1.0.15

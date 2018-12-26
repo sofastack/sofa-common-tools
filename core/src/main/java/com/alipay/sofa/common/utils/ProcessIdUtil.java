@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
- * {@see org.apache.logging.log4j.util.ProcessIdUtil}
+ * {@literal org.apache.logging.log4j.util.ProcessIdUtil}
  *
  * @author qilong.zql
  * @since 1.0.15

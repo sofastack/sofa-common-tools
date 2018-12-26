@@ -20,7 +20,7 @@ import ch.qos.logback.classic.turbo.TurboFilter;
 
 /**
  * @author qilong.zql
- * @sicne 1.0.15
+ * @since 1.0.15
  */
 public interface LogbackFilterGenerator {
     TurboFilter[] generatorFilters();

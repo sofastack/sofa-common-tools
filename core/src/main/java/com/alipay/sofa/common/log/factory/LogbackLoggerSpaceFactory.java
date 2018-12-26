@@ -39,7 +39,7 @@ import static com.alipay.sofa.common.log.Constants.LOG_PATH;
 
 /**
  * @author qilong.zql
- * @sicne 1.0.15
+ * @since  1.0.15
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
@@ -48,7 +48,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private Properties    properties;
     private URL           confFile;
 
-    /**
+    /**LogbackLoggerSpaceFactor
      * @param loggerContext
      * @param properties
      * @param confFile

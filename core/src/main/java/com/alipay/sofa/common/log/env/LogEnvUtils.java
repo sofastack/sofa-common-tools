@@ -130,23 +130,23 @@ public final class LogEnvUtils {
         properties.put(OLD_LOG_PATH, loggingRoot);
 
         //设置 logging.level.* 和 logging.path.* 配置
-        for (String key : System.getenv().keySet()) {
-            String lowerCaseKey = key.toLowerCase();
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
                 || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
                 || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
-                properties.put(key.toLowerCase(), System.getenv().get(key));
+                properties.put(lowerCaseKey, entry.getValue());
             }
         }
-        for (Object key : System.getProperties().keySet()) {
-            if (!(key instanceof String)) {
+        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
                 continue;
             }
-            String lowerCaseKey = ((String) key).toLowerCase();
+            String lowerCaseKey = ((String) entry.getKey()).toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
                 || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
                 || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
-                properties.put(lowerCaseKey, System.getProperty((String) key));
+                properties.put(lowerCaseKey, (String) entry.getValue());
             }
         }
 
