@@ -248,11 +248,14 @@ Sofa-Middleware-Log:DEBUG  Actual binding is of type [ test.space Logback ]
 + log4j2: `sofa.middleware.log.console.log4j2.pattern` 配置打印在 console 端的 log4j 日志格式. 默认为 `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %X{PID} --- [%15.15t] %-40.40logger{39} : %m%n`
 **支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
 
-## 五、LICENSE
+## 五、编译
+Maven 3.2.5+, JDK Version 1.7+
+
+## 六、LICENSE
 
 [Apache 2.0](./LICENSE)
 
-## 六、Contribution
+## 七、Contribution
 
 [Contribution Guide](./CONTRIBUTING.md)
 
