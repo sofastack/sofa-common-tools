@@ -194,10 +194,10 @@ public class MultiAppLoggerSpaceManager {
         if (spaceId == null) {
             return null;
         }
+        SpaceInfo spaceInfo = SPACES_MAP.get(spaceId);
         if (isSpaceILoggerFactoryExisted(spaceId)) {
-            AbstractLoggerSpaceFactory iLoggeriFactory = SPACES_MAP.get(spaceId)
-                .getAbstractLoggerSpaceFactory();
-            SPACES_MAP.get(spaceId).setAbstractLoggerSpaceFactory(null);
+            AbstractLoggerSpaceFactory iLoggeriFactory = spaceInfo.getAbstractLoggerSpaceFactory();
+            spaceInfo.setAbstractLoggerSpaceFactory(null);
             Logger rootLogger = iLoggeriFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             rootLogger.warn("Log Space Name[" + spaceId.toString()
                             + "] is Removed from Current Log Space Manager!");
