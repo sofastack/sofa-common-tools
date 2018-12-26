@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +46,24 @@ import java.util.Map;
  */
 public class LogIntegrationTest {
 
-    public static final String    TEST_SPACE  = "test.space";
-    public static Logger          logger;
+    public static final String         TEST_SPACE  = "test.space";
+    public static Logger               logger;
 
-    private ByteArrayOutputStream outContent;
-    private ByteArrayOutputStream errContent;
-    private final PrintStream     originalOut = System.out;
-    private final PrintStream     originalErr = System.err;
+    private ByteArrayOutputStream      outContent;
+    private ByteArrayOutputStream      errContent;
+    private final PrintStream          originalOut = System.out;
+    private final PrintStream          originalErr = System.err;
+    private static Map<Object, Object> SPACES_MAP;
+
+    static {
+        try {
+            Field spacesMapField = MultiAppLoggerSpaceManager.class.getDeclaredField("SPACES_MAP");
+            spacesMapField.setAccessible(true);
+            SPACES_MAP = (Map<Object, Object>) spacesMapField.get(MultiAppLoggerSpaceManager.class);
+        } catch (Throwable throwable) {
+            // ignore
+        }
+    }
 
     @Before
     public void setUpStreams() {
@@ -69,7 +81,7 @@ public class LogIntegrationTest {
         System.setErr(originalErr);
         outContent.close();
         errContent.close();
-        MultiAppLoggerSpaceManager.getSpacesMapForTest().remove(new SpaceId(TEST_SPACE));
+        SPACES_MAP.remove(new SpaceId(TEST_SPACE));
     }
 
     @Test
@@ -89,7 +101,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 logging.level.com.* 通配符配置
+     * test logging.level.com.* config
      * @throws IOException
      */
     @Test
@@ -113,7 +125,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 logging.level.{space id} 配置
+     * test logging.level.{space id} config
      * @throws IOException
      */
     @Test
@@ -137,7 +149,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 logging.config.{space id} 配置
+     * test logging.config.{space id} config
      * @throws IOException
      */
     @Test
@@ -159,7 +171,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.internal.level 配置
+     * test sofa.middleware.log.internal.level config
      */
     @Test
     public void testInternalLogLevel() {
@@ -171,7 +183,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.{space id}.console 配置
+     * test sofa.middleware.log.{space id}.console config
      */
     @Test
     public void testSpaceConsoleConfig() {
@@ -188,7 +200,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.{space id}.console.level 配置
+     * test sofa.middleware.log.{space id}.console.level config
      */
     @Test
     public void testSpaceConsoleLevelConfig() {
@@ -207,7 +219,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.console 配置
+     * test sofa.middleware.log.console config
      */
     @Test
     public void testGlobalConsoleConfig() {
@@ -223,7 +235,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.console.level 配置
+     * test sofa.middleware.log.console.level config
      */
     @Test
     public void testGlobalConsoleLevelConfig() {
@@ -240,7 +252,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 space 独立配置优于 global 全局配置
+     * test space config override global config
      * @throws IOException
      */
     @Test
@@ -273,7 +285,7 @@ public class LogIntegrationTest {
     }
 
     /**
-     * 测试 sofa.middleware.log.console.logback.pattern 配置
+     * test sofa.middleware.log.console.logback.pattern config
      */
     @Test
     public void testLogbackLogConsolePattern() {

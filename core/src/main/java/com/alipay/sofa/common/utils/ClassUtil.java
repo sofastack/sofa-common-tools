@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
  * @version $Id: ClassUtil.java, v 0.1 2017年08月01日 下午12:01 luoguimu123 Exp $
  */
 public class ClassUtil {
-    private static Map TYPE_MAP = Collections.synchronizedMap(new WeakHashMap());
+    private static final Map TYPE_MAP = Collections.synchronizedMap(new WeakHashMap());
 
     public ClassUtil() {
     }

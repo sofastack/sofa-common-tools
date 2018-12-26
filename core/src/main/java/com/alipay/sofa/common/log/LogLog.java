@@ -49,8 +49,9 @@ public class LogLog {
     }
 
     public static void setConsoleLevel(String level) {
-        if (!StringUtil.isBlank(level) && LEVELS.get(level.toUpperCase()) != null) {
-            consoleLogLevel = LEVELS.get(level.toUpperCase());
+        Level value = LEVELS.get(level.toUpperCase());
+        if (!StringUtil.isBlank(level) && value != null) {
+            consoleLogLevel = value;
         }
     }
 

@@ -366,8 +366,4 @@ public class MultiAppLoggerSpaceManager {
     public static Map<SpaceId, SpaceInfo> getSpacesMap() {
         return Collections.unmodifiableMap(SPACES_MAP);
     }
-
-    public static Map<SpaceId, SpaceInfo> getSpacesMapForTest() {
-        return SPACES_MAP;
-    }
 }

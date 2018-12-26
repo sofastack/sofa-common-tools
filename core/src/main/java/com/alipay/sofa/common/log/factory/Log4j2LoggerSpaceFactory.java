@@ -79,8 +79,9 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     }
 
     private LoggerContext initialize() throws Throwable {
-        for (Object key : properties.keySet()) {
-            ThreadContext.put((String) key, properties.getProperty((String) key));
+        for (Map.Entry entry : properties.entrySet()) {
+            ThreadContext.put((String) entry.getKey(),
+                properties.getProperty((String) entry.getValue()));
         }
 
         LoggerContext context = new LoggerContext(spaceId.getSpaceName(),

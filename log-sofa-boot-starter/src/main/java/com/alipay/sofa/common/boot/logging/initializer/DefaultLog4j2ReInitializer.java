@@ -161,20 +161,21 @@ public class DefaultLog4j2ReInitializer implements Log4j2ReInitializer {
 
     private void initLogContext(Properties properties) {
         ThreadContext.clearAll();
-        for (Object key : properties.keySet()) {
-            ThreadContext.put((String) key, properties.getProperty((String) key));
+        for (Map.Entry entry : properties.entrySet()) {
+            ThreadContext.put((String) entry.getKey(),
+                properties.getProperty((String) entry.getValue()));
         }
     }
 
     private boolean isConsoleAppenderOpen(String spaceId, Properties properties) {
         SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
-        if (StringUtil.isBlank(propertiesGetter.getProperty(String.format(
-            SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)))) {
+        String value = propertiesGetter.getProperty(String.format(
+            SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId));
+        if (StringUtil.isBlank(value)) {
             return "true".equalsIgnoreCase(propertiesGetter
                 .getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH));
         } else {
-            return "true".equalsIgnoreCase(propertiesGetter.getProperty(String.format(
-                SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)));
+            return "true".equalsIgnoreCase(value);
         }
     }
 }

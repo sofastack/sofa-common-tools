@@ -111,13 +111,13 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
 
     private boolean isConsoleAppenderOpen(String spaceId, Properties properties) {
         SystemPropertiesGetter propertiesGetter = new SystemPropertiesGetter(properties);
-        if (StringUtil.isBlank(propertiesGetter.getProperty(String.format(
-            SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)))) {
+        String value = propertiesGetter.getProperty(String.format(
+            SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId));
+        if (StringUtil.isBlank(value)) {
             return "true".equalsIgnoreCase(propertiesGetter
                 .getProperty(SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH));
         } else {
-            return "true".equalsIgnoreCase(propertiesGetter.getProperty(String.format(
-                SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId)));
+            return "true".equalsIgnoreCase(value);
         }
     }
 
