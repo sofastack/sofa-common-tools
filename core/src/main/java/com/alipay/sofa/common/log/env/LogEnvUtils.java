@@ -183,8 +183,7 @@ public final class LogEnvUtils {
     }
 
     /**
-     * keep compatible with previous version. Set system properties of the following attributes.
-     *
+     * keep compatible with previous version. Set system properties of the following attributes:
      * logging.path
      * loggingRoot
      * file.encoding
