@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.common.boot.logging.test;
 
-import com.alipay.sofa.common.boot.logging.initializer.DefaultLogbackReInitializer;
 import com.alipay.sofa.common.log.*;
-import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.commons.io.FileUtils;
@@ -43,7 +41,7 @@ import java.util.Map;
 
 /**
  * @author qilong.zql
- * @since 1.0.51
+ * @since 1.0.15
  */
 public class LogIntegrationTest {
 
