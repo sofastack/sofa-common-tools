@@ -207,14 +207,17 @@ public enum AdapterLevel {
 
 ### logback.middleware.log.disable
 默认配置为 false, 禁止使用 logback 日志实现
+
 **注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlogback.middleware.log.disable=true**
 
 ### log4j2.middleware.log.disable
 默认配置为 false, 禁止使用 log4j2 日志实现
+
 **注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlog4j2.middleware.log.disable=true**
 
 ### log4j.middleware.log.disable
 默认配置为 false, 禁止使用 log4j 日志实现
+
 **注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlog4j.middleware.log.disable=true**
 
 ### 自身日志级别配置
@@ -223,15 +226,18 @@ sofa-common-tools 在初始化绑定日志实现类时，会使用 `System.out` 
 Sofa-Middleware-Log:DEBUG  Actual binding is of type [ test.space Logback ]
 ```
 可以通过 `sofa.middleware.log.internal.level=debug` 设置改日志类型打印级别，默认为 INFO.
+
 **注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dsofa.middleware.log.internal.level=debug**
 
 ### 配置日志级别
 + 全局配置：支持使用 `*` 通配符配置，例如 `logging.level.com.* = info`, 则 `logging.levle.com.alipay.sofa.rpc` 日志空间的级别为 `info`。
 + 单个日志空间配置：`logging.level.${spaceid}=info`，例如 `logging.levle.com.alipay.sofa.rpc=info`。则 RPC 日志空间级别为 `info`。
+
 **支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
 
 ### 自定义日志配置文件
 每个人日志空间中，logback/log4j2/log4j 都会提供一份默认的日志配置文件，可以使用 `logging.config.{space id}=log-conf-xx.xml` 覆盖默认配置文件。
+
 **支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
 
 ### 日志打印控制台
@@ -241,11 +247,13 @@ Sofa-Middleware-Log:DEBUG  Actual binding is of type [ test.space Logback ]
 + 日志空间独立配置
     + 开关 `sofa.middleware.log.${spaceid}.console` 指定 space id 日志空间打印在 console 端，默认为 false. 优先级高于全局配置。
     + 日志级别控制 `sofa.middleware.log.{space id}.console.level` 配置 space id 日志空间打印在 console 的日志级别，默认为 INFO. 优先级高于全局配置。
+    
 **支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
 
 ### 控制台日志格式
 + logback: `sofa.middleware.log.console.logback.pattern` 配置打印在 console 端的 logback 日志格式. 默认为 `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n`
 + log4j2: `sofa.middleware.log.console.log4j2.pattern` 配置打印在 console 端的 log4j 日志格式. 默认为 `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %X{PID} --- [%15.15t] %-40.40logger{39} : %m%n`
+
 **支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
 
 ## 五、编译
