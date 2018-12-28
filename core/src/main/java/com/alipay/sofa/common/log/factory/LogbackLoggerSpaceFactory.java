@@ -24,6 +24,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.log.spi.CheckReInitialize;
 import com.alipay.sofa.common.log.spi.LogbackFilterGenerator;
 import com.alipay.sofa.common.log.spi.LogbackReInitializer;
 import com.alipay.sofa.common.utils.AssertUtil;
@@ -62,10 +63,14 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.properties = properties;
         this.confFile = confFile;
         boolean willReinitialize = false;
+        Iterator<CheckReInitialize> checkers = ServiceLoader.load(CheckReInitialize.class,
+            this.getClass().getClassLoader()).iterator();
+        while (checkers.hasNext()) {
+            willReinitialize = !checkers.next().isReInitialize();
+        }
         Iterator<LogbackFilterGenerator> matchers = ServiceLoader.load(
             LogbackFilterGenerator.class, this.getClass().getClassLoader()).iterator();
-        while (matchers.hasNext()) {
-            willReinitialize = true;
+        while (matchers.hasNext() && willReinitialize) {
             LogbackFilterGenerator matcher = matchers.next();
             this.loggerContext.getTurboFilterList().addAll(
                 Arrays.asList(matcher.generatorFilters()));
