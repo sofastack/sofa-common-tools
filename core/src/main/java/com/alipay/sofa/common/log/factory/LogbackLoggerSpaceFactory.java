@@ -24,7 +24,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
-import com.alipay.sofa.common.log.spi.CheckReInitialize;
+import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.log.spi.LogbackFilterGenerator;
 import com.alipay.sofa.common.log.spi.LogbackReInitializer;
 import com.alipay.sofa.common.utils.AssertUtil;
@@ -63,7 +63,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.properties = properties;
         this.confFile = confFile;
         boolean willReinitialize = false;
-        Iterator<CheckReInitialize> checkers = ServiceLoader.load(CheckReInitialize.class,
+        Iterator<ReInitializeChecker> checkers = ServiceLoader.load(ReInitializeChecker.class,
             this.getClass().getClassLoader()).iterator();
         while (checkers.hasNext()) {
             willReinitialize = !checkers.next().isReInitialize();

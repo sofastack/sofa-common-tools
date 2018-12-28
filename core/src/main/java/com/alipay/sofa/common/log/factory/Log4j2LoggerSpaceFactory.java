@@ -19,7 +19,7 @@ package com.alipay.sofa.common.log.factory;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
-import com.alipay.sofa.common.log.spi.CheckReInitialize;
+import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.log.spi.Log4j2FilterGenerator;
 import com.alipay.sofa.common.log.spi.Log4j2ReInitializer;
 import com.alipay.sofa.common.utils.StringUtil;
@@ -69,7 +69,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.properties = properties;
         this.confFile = confFile;
         boolean willReinitialize = false;
-        Iterator<CheckReInitialize> checkers = ServiceLoader.load(CheckReInitialize.class,
+        Iterator<ReInitializeChecker> checkers = ServiceLoader.load(ReInitializeChecker.class,
             this.getClass().getClassLoader()).iterator();
         while (checkers.hasNext()) {
             willReinitialize = !checkers.next().isReInitialize();

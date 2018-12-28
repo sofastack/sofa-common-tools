@@ -20,6 +20,6 @@ package com.alipay.sofa.common.log.spi;
  * @author qilong.zql
  * @since 1.0.16
  */
-public interface CheckReInitialize {
+public interface ReInitializeChecker {
     boolean isReInitialize();
 }

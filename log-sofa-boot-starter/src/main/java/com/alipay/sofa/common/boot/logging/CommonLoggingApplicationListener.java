@@ -16,15 +16,12 @@
  */
 package com.alipay.sofa.common.boot.logging;
 
-import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.*;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.Log4j2LoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
-import com.alipay.sofa.common.log.spi.CheckReInitialize;
+import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
@@ -46,7 +43,7 @@ import static com.alipay.sofa.common.log.Constants.*;
  */
 public class CommonLoggingApplicationListener
                                              implements
-                                             CheckReInitialize,
+                                             ReInitializeChecker,
                                              ApplicationListener<ApplicationEnvironmentPreparedEvent>,
                                              Ordered {
 
@@ -68,6 +65,17 @@ public class CommonLoggingApplicationListener
     }
 
     private void reInitializeLog(Map<String, String> context) {
+        for (String key : context.keySet()) {
+            if (key.startsWith(Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX)
+                && !key.equals(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH)) {
+                int index = Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX.length();
+                // minus length of .console
+                int end = key.length() - 8;
+                String spaceId = key.substring(index, end);
+                LoggerSpaceManager.getLoggerBySpace(spaceId, spaceId);
+            }
+        }
+
         for (Map.Entry<SpaceId, SpaceInfo> entry : MultiAppLoggerSpaceManager.getSpacesMap()
             .entrySet()) {
             SpaceId spaceId = entry.getKey();
