@@ -111,7 +111,7 @@ public class CommonLoggingApplicationListener
             }
         }
         for (String key : configKeys) {
-            if (LogEnvUtils.filterLogConfig(key)) {
+            if (LogEnvUtils.filterAllLogConfig(key)) {
                 addToGlobalSystemProperties(key, environment.getProperty(key));
                 readLogConfiguration(key, environment.getProperty(key), context);
             }

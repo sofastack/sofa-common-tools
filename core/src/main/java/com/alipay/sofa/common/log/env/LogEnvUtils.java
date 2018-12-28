@@ -204,13 +204,10 @@ public final class LogEnvUtils {
             .isPresent("com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener");
     }
 
-    public static boolean filterLogConfig(String key) {
-        return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
-               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX);
-    }
-
     public static boolean filterAllLogConfig(String key) {
-        return filterLogConfig(key) || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
+        return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
+               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)
+               || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
                || key.equals(LOG_ENCODING_PROP_KEY);
     }
 
