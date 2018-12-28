@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.common.utils;
 
-import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.LogLog;
 
 /**
@@ -39,6 +38,7 @@ public class ReportUtil {
      * keep compatible
      * @param msg
      */
+    @Deprecated
     public static void report(String msg) {
         reportDebug(msg);
     }
