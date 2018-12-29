@@ -16,14 +16,12 @@
  */
 package com.alipay.sofa.common.boot.logging;
 
-import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.*;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.Log4j2LoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
+import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
@@ -35,6 +33,7 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.alipay.sofa.common.log.Constants.*;
 
@@ -44,15 +43,39 @@ import static com.alipay.sofa.common.log.Constants.*;
  */
 public class CommonLoggingApplicationListener
                                              implements
+                                             ReInitializeChecker,
                                              ApplicationListener<ApplicationEnvironmentPreparedEvent>,
                                              Ordered {
 
+    private final static AtomicBoolean isReInitialized = new AtomicBoolean(false);
+
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        reInitializeLog(loadApplicationEnvironment(event.getEnvironment()));
+        if (isReInitialized.compareAndSet(false, true)) {
+            reInitializeLog(loadApplicationEnvironment(event.getEnvironment()));
+        }
+    }
+
+    public boolean isReInitialize() {
+        return isReInitialized.get();
+    }
+
+    public void setReInitialize(boolean value) {
+        isReInitialized.set(value);
     }
 
     private void reInitializeLog(Map<String, String> context) {
+        for (String key : context.keySet()) {
+            if (key.startsWith(Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX)
+                && !key.equals(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH)) {
+                int index = Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX.length();
+                // minus length of .console
+                int end = key.length() - 8;
+                String spaceId = key.substring(index, end);
+                LoggerSpaceManager.getLoggerBySpace(spaceId, spaceId);
+            }
+        }
+
         for (Map.Entry<SpaceId, SpaceInfo> entry : MultiAppLoggerSpaceManager.getSpacesMap()
             .entrySet()) {
             SpaceId spaceId = entry.getKey();
@@ -83,7 +106,7 @@ public class CommonLoggingApplicationListener
             context.get(LOG_PATH));
         readLogConfiguration(LOG_ENCODING_PROP_KEY, environment.getProperty(LOG_ENCODING_PROP_KEY),
             context);
-        LogEnvUtils.keepCompatible(context);
+        LogEnvUtils.keepCompatible(context, true);
 
         Set<String> configKeys = new HashSet<String>();
         Iterator<PropertySource<?>> propertySourceIterator = environment.getPropertySources()
@@ -96,12 +119,18 @@ public class CommonLoggingApplicationListener
             }
         }
         for (String key : configKeys) {
-            if (key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
-                || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)) {
+            if (LogEnvUtils.filterAllLogConfig(key)) {
+                addToGlobalSystemProperties(key, environment.getProperty(key));
                 readLogConfiguration(key, environment.getProperty(key), context);
             }
         }
         return context;
+    }
+
+    private void addToGlobalSystemProperties(String key, String value) {
+        if (!StringUtil.isBlank(key) && !StringUtil.isBlank(value)) {
+            LogEnvUtils.processGlobalSystemLogProperties().put(key, value);
+        }
     }
 
     private void readLogConfiguration(String key, String value, Map<String, String> context) {
@@ -123,4 +152,5 @@ public class CommonLoggingApplicationListener
     public int getOrder() {
         return PriorityOrdered.HIGHEST_PRECEDENCE + 20;
     }
+
 }
