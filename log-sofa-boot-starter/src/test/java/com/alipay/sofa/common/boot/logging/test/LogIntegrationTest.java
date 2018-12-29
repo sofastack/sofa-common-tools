@@ -16,7 +16,9 @@
  */
 package com.alipay.sofa.common.boot.logging.test;
 
+import com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener;
 import com.alipay.sofa.common.log.*;
+import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.commons.io.FileUtils;
@@ -82,6 +84,7 @@ public class LogIntegrationTest {
         outContent.close();
         errContent.close();
         SPACES_MAP.remove(new SpaceId(TEST_SPACE));
+        new CommonLoggingApplicationListener().setReInitialize(false);
     }
 
     @Test
@@ -122,6 +125,8 @@ public class LogIntegrationTest {
         Assert.assertEquals(2, contents.size());
         Assert.assertTrue(contents.get(0).contains("info level"));
         Assert.assertTrue(contents.get(1).contains("debug level"));
+        LogEnvUtils.processGlobalSystemLogProperties()
+            .remove(Constants.LOG_LEVEL_PREFIX + "test.*");
     }
 
     /**
@@ -146,6 +151,8 @@ public class LogIntegrationTest {
         Assert.assertEquals(2, contents.size());
         Assert.assertTrue(contents.get(0).contains("info level"));
         Assert.assertTrue(contents.get(1).contains("debug level"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.LOG_LEVEL_PREFIX + "test.space");
     }
 
     /**
@@ -168,6 +175,8 @@ public class LogIntegrationTest {
             environment.getProperty(Constants.LOG_ENCODING_PROP_KEY));
         Assert.assertEquals(1, contents.size());
         Assert.assertTrue(contents.get(0).contains("logback-test-conf"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.LOG_CONFIG_PREFIX + TEST_SPACE);
     }
 
     /**
@@ -197,6 +206,8 @@ public class LogIntegrationTest {
         logger.debug("space console debug");
         Assert.assertTrue(outContent.toString().contains("space console"));
         Assert.assertFalse(outContent.toString().contains("space console debug"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, TEST_SPACE));
     }
 
     /**
@@ -216,6 +227,10 @@ public class LogIntegrationTest {
         logger.debug("space console debug");
         Assert.assertTrue(outContent.toString().contains("space console"));
         Assert.assertTrue(outContent.toString().contains("space console debug"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, TEST_SPACE));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, TEST_SPACE));
     }
 
     /**
@@ -232,6 +247,8 @@ public class LogIntegrationTest {
         logger.debug("global space console debug");
         Assert.assertTrue(outContent.toString().contains("global space console"));
         Assert.assertFalse(outContent.toString().contains("global space console debug"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
     }
 
     /**
@@ -249,6 +266,10 @@ public class LogIntegrationTest {
         logger.debug("global space console debug");
         Assert.assertTrue(outContent.toString().contains("global space console"));
         Assert.assertTrue(outContent.toString().contains("global space console debug"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL);
     }
 
     /**
@@ -282,6 +303,14 @@ public class LogIntegrationTest {
         Assert.assertTrue(contents.get(0).contains("info level"));
         Assert.assertFalse(outContent.toString().contains("info level"));
         Assert.assertFalse(outContent.toString().contains("debug level"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL);
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, TEST_SPACE));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, TEST_SPACE));
     }
 
     /**
@@ -299,6 +328,10 @@ public class LogIntegrationTest {
         springApplication.run(new String[] {});
         logger.info("global space console");
         Assert.assertTrue(outContent.toString().contains("logback-test-console-pattern"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN);
     }
 
     protected File getLogbackDefaultFile(Environment environment) {
