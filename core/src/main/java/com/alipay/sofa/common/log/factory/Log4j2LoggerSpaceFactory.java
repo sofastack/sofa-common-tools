@@ -19,6 +19,7 @@ package com.alipay.sofa.common.log.factory;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.log.spi.Log4j2FilterGenerator;
 import com.alipay.sofa.common.log.spi.Log4j2ReInitializer;
 import com.alipay.sofa.common.utils.StringUtil;
@@ -67,10 +68,16 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.spaceId = spaceId;
         this.properties = properties;
         this.confFile = confFile;
-        this.loggerContext = initialize();
+        boolean willReinitialize = false;
+        Iterator<ReInitializeChecker> checkers = ServiceLoader.load(ReInitializeChecker.class,
+            this.getClass().getClassLoader()).iterator();
+        while (checkers.hasNext()) {
+            willReinitialize = !checkers.next().isReInitialize();
+        }
+        this.loggerContext = initialize(willReinitialize);
         Iterator<Log4j2FilterGenerator> matchers = ServiceLoader.load(Log4j2FilterGenerator.class,
             this.getClass().getClassLoader()).iterator();
-        while (matchers.hasNext()) {
+        while (matchers.hasNext() & willReinitialize) {
             Log4j2FilterGenerator matcher = matchers.next();
             for (Filter filter : matcher.generatorFilters()) {
                 this.loggerContext.addFilter(filter);
@@ -78,14 +85,19 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
     }
 
-    private LoggerContext initialize() throws Throwable {
+    private LoggerContext initialize(boolean willReInitialize) throws Throwable {
         for (Map.Entry entry : properties.entrySet()) {
             ThreadContext.put((String) entry.getKey(),
                 properties.getProperty((String) entry.getValue()));
         }
 
-        LoggerContext context = new LoggerContext(spaceId.getSpaceName(),
-            Constants.SOFA_LOG_FIRST_INITIALIZE, confFile.toURI());
+        LoggerContext context;
+        if (willReInitialize) {
+            context = new LoggerContext(spaceId.getSpaceName(),
+                Constants.SOFA_LOG_FIRST_INITIALIZE, confFile.toURI());
+        } else {
+            context = new LoggerContext(spaceId.getSpaceName(), null, confFile.toURI());
+        }
         Configuration config = null;
         ConfigurationFactory configurationFactory = ConfigurationFactory.getInstance();
         try {

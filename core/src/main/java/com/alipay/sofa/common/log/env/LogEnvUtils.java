@@ -19,7 +19,6 @@ package com.alipay.sofa.common.log.env;
 import com.alipay.sofa.common.utils.*;
 import org.apache.logging.log4j.util.Strings;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,8 +149,8 @@ public final class LogEnvUtils {
             }
         }
 
-        globalSystemProperties = Collections.unmodifiableMap(properties);
-        keepCompatible(globalSystemProperties);
+        globalSystemProperties = properties;
+        keepCompatible(globalSystemProperties, !isLogStarterExist());
         return globalSystemProperties;
     }
 
@@ -188,8 +187,8 @@ public final class LogEnvUtils {
      * loggingRoot
      * file.encoding
      */
-    public static void keepCompatible(Map<String, String> context) {
-        if (!isLogStarterExist()) {
+    public static void keepCompatible(Map<String, String> context, boolean keep) {
+        if (!keep) {
             return;
         }
         String loggingPath = System.getProperty(LOG_PATH, context.get(LOG_PATH));
@@ -203,6 +202,13 @@ public final class LogEnvUtils {
     public static boolean isLogStarterExist() {
         return ClassUtil
             .isPresent("com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener");
+    }
+
+    public static boolean filterAllLogConfig(String key) {
+        return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
+               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)
+               || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
+               || key.equals(LOG_ENCODING_PROP_KEY);
     }
 
 }
