@@ -22,6 +22,7 @@ import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.ThreadContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -332,6 +333,27 @@ public class LogIntegrationTest {
             Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
         LogEnvUtils.processGlobalSystemLogProperties().remove(
             Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN);
+    }
+
+    @Test
+    public void testThreadContextConfiguration() {
+        try {
+            System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
+            SPACES_MAP.remove(new SpaceId(TEST_SPACE));
+            LoggerSpaceManager.getLoggerBySpace(LogIntegrationTest.class.getCanonicalName(),
+                TEST_SPACE);
+            ThreadContext.put("testKey", "testValue");
+            ThreadContext.put("logging.path", "anyPath");
+            Map<String, Object> properties = new HashMap<String, Object>();
+            SpringApplication springApplication = new SpringApplication(EmptyConfig.class);
+            springApplication.setDefaultProperties(properties);
+            springApplication.run(new String[] {});
+            Assert.assertTrue("testValue".equals(ThreadContext.get("testKey")));
+            Assert.assertTrue(Constants.LOGGING_PATH_DEFAULT.equals(ThreadContext
+                .get("logging.path")));
+        } finally {
+            System.getProperties().remove(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
+        }
     }
 
     protected File getLogbackDefaultFile(Environment environment) {
