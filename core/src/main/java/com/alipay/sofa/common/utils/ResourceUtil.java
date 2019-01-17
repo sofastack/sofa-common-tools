@@ -25,7 +25,7 @@ import java.net.URL;
 /**
  * @author qilong.zql
  * @author Juergen Hoeller
- * @sicne 1.0.17
+ * @since 1.0.17
  */
 public class ResourceUtil {
 

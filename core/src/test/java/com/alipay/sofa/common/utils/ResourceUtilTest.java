@@ -26,7 +26,7 @@ import java.util.Properties;
 
 /**
  * @author qilong.zql
- * @sicne 1.0.17
+ * @since 1.0.17
  */
 public class ResourceUtilTest {
 
