@@ -160,10 +160,9 @@ public class DefaultLog4j2ReInitializer implements Log4j2ReInitializer {
     }
 
     private void initLogContext(Properties properties) {
-        ThreadContext.clearAll();
         for (Map.Entry entry : properties.entrySet()) {
             ThreadContext.put((String) entry.getKey(),
-                properties.getProperty((String) entry.getValue()));
+                properties.getProperty((String) entry.getKey()));
         }
     }
 
