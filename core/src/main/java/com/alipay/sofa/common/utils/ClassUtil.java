@@ -44,6 +44,15 @@ public class ClassUtil {
         }
     }
 
+    public static boolean isPresent(String className, ClassLoader classLoader) {
+        try {
+            classLoader.loadClass(className);
+            return true;
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
     public static String getClassNameForObject(Object object) {
         return object == null ? null : getClassName(object.getClass().getName(), true);
     }

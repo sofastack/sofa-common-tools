@@ -1,1 +1,1 @@
-com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener
+com.alipay.sofa.common.boot.logging.DefaultReInitializerChecker
