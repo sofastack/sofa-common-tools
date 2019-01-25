@@ -17,7 +17,6 @@
 package com.alipay.sofa.common.log.env;
 
 import com.alipay.sofa.common.utils.*;
-import org.apache.logging.log4j.util.Strings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -155,7 +154,7 @@ public final class LogEnvUtils {
     }
 
     public static String getLogConfEnvSuffix(String spaceName) {
-        String logEnvConfig = System.getProperty(LOG_ENV_SUFFIX, Strings.EMPTY);
+        String logEnvConfig = System.getProperty(LOG_ENV_SUFFIX, StringUtil.EMPTY_STRING);
         String[] spaceNameToEnvSuffix = logEnvConfig.split("&");
         String suffix = null;
         for (int i = 0; i < spaceNameToEnvSuffix.length && suffix == null; ++i) {
@@ -173,7 +172,7 @@ public final class LogEnvUtils {
             suffix = conf[1];
         }
 
-        suffix = (suffix == null) ? Strings.EMPTY : suffix;
+        suffix = (suffix == null) ? StringUtil.EMPTY_STRING : suffix;
         if (!suffix.isEmpty()) {
             ReportUtil.reportDebug(spaceName + " log configuration: " + LOG_XML_CONFIG_FILE_NAME
                                    + suffix);
@@ -200,8 +199,7 @@ public final class LogEnvUtils {
     }
 
     public static boolean isLogStarterExist() {
-        return ClassUtil
-            .isPresent("com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener");
+        return ClassUtil.isPresent("com.alipay.sofa.common.boot.logging.Mark");
     }
 
     public static boolean filterAllLogConfig(String key) {

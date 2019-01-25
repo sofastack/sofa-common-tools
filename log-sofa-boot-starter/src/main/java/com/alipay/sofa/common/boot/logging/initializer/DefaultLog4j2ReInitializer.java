@@ -20,6 +20,7 @@ import com.alipay.sofa.common.boot.logging.filter.DefaultLog4j2FilterGenerator;
 import com.alipay.sofa.common.boot.logging.util.SystemPropertiesGetter;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.spi.Log4j2ReInitializer;
+import com.alipay.sofa.common.utils.ResourceUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
@@ -33,7 +34,6 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
-import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -141,7 +141,7 @@ public class DefaultLog4j2ReInitializer implements Log4j2ReInitializer {
     private ConfigurationSource getConfigurationSource(URL url) throws IOException {
         InputStream stream = url.openStream();
         if (FILE_PROTOCOL.equals(url.getProtocol())) {
-            return new ConfigurationSource(stream, ResourceUtils.getFile(url));
+            return new ConfigurationSource(stream, ResourceUtil.getFile(url));
         }
         return new ConfigurationSource(stream, url);
     }

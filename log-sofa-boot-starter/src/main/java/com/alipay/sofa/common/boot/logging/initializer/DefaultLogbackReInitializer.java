@@ -32,9 +32,9 @@ import com.alipay.sofa.common.boot.logging.filter.DefaultLogbackFilterGenerator;
 import com.alipay.sofa.common.boot.logging.util.SystemPropertiesGetter;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.spi.LogbackReInitializer;
+import com.alipay.sofa.common.utils.ClassUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Marker;
-import org.springframework.util.ClassUtils;
 
 import java.net.URL;
 import java.util.Map;
@@ -138,7 +138,7 @@ public class DefaultLogbackReInitializer implements LogbackReInitializer {
     }
 
     protected final boolean isBridgeHandlerAvailable() {
-        return ClassUtils.isPresent(BRIDGE_HANDLER, this.getClass().getClassLoader());
+        return ClassUtil.isPresent(BRIDGE_HANDLER, this.getClass().getClassLoader());
     }
 
     private void addLevelChangePropagator(LoggerContext loggerContext) {

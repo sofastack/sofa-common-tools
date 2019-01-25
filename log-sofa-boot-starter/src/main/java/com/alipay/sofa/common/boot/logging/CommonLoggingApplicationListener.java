@@ -21,7 +21,6 @@ import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.Log4j2LoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
-import com.alipay.sofa.common.log.spi.ReInitializeChecker;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
@@ -43,28 +42,21 @@ import static com.alipay.sofa.common.log.Constants.*;
  */
 public class CommonLoggingApplicationListener
                                              implements
-                                             ReInitializeChecker,
                                              ApplicationListener<ApplicationEnvironmentPreparedEvent>,
                                              Ordered {
 
-    private final static AtomicBoolean isReInitialized = new AtomicBoolean(false);
-
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        if (isReInitialized.compareAndSet(false, true)) {
+        if (DefaultReInitializerChecker.isReInitialized.compareAndSet(false, true)) {
             reInitializeLog(loadApplicationEnvironment(event.getEnvironment()));
         }
     }
 
-    public boolean isReInitialize() {
-        return isReInitialized.get();
-    }
-
     public void setReInitialize(boolean value) {
-        isReInitialized.set(value);
+        DefaultReInitializerChecker.isReInitialized.set(value);
     }
 
-    private void reInitializeLog(Map<String, String> context) {
+    public void reInitializeLog(Map<String, String> context) {
         for (String key : context.keySet()) {
             if (key.startsWith(Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX)
                 && !key.equals(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH)) {
