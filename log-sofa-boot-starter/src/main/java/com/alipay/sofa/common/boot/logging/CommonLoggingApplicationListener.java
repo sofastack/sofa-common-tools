@@ -59,10 +59,11 @@ public class CommonLoggingApplicationListener
     public void reInitializeLog(Map<String, String> context) {
         for (String key : context.keySet()) {
             if (key.startsWith(Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX)
-                && !key.equals(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH)) {
+                && !key.equals(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH)
+                && key.endsWith(Constants.CONSOLE_SUFFIX)) {
                 int index = Constants.SOFA_MIDDLEWARE_CONFIG_PREFIX.length();
                 // minus length of .console
-                int end = key.length() - 8;
+                int end = key.length() - Constants.CONSOLE_SUFFIX.length();
                 String spaceId = key.substring(index, end);
                 LoggerSpaceManager.getLoggerBySpace(spaceId, spaceId);
             }

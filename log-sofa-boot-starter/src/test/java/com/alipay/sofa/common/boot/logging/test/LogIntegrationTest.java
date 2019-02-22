@@ -356,6 +356,24 @@ public class LogIntegrationTest {
         }
     }
 
+    /**
+     * test sofa.middleware.log.disable
+     */
+    @Test
+    public void testDisableMiddleLog() {
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(Constants.SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
+        SpringApplication springApplication = new SpringApplication(EmptyConfig.class);
+        springApplication.setDefaultProperties(properties);
+        springApplication.run(new String[] {});
+        logger.info("global space console");
+        logger.debug("global space console debug");
+        Assert.assertFalse(outContent.toString().contains("global space console"));
+        Assert.assertFalse(outContent.toString().contains("global space console debug"));
+        LogEnvUtils.processGlobalSystemLogProperties().remove(
+            Constants.SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY);
+    }
+
     protected File getLogbackDefaultFile(Environment environment) {
         String loggingRoot = environment.getProperty(Constants.LOG_PATH_PREFIX + TEST_SPACE);
         if (StringUtil.isBlank(loggingRoot)) {
