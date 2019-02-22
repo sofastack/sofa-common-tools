@@ -77,6 +77,8 @@ public interface Constants {
     String SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH                = "sofa.middleware.log.console";
     // single space switch to log on console
     String SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH             = "sofa.middleware.log.%s.console";
+    // console string
+    String CONSOLE_SUFFIX                                        = ".console";
     // sofa-common-tools 自身日志开关
     // internal log level config.
     String SOFA_MIDDLEWARE_LOG_INTERNAL_LEVEL                    = "sofa.middleware.log.internal.level";
