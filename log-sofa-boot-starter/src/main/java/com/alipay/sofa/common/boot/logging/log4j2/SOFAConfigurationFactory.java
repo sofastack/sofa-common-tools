@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.boot.logging.log4j2;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.*;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -51,6 +52,10 @@ public class SOFAConfigurationFactory extends ConfigurationFactory {
     public static final class SOFAConfiguration extends DefaultConfiguration {
         private SOFAConfiguration() {
             this.isShutdownHookEnabled = false;
+            String levelName = System.getProperty(DefaultConfiguration.DEFAULT_LEVEL,
+                Level.INFO.name());
+            Level level = Level.valueOf(levelName);
+            getRootLogger().setLevel(level != null ? level : Level.INFO);
         }
     }
 
