@@ -16,29 +16,22 @@
  */
 package com.alipay.sofa.common.boot.logging.test;
 
-import com.alipay.sofa.common.boot.logging.CommonLoggingApplicationListener;
 import com.alipay.sofa.common.log.*;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.ThreadContext;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,46 +40,7 @@ import java.util.Map;
  * @author qilong.zql
  * @since 1.0.15
  */
-public class LogIntegrationTest {
-
-    public static final String         TEST_SPACE  = "test.space";
-    public static Logger               logger;
-
-    private ByteArrayOutputStream      outContent;
-    private ByteArrayOutputStream      errContent;
-    private final PrintStream          originalOut = System.out;
-    private final PrintStream          originalErr = System.err;
-    private static Map<Object, Object> SPACES_MAP;
-
-    static {
-        try {
-            Field spacesMapField = MultiAppLoggerSpaceManager.class.getDeclaredField("SPACES_MAP");
-            spacesMapField.setAccessible(true);
-            SPACES_MAP = (Map<Object, Object>) spacesMapField.get(MultiAppLoggerSpaceManager.class);
-        } catch (Throwable throwable) {
-            // ignore
-        }
-    }
-
-    @Before
-    public void setUpStreams() {
-        logger = LoggerSpaceManager.getLoggerBySpace(LogIntegrationTest.class.getCanonicalName(),
-            TEST_SPACE);
-        outContent = new ByteArrayOutputStream();
-        errContent = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
-    }
-
-    @After
-    public void restoreStreams() throws IOException {
-        System.setOut(originalOut);
-        System.setErr(originalErr);
-        outContent.close();
-        errContent.close();
-        SPACES_MAP.remove(new SpaceId(TEST_SPACE));
-        new CommonLoggingApplicationListener().setReInitialize(false);
-    }
+public class LogbackIntegrationTest extends BaseLogIntegrationTest {
 
     @Test
     public void testDefaultLevel() throws IOException {
@@ -340,7 +294,7 @@ public class LogIntegrationTest {
         try {
             System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
             SPACES_MAP.remove(new SpaceId(TEST_SPACE));
-            LoggerSpaceManager.getLoggerBySpace(LogIntegrationTest.class.getCanonicalName(),
+            LoggerSpaceManager.getLoggerBySpace(LogbackIntegrationTest.class.getCanonicalName(),
                 TEST_SPACE);
             ThreadContext.put("testKey", "testValue");
             ThreadContext.put("logging.path", "anyPath");
