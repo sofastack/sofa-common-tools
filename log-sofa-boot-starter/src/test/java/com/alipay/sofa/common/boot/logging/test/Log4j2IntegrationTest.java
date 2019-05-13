@@ -20,15 +20,16 @@ import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.LoggerSpaceManager;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
+import org.apache.logging.log4j.core.appender.AbstractManager;
 import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.SpringApplication;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,9 +39,22 @@ import java.util.Map;
  */
 public class Log4j2IntegrationTest extends BaseLogIntegrationTest {
 
+    protected static Map<Object, Object> MANAGER_MAP;
+
+    static {
+        try {
+            Field MAP = AbstractManager.class.getDeclaredField("MAP");
+            MAP.setAccessible(true);
+            MANAGER_MAP = (Map<Object, Object>) MAP.get(AbstractManager.class);
+        } catch (Throwable throwable) {
+            // ignore
+        }
+    }
+
     @Before
     @Override
     public void setUpStreams() {
+        MANAGER_MAP.clear();
         System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
         super.setUpStreams();
     }
@@ -56,7 +70,6 @@ public class Log4j2IntegrationTest extends BaseLogIntegrationTest {
      * test log4j2 info log to console
      */
     @Test
-    @Ignore
     public void testLog4j2InfoToConsole() {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(

@@ -40,8 +40,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static com.alipay.sofa.common.log.Constants.*;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH;
 
 /**
  * @author qilong.zql
