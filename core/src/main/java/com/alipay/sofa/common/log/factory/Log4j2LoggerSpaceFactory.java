@@ -128,6 +128,9 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         for (Map.Entry entry : properties.entrySet()) {
             config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
         }
+        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+            config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
+        }
         context.start(config);
         return context;
     }
