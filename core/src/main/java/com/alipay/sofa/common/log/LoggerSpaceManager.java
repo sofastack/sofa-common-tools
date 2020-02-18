@@ -17,6 +17,7 @@
 package com.alipay.sofa.common.log;
 
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
@@ -39,8 +40,8 @@ public class LoggerSpaceManager {
      * @return org.slf4j.Logger;
      */
     public static Logger getLoggerBySpace(String name, String spaceName) {
-        return getLoggerBySpace(name, new SpaceId(spaceName),
-            Collections.<String, String> emptyMap());
+        ClassLoader callerClassLoader = ClassLoaderUtil.getCallerClassLoader();
+        return getLoggerBySpace(name, spaceName, callerClassLoader);
     }
 
     /**
@@ -52,9 +53,8 @@ public class LoggerSpaceManager {
      */
     public static Logger getLoggerBySpace(String name, SpaceId spaceId,
                                           Map<String, String> properties) {
-        //init first
-        init(spaceId, properties);
-        return MultiAppLoggerSpaceManager.getLoggerBySpace(name, spaceId);
+        ClassLoader callerClassLoader = ClassLoaderUtil.getCallerClassLoader();
+        return getLoggerBySpace(name, spaceId, properties, callerClassLoader);
     }
 
     /**

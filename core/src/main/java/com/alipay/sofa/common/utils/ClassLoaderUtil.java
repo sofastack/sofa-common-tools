@@ -48,6 +48,15 @@ public class ClassLoaderUtil {
         return loadClass(className, classLoader);
     }
 
+    public static ClassLoader getCallerClassLoader() {
+        try {
+            String callerClassName = Thread.currentThread().getStackTrace()[3].getClassName();
+            return loadClass(callerClassName).getClassLoader();
+        } catch (Throwable t) {
+            throw new RuntimeException("Failed to get caller classloader ", t);
+        }
+    }
+
     public static Class<?> loadClass(String className, ClassLoader classLoader)
                                                                                throws ClassNotFoundException {
         if (className == null) {
