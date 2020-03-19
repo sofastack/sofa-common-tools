@@ -31,11 +31,12 @@ import java.util.concurrent.TimeUnit;
 public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     @Test
     public void test() throws Exception {
+        System.setProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY, "true");
+
         SofaThreadPoolExecutor threadPool = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(2));
         threadPool.setPeriod(1);
         threadPool.setTaskTimeout(2);
-        threadPool.startSchedule();
 
         threadPool.execute(new SleepTask(3200));
         threadPool.execute(new SleepTask(3200));
