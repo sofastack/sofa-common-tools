@@ -161,7 +161,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     public void setName(String name) {
+        ThreadPoolGovernor.unregisterThreadPoolExecutor(this.name);
         this.name = name;
+        ThreadPoolGovernor.registerThreadPoolExecutor(name, this);
     }
 
     public void setPeriod(long period) {
