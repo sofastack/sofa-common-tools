@@ -21,10 +21,10 @@ import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,20 +32,23 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    private static long                         period    = 30;
-    private static boolean                      loggable  = false;
+    private static long                         period             = 30;
+    private static boolean                      loggable           = false;
 
-    public static ScheduledExecutorService      scheduler = Executors.newScheduledThreadPool(1);
+    public static ScheduledExecutorService      scheduler          = Executors
+                                                                       .newScheduledThreadPool(1);
     private static ScheduledFuture<?>           scheduledFuture;
     private static GovernorInfoDumper           governorInfoDumper = new GovernorInfoDumper();
 
-    private static Map<String, ExecutorService> registry  = new ConcurrentHashMap<String, ExecutorService>();
+    private static Map<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
     public synchronized static void start() {
         if (scheduledFuture == null) {
-            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period, TimeUnit.SECONDS);
+            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                TimeUnit.SECONDS);
         }
     }
+
     public synchronized static void stop() {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
@@ -56,16 +59,16 @@ public class ThreadPoolGovernor {
     /**
      * Can also be used to manage JDK thread pool
      * @param name thread pool name
-     * @param executorService thread pool instance
+     * @param threadPoolExecutor thread pool instance
      */
-    public static void registerThreadPoolExecutor(String name, ExecutorService executorService) {
+    public static void registerThreadPoolExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
         if (StringUtil.isEmpty(name)) {
             ThreadLogger.error("Rejected registering request of instance {} with empty name: {}.",
-                executorService, name);
+                    threadPoolExecutor, name);
             return;
         }
 
-        registry.put(name, executorService);
+        registry.put(name, threadPoolExecutor);
         ThreadLogger.info("ThreadPool with name '{}' registered", name);
     }
 
@@ -78,7 +81,7 @@ public class ThreadPoolGovernor {
         ThreadLogger.info("ThreadPool with name '{}' unregistered", name);
     }
 
-    public static ExecutorService getThreadPoolExecutor(String name) {
+    public static ThreadPoolExecutor getThreadPoolExecutor(String name) {
         return registry.get(name);
     }
 
@@ -89,7 +92,7 @@ public class ThreadPoolGovernor {
                 if (loggable) {
                     for (String name : registry.keySet()) {
                         ThreadLogger.info("Thread pool '{}' exists with instance: {}", name,
-                                registry.get(name));
+                            registry.get(name));
                     }
                 }
             } catch (Exception e) {
@@ -107,7 +110,8 @@ public class ThreadPoolGovernor {
 
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
-            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period, TimeUnit.SECONDS);
+            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                TimeUnit.SECONDS);
         }
     }
 
