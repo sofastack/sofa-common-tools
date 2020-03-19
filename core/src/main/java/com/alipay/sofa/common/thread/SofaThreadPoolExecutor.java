@@ -36,6 +36,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     private long                                 period               = DEFAULT_PERIOD;
     private TimeUnit                             timeUnit             = DEFAULT_TIME_UNIT;
     private ScheduledFuture<?>                   scheduledFuture;
+    private final Object                         monitor              = new Object();
 
     private Map<Runnable, RunnableExecutionInfo> executingTasks       = new ConcurrentHashMap<Runnable, RunnableExecutionInfo>();
 
@@ -96,22 +97,53 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         scheduleAndRegister(period, timeUnit);
     }
 
+    /**
+     * System property {@code SOFA_THREAD_POOL_LOGGING_CAPABILITY} controls whether logging
+     */
     private void scheduleAndRegister(long period, TimeUnit unit) {
-        scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period, period,
-            unit);
-        name = createName();
         ThreadPoolGovernor.registerThreadPoolExecutor(this);
+        if ("true".equals(System
+            .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY))) {
+            synchronized (monitor) {
+                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
+                    period, unit);
+            }
+        }
     }
 
     private String createName() {
         return "p" + period + "t" + taskTimeout + "u" + timeUnit + (this.hashCode() & 0xffff);
     }
 
-    private synchronized void reschedule(long period, TimeUnit unit) {
-        scheduledFuture.cancel(true);
-        scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period, period,
-            unit);
-        ThreadLogger.info("Reschedule thread pool '{}' with period: {}", name, period);
+    public synchronized void startSchedule() {
+        synchronized (monitor) {
+            if (scheduledFuture == null) {
+                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
+                    period, timeUnit);
+                ThreadLogger.info("Thread pool '{}' started with period: {}", name, period);
+            }
+        }
+    }
+
+    public synchronized void stopSchedule() {
+        synchronized (monitor) {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+                scheduledFuture = null;
+                ThreadLogger.info("Thread pool '{}' stopped.", name);
+            }
+        }
+    }
+
+    private void reschedule(long period, TimeUnit unit) {
+        synchronized (monitor) {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
+                    period, unit);
+                ThreadLogger.info("Reschedule thread pool '{}' with period: {}", name, period);
+            }
+        }
     }
 
     @Override

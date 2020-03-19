@@ -35,6 +35,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             new ArrayBlockingQueue<Runnable>(2));
         threadPool.setPeriod(1);
         threadPool.setTaskTimeout(2);
+        threadPool.startSchedule();
 
         threadPool.execute(new SleepTask(3200));
         threadPool.execute(new SleepTask(3200));
@@ -42,7 +43,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         List<ILoggingEvent> logList = governListAppender.list;
         threadPool.shutdown();
         threadPool.awaitTermination(10, TimeUnit.SECONDS);
-        Assert.assertEquals(11, logList.size());
+        Assert.assertEquals(13, logList.size());
     }
 
     static class SleepTask implements Runnable {

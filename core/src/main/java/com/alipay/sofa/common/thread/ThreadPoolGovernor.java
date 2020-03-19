@@ -38,24 +38,29 @@ public class ThreadPoolGovernor {
     public static ScheduledExecutorService         scheduler          = Executors
                                                                           .newScheduledThreadPool(1);
     private static ScheduledFuture<?>              scheduledFuture;
+    private static final Object                    monitor            = new Object();
     private static GovernorInfoDumper              governorInfoDumper = new GovernorInfoDumper();
 
     private static Map<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
-    public synchronized static void start() {
-        if (scheduledFuture == null) {
-            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
-                TimeUnit.SECONDS);
-            ThreadLogger.info("Started {} with period: {}",
-                ThreadPoolGovernor.class.getCanonicalName(), period);
+    public static void startSchedule() {
+        synchronized (monitor) {
+            if (scheduledFuture == null) {
+                scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                    TimeUnit.SECONDS);
+                ThreadLogger.info("Started {} with period: {}",
+                    ThreadPoolGovernor.class.getCanonicalName(), period);
+            }
         }
     }
 
-    public synchronized static void stop() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-            scheduledFuture = null;
-            ThreadLogger.info("Stopped {}.", ThreadPoolGovernor.class.getCanonicalName());
+    public static void stopSchedule() {
+        synchronized (monitor) {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+                scheduledFuture = null;
+                ThreadLogger.info("Stopped {}.", ThreadPoolGovernor.class.getCanonicalName());
+            }
         }
     }
 
@@ -108,15 +113,17 @@ public class ThreadPoolGovernor {
         return period;
     }
 
-    public synchronized static void setPeriod(long period) {
+    public static void setPeriod(long period) {
         ThreadPoolGovernor.period = period;
 
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
-                TimeUnit.SECONDS);
-            ThreadLogger.info("Reschedule {} with period: {}",
-                ThreadPoolGovernor.class.getCanonicalName(), period);
+        synchronized (monitor) {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+                scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                    TimeUnit.SECONDS);
+                ThreadLogger.info("Reschedule {} with period: {}",
+                    ThreadPoolGovernor.class.getCanonicalName(), period);
+            }
         }
     }
 

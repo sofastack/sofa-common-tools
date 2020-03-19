@@ -38,10 +38,10 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
         ThreadPoolGovernor.registerThreadPoolExecutor("test2", new ThreadPoolExecutor(1, 1, 4,
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
-        ThreadPoolGovernor.start();
+        ThreadPoolGovernor.startSchedule();
 
         Thread.sleep(2200);
         List<ILoggingEvent> logList = governListAppender.list;
-        Assert.assertEquals(6, logList.size());
+        Assert.assertEquals(7, logList.size());
     }
 }
