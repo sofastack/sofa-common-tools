@@ -111,6 +111,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         scheduledFuture.cancel(true);
         scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period, period,
             unit);
+        ThreadLogger.info("Reschedule thread pool '{}' with period: {}", name, period);
     }
 
     @Override
@@ -173,6 +174,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
     public void setTaskTimeout(long taskTimeout) {
         this.taskTimeout = taskTimeout;
+        ThreadLogger.info("Updated taskTimeout to {}", taskTimeout);
     }
 
     static class RunnableExecutionInfo {
