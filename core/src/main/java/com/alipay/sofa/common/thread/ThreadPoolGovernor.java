@@ -46,7 +46,8 @@ public class ThreadPoolGovernor {
         if (scheduledFuture == null) {
             scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                 TimeUnit.SECONDS);
-            ThreadLogger.info("Started {} with period: {}", ThreadPoolGovernor.class.getCanonicalName(), period);
+            ThreadLogger.info("Started {} with period: {}",
+                ThreadPoolGovernor.class.getCanonicalName(), period);
         }
     }
 
@@ -114,7 +115,8 @@ public class ThreadPoolGovernor {
             scheduledFuture.cancel(true);
             scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                 TimeUnit.SECONDS);
-            ThreadLogger.info("Reschedule {} with period: {}", ThreadPoolGovernor.class.getCanonicalName(), period);
+            ThreadLogger.info("Reschedule {} with period: {}",
+                ThreadPoolGovernor.class.getCanonicalName(), period);
         }
     }
 
