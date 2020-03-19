@@ -46,6 +46,12 @@ public class ThreadPoolGovernor {
             scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period, TimeUnit.SECONDS);
         }
     }
+    public synchronized static void stop() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+        }
+    }
 
     /**
      * Can also be used to manage JDK thread pool
