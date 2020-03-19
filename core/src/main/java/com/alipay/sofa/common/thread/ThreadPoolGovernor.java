@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,11 +36,15 @@ public class ThreadPoolGovernor {
     private static boolean                      loggable  = false;
 
     public static ScheduledExecutorService      scheduler = Executors.newScheduledThreadPool(1);
+    private static ScheduledFuture<?>           scheduledFuture;
+    private static GovernorInfoDumper           governorInfoDumper = new GovernorInfoDumper();
 
     private static Map<String, ExecutorService> registry  = new ConcurrentHashMap<String, ExecutorService>();
 
-    public static void start() {
-        scheduler.scheduleAtFixedRate(new GovernorInfoDumper(), period, period, TimeUnit.SECONDS);
+    public synchronized static void start() {
+        if (scheduledFuture == null) {
+            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period, TimeUnit.SECONDS);
+        }
     }
 
     /**
@@ -74,11 +79,15 @@ public class ThreadPoolGovernor {
     static class GovernorInfoDumper implements Runnable {
         @Override
         public void run() {
-            if (loggable) {
-                for (String name : registry.keySet()) {
-                    ThreadLogger.info("Thread pool '{}' exists with instance: {}", name,
-                        registry.get(name));
+            try {
+                if (loggable) {
+                    for (String name : registry.keySet()) {
+                        ThreadLogger.info("Thread pool '{}' exists with instance: {}", name,
+                                registry.get(name));
+                    }
                 }
+            } catch (Exception e) {
+                ThreadLogger.warn("{} is interrupted when running: {}", this, e);
             }
         }
     }
@@ -87,8 +96,13 @@ public class ThreadPoolGovernor {
         return period;
     }
 
-    public static void setPeriod(long period) {
+    public synchronized static void setPeriod(long period) {
         ThreadPoolGovernor.period = period;
+
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period, TimeUnit.SECONDS);
+        }
     }
 
     public static boolean isLoggable() {

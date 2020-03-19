@@ -107,7 +107,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         return "p" + period + "t" + taskTimeout + "u" + timeUnit + (this.hashCode() & 0xffff);
     }
 
-    private void reschedule(long period, TimeUnit unit) {
+    private synchronized void reschedule(long period, TimeUnit unit) {
         scheduledFuture.cancel(true);
         scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period, period,
             unit);
@@ -152,7 +152,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                 executingTasks.size(), this.getPoolSize() - executingTasks.size(),
                 this.getPoolSize(), decayedTaskCount);
         } catch (Exception e) {
-            ThreadLogger.warn("ThreadPool '{}' is interrupted when running!", this.name);
+            ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}", this.name, e);
         }
     }
 
