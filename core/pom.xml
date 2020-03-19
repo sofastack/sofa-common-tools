@@ -11,11 +11,6 @@
 
     <artifactId>sofa-common-tools</artifactId>
 
-    <properties>
-        <!-- log4j2 2.3 for jdk6  -->
-        <log4j2.version>2.3</log4j2.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -84,15 +79,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

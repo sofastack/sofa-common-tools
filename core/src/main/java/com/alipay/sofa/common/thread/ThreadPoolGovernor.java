@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.utils.thread;
+package com.alipay.sofa.common.thread;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.alipay.sofa.common.thread.log.ThreadLogger;
+import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,28 +31,31 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    private static final Logger                    logger    = LoggerFactory
-                                                                 .getLogger(ThreadPoolGovernor.class);
+    private static long                         period    = 30;
+    private static boolean                      loggable  = false;
 
-    private static long                            period    = 30;
-    private static boolean                         loggable  = false;
+    public static ScheduledExecutorService      scheduler = Executors.newScheduledThreadPool(1);
 
-    public static ScheduledExecutorService         scheduler = Executors.newScheduledThreadPool(1);
+    private static Map<String, ExecutorService> registry  = new ConcurrentHashMap<String, ExecutorService>();
 
-    private static Map<String, ThreadPoolExecutor> registry  = new ConcurrentHashMap<String, ThreadPoolExecutor>();
-
-    static {
+    public static void start() {
         scheduler.scheduleAtFixedRate(new GovernorInfoDumper(), period, period, TimeUnit.SECONDS);
     }
 
     /**
-     * Can be used to manage JDK thread pool
+     * Can also be used to manage JDK thread pool
      * @param name thread pool name
-     * @param threadPoolExecutor thread pool instance
+     * @param executorService thread pool instance
      */
-    public static void registerThreadPoolExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
-        registry.put(name, threadPoolExecutor);
-        logger.info(String.format("ThreadPool with name '%s' registered", name));
+    public static void registerThreadPoolExecutor(String name, ExecutorService executorService) {
+        if (StringUtil.isEmpty(name)) {
+            ThreadLogger.error("Rejected registering request of instance {} with empty name: {}.",
+                executorService, name);
+            return;
+        }
+
+        registry.put(name, executorService);
+        ThreadLogger.info("ThreadPool with name '{}' registered", name);
     }
 
     public static void registerThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
@@ -61,10 +64,10 @@ public class ThreadPoolGovernor {
 
     public static void unregisterThreadPoolExecutor(String name) {
         registry.remove(name);
-        logger.info(String.format("ThreadPool with name '%s' unregistered", name));
+        ThreadLogger.info("ThreadPool with name '{}' unregistered", name);
     }
 
-    public static ThreadPoolExecutor getThreadPoolExecutor(String name) {
+    public static ExecutorService getThreadPoolExecutor(String name) {
         return registry.get(name);
     }
 
@@ -73,8 +76,8 @@ public class ThreadPoolGovernor {
         public void run() {
             if (loggable) {
                 for (String name : registry.keySet()) {
-                    logger.info(String.format("Thread pool %s exists with instance: %s", name,
-                        registry.get(name)));
+                    ThreadLogger.info("Thread pool '{}' exists with instance: {}", name,
+                        registry.get(name));
                 }
             }
         }

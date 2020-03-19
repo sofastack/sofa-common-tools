@@ -8,6 +8,7 @@
     <modules>
         <module>core</module>
         <module>log-sofa-boot-starter</module>
+        <module>test</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -27,6 +28,8 @@
         <logback.version>1.1.7</logback.version>
         <slf4j.version>1.7.21</slf4j.version>
         <common.tools.version>1.1.0-SNAPSHOT</common.tools.version>
+        <log4j2.version>2.3</log4j2.version>
+        <java.version>1.6</java.version>
     </properties>
 
     <dependencyManagement>
@@ -36,11 +39,23 @@
                 <artifactId>sofa-common-tools</artifactId>
                 <version>${common.tools.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.alipay.sofa.common</groupId>
                 <artifactId>log-sofa-boot-starter</artifactId>
                 <version>${common.tools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.11</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -64,6 +79,15 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
