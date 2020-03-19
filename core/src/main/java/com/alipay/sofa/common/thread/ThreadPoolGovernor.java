@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    private static long                         period             = 30;
-    private static boolean                      loggable           = false;
+    private static long                            period             = 30;
+    private static boolean                         loggable           = false;
 
-    public static ScheduledExecutorService      scheduler          = Executors
-                                                                       .newScheduledThreadPool(1);
-    private static ScheduledFuture<?>           scheduledFuture;
-    private static GovernorInfoDumper           governorInfoDumper = new GovernorInfoDumper();
+    public static ScheduledExecutorService         scheduler          = Executors
+                                                                          .newScheduledThreadPool(1);
+    private static ScheduledFuture<?>              scheduledFuture;
+    private static GovernorInfoDumper              governorInfoDumper = new GovernorInfoDumper();
 
     private static Map<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
@@ -64,7 +64,7 @@ public class ThreadPoolGovernor {
     public static void registerThreadPoolExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
         if (StringUtil.isEmpty(name)) {
             ThreadLogger.error("Rejected registering request of instance {} with empty name: {}.",
-                    threadPoolExecutor, name);
+                threadPoolExecutor, name);
             return;
         }
 

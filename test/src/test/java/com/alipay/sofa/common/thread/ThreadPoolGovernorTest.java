@@ -21,7 +21,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
@@ -32,8 +34,10 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
     public void test() throws Exception {
         ThreadPoolGovernor.setPeriod(1);
         ThreadPoolGovernor.setLoggable(true);
-        ThreadPoolGovernor.registerThreadPoolExecutor("test1", Executors.newSingleThreadExecutor());
-        ThreadPoolGovernor.registerThreadPoolExecutor("test2", Executors.newSingleThreadExecutor());
+        ThreadPoolGovernor.registerThreadPoolExecutor("test1", new ThreadPoolExecutor(1, 1, 4,
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
+        ThreadPoolGovernor.registerThreadPoolExecutor("test2", new ThreadPoolExecutor(1, 1, 4,
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
         ThreadPoolGovernor.start();
 
         Thread.sleep(2200);
