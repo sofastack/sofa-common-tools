@@ -26,9 +26,9 @@ import java.util.concurrent.*;
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
-    private static long                          DEFAULT_TASK_TIMEOUT = 30;
-    private static long                          DEFAULT_PERIOD       = 5;
-    private static TimeUnit                      DEFAULT_TIME_UNIT    = TimeUnit.SECONDS;
+    private static long                          DEFAULT_TASK_TIMEOUT = 30000;
+    private static long                          DEFAULT_PERIOD       = 5000;
+    private static TimeUnit                      DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
 
     private String                               name;
 
@@ -101,6 +101,11 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     protected void terminated() {
         super.terminated();
         ThreadPoolGovernor.unregisterThreadPoolExecutor(name);
+        synchronized (monitor) {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+            }
+        }
     }
 
     /**
@@ -108,12 +113,15 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
      */
     private void scheduleAndRegister(long period, TimeUnit unit) {
         ThreadPoolGovernor.registerThreadPoolExecutor(this);
-        if ("true".equals(System
+        if ("false".equals(System
             .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY))) {
-            synchronized (monitor) {
-                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
-                    period, unit);
-            }
+            return;
+        }
+
+        synchronized (monitor) {
+            scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
+                period, unit);
+            ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period, unit);
         }
     }
 
@@ -127,7 +135,11 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             if (scheduledFuture == null) {
                 scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
                     period, timeUnit);
-                ThreadLogger.info("Thread pool '{}' started with period: {}", name, period);
+                ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period,
+                    timeUnit);
+            } else {
+                ThreadLogger.warn("Thread pool '{}' is already started with period: {} {}", name,
+                    period, timeUnit);
             }
         }
     }
@@ -138,6 +150,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                 scheduledFuture.cancel(true);
                 scheduledFuture = null;
                 ThreadLogger.info("Thread pool '{}' stopped.", name);
+            } else {
+                ThreadLogger.warn("Thread pool '{}' is already stopped", name);
             }
         }
     }
@@ -148,7 +162,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                 scheduledFuture.cancel(true);
                 scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
                     period, unit);
-                ThreadLogger.info("Reschedule thread pool '{}' with period: {}", name, period);
+                ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", name, period,
+                    unit);
             }
         }
     }
@@ -184,16 +199,16 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                         }
                         ThreadLogger
                             .warn(
-                                "ThreadPool {}: task {} exceeds the limit of execution time with stack trace: \n    {}",
+                                "Thread pool '{}': task {} exceeds the limit of execution time with stack trace: \n    {}",
                                 getName(), task, sb.toString().trim());
                     }
                 }
             }
 
             // threadPoolName, #queue, #executing, #idle, #pool, #decayed
-            ThreadLogger.info("{} info: [{},{},{},{},{}]", getName(), this.getQueue().size(),
-                executingTasks.size(), this.getPoolSize() - executingTasks.size(),
-                this.getPoolSize(), decayedTaskCount);
+            ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", getName(), this.getQueue()
+                .size(), executingTasks.size(), this.getPoolSize() - executingTasks.size(), this
+                .getPoolSize(), decayedTaskCount);
         } catch (Exception e) {
             ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}", this.name, e);
         }
@@ -214,9 +229,21 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         reschedule(period, timeUnit);
     }
 
+    public long getTaskTimeout() {
+        return taskTimeout;
+    }
+
     public void setTaskTimeout(long taskTimeout) {
         this.taskTimeout = taskTimeout;
-        ThreadLogger.info("Updated taskTimeout to {}", taskTimeout);
+        ThreadLogger.info("Updated taskTimeout to {} {}", taskTimeout, timeUnit);
+    }
+
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
+    }
+
+    public long getPeriod() {
+        return period;
     }
 
     static class RunnableExecutionInfo {

@@ -20,13 +20,22 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
+import org.junit.After;
 import org.junit.Before;
+
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/3/18
  */
 public class ThreadPoolTestBase {
+    protected static final String         INFO  = "INFO";
+    protected static final String         WARN  = "WARN";
+    protected static final String         ERROR = "ERROR";
+
     protected ListAppender<ILoggingEvent> infoListAppender;
     protected ListAppender<ILoggingEvent> warnListAppender;
 
@@ -42,5 +51,62 @@ public class ThreadPoolTestBase {
         warnListAppender.start();
         ((Logger) ThreadLogger.INFO_THREAD_LOGGER).addAppender(infoListAppender);
         ((Logger) ThreadLogger.WARN_THREAD_LOGGER).addAppender(warnListAppender);
+    }
+
+    @After
+    @SuppressWarnings("unchecked")
+    public void clearUp() throws Exception {
+        ThreadPoolGovernor.stopSchedule();
+
+        Field f = ThreadPoolGovernor.class.getDeclaredField("registry");
+        f.setAccessible(true);
+        Map<String, ThreadPoolExecutor> registry = (Map<String, ThreadPoolExecutor>) f.get(null);
+        for (ThreadPoolExecutor executor : registry.values()) {
+            executor.shutdownNow();
+        }
+        registry.clear();
+    }
+
+    protected String getInfoViaIndex(int i) {
+        if (i < 0) {
+            return "";
+        }
+        return infoListAppender.list.get(i).toString();
+    }
+
+    protected String getWarnViaIndex(int i) {
+        if (i < 0) {
+            return "";
+        }
+        return warnListAppender.list.get(i).toString();
+    }
+
+    protected String lastInfoString() {
+        return getInfoViaIndex(infoListAppender.list.size() - 1);
+    }
+
+    protected String lastWarnString() {
+        return getWarnViaIndex(warnListAppender.list.size() - 1);
+    }
+
+    protected boolean isMatch(String str, String type, String reg) {
+        return str.matches("\\[" + type + "\\] " + reg);
+    }
+
+    protected boolean isLastInfoMatch(String reg) {
+        return isMatch(lastInfoString(), INFO, reg);
+    }
+
+    protected boolean isLastWarnMatch(String reg) {
+        return isMatch(lastWarnString(), WARN, reg);
+    }
+
+    protected boolean consecutiveInfoPattern(int startIndex, String... patterns) {
+        for (String pattern : patterns) {
+            if (!isMatch(getInfoViaIndex(startIndex++), INFO, ".+" + pattern + ".+")) {
+                return false;
+            }
+        }
+        return true;
     }
 }

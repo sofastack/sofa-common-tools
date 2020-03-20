@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    private static String                          CLASS_NAME         = ThreadPoolGovernor.class
+    public static String                           CLASS_NAME         = ThreadPoolGovernor.class
                                                                           .getCanonicalName();
     private static long                            period             = 30;
     private static boolean                         loggable           = false;
@@ -50,9 +50,10 @@ public class ThreadPoolGovernor {
             if (scheduledFuture == null) {
                 scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                     TimeUnit.SECONDS);
-                ThreadLogger.info("Started {} with period: {}", CLASS_NAME, period);
+                ThreadLogger.info("Started {} with period: {} SECONDS", CLASS_NAME, period);
             } else {
-                ThreadLogger.warn("{} has already started with period: {}.", CLASS_NAME, period);
+                ThreadLogger.warn("{} has already started with period: {} SECONDS.", CLASS_NAME,
+                    period);
             }
         }
     }
@@ -83,7 +84,7 @@ public class ThreadPoolGovernor {
         }
 
         registry.put(name, threadPoolExecutor);
-        ThreadLogger.info("ThreadPool with name '{}' registered", name);
+        ThreadLogger.info("Thread pool with name '{}' registered", name);
     }
 
     public static void registerThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
@@ -92,7 +93,7 @@ public class ThreadPoolGovernor {
 
     public static void unregisterThreadPoolExecutor(String name) {
         registry.remove(name);
-        ThreadLogger.info("ThreadPool with name '{}' unregistered", name);
+        ThreadLogger.info("Thread pool with name '{}' unregistered", name);
     }
 
     public static ThreadPoolExecutor getThreadPoolExecutor(String name) {
@@ -127,7 +128,7 @@ public class ThreadPoolGovernor {
                 scheduledFuture.cancel(true);
                 scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                     TimeUnit.SECONDS);
-                ThreadLogger.info("Reschedule {} with period: {}", CLASS_NAME, period);
+                ThreadLogger.info("Reschedule {} with period: {} SECONDS", CLASS_NAME, period);
             }
         }
     }
