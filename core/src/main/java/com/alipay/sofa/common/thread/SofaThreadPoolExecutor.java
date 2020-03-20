@@ -112,7 +112,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return "p" + period + "t" + taskTimeout + "u" + timeUnit + this.hashCode();
+        return "P" + period + "T" + taskTimeout + "U" + timeUnit + this.hashCode();
     }
 
     public synchronized void startSchedule() {

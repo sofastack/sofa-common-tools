@@ -7,9 +7,9 @@
     </Properties>
 
     <appenders>
-        <RollingFile name="ERROR-APPENDER" fileName="${THREAD_LOG_PATH}/sofa-thread/common-error.log" append="true"
-                     filePattern="${THREAD_LOG_PATH}/sofa-thread/common-error.log.%d{yyyy-MM-dd}">
-            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+        <RollingFile name="WARN-APPENDER" fileName="${THREAD_LOG_PATH}/sofa-thread/aberrant-digest.log" append="true"
+                     filePattern="${THREAD_LOG_PATH}/sofa-thread/aberrant-error.log.%d{yyyy-MM-dd}">
+            <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout charset="${THREAD_FILE_ENCODING}">
                 <pattern>%d %-5p %-24t - %m%n</pattern>
             </PatternLayout>
@@ -18,8 +18,8 @@
             </Policies>
         </RollingFile>
 
-        <RollingFile name="SOFA-APPENDER" fileName="${THREAD_LOG_PATH}/sofa-thread/common-default.log" append="true"
-                     filePattern="${THREAD_LOG_PATH}/sofa-thread/common-default.log.%d{yyyy-MM-dd}">
+        <RollingFile name="SOFA-APPENDER" fileName="${THREAD_LOG_PATH}/sofa-thread/thread-digest.log" append="true"
+                     filePattern="${THREAD_LOG_PATH}/sofa-thread/thread-digest.log.%d{yyyy-MM-dd}">
             <ThresholdFilter level="${THREAD_LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout charset="${THREAD_FILE_ENCODING}">
                 <pattern>%d %-5p %-24t - %m%n</pattern>
@@ -33,12 +33,15 @@
     <loggers>
         <logger name="com.alipay.sofa.thread" level="${THREAD_LOG_LEVEL}" additivity="false">
             <appender-ref ref="SOFA-APPENDER"/>
-            <appender-ref ref="ERROR-APPENDER"/>
+        </logger>
+
+        <logger name="com.alipay.sofa.thread.warn" level="warn" additivity="false">
+            <appender-ref ref="WARN-APPENDER"/>
         </logger>
 
         <root level="${THREAD_LOG_LEVEL}" additivity="false">
             <appender-ref ref="SOFA-APPENDER"/>
-            <appender-ref ref="ERROR-APPENDER"/>
+            <appender-ref ref="WARN-APPENDER"/>
         </root>
     </loggers>
 </configuration>

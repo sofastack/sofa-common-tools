@@ -37,6 +37,6 @@ public class ThreadPoolTestBase {
 
         governListAppender = new ListAppender<ILoggingEvent>();
         governListAppender.start();
-        ((Logger) ThreadLogger.THREAD_LOGGER).addAppender(governListAppender);
+        //((Logger) ThreadLogger.THREAD_LOGGER).addAppender(governListAppender);
     }
 }

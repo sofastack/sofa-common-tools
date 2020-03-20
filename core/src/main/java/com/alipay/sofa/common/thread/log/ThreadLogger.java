@@ -24,30 +24,31 @@ import org.slf4j.Logger;
  * Created on 2020/3/19
  */
 public class ThreadLogger {
-    public static final Logger THREAD_LOGGER = ThreadLoggerFactory
+    public static final Logger INFO_THREAD_LOGGER = ThreadLoggerFactory
                                                  .getLogger("com.alipay.sofa.thread");
+    public static final Logger WARN_THREAD_LOGGER = ThreadLoggerFactory.getLogger("com.alipay.sofa.thread.warn");
 
     public static void debug(String format, Object... arguments) {
-        if (THREAD_LOGGER.isDebugEnabled()) {
-            THREAD_LOGGER.debug(format, arguments);
+        if (INFO_THREAD_LOGGER.isDebugEnabled()) {
+            INFO_THREAD_LOGGER.debug(format, arguments);
         }
     }
 
     public static void info(String format, Object... arguments) {
-        if (THREAD_LOGGER.isInfoEnabled()) {
-            THREAD_LOGGER.info(format, arguments);
+        if (INFO_THREAD_LOGGER.isInfoEnabled()) {
+            INFO_THREAD_LOGGER.info(format, arguments);
         }
     }
 
     public static void warn(String format, Object... arguments) {
-        if (THREAD_LOGGER.isWarnEnabled()) {
-            THREAD_LOGGER.warn(format, arguments);
+        if (WARN_THREAD_LOGGER.isWarnEnabled()) {
+            WARN_THREAD_LOGGER.warn(format, arguments);
         }
     }
 
     public static void error(String format, Object... arguments) {
-        if (THREAD_LOGGER.isErrorEnabled()) {
-            THREAD_LOGGER.error(format, arguments);
+        if (WARN_THREAD_LOGGER.isErrorEnabled()) {
+            WARN_THREAD_LOGGER.error(format, arguments);
         }
     }
 }
