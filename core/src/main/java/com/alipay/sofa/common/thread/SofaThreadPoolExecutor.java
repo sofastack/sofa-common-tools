@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
- * @author <a href="mailto:guaner.zzx@alipay.com">guaner.zzx</a>
+ * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
@@ -97,6 +97,12 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         scheduleAndRegister(period, timeUnit);
     }
 
+    @Override
+    protected void terminated() {
+        super.terminated();
+        ThreadPoolGovernor.unregisterThreadPoolExecutor(name);
+    }
+
     /**
      * System property {@code SOFA_THREAD_POOL_LOGGING_CAPABILITY} controls whether logging
      */
@@ -112,7 +118,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return "P" + period + "T" + taskTimeout + "U" + timeUnit + this.hashCode();
+        return "P" + period + "T" + taskTimeout + "U" + timeUnit
+               + String.format("%08x", this.hashCode());
     }
 
     public synchronized void startSchedule() {

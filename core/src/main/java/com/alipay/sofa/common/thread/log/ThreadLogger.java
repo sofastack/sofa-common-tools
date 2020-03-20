@@ -25,8 +25,9 @@ import org.slf4j.Logger;
  */
 public class ThreadLogger {
     public static final Logger INFO_THREAD_LOGGER = ThreadLoggerFactory
-                                                 .getLogger("com.alipay.sofa.thread");
-    public static final Logger WARN_THREAD_LOGGER = ThreadLoggerFactory.getLogger("com.alipay.sofa.thread.warn");
+                                                      .getLogger("com.alipay.sofa.thread");
+    public static final Logger WARN_THREAD_LOGGER = ThreadLoggerFactory
+                                                      .getLogger("com.alipay.sofa.thread.warn");
 
     public static void debug(String format, Object... arguments) {
         if (INFO_THREAD_LOGGER.isDebugEnabled()) {

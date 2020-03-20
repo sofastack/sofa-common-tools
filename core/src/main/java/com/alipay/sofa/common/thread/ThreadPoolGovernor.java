@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
+    private static String                          CLASS_NAME         = ThreadPoolGovernor.class
+                                                                          .getCanonicalName();
     private static long                            period             = 30;
     private static boolean                         loggable           = false;
 
@@ -48,8 +50,9 @@ public class ThreadPoolGovernor {
             if (scheduledFuture == null) {
                 scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                     TimeUnit.SECONDS);
-                ThreadLogger.info("Started {} with period: {}",
-                    ThreadPoolGovernor.class.getCanonicalName(), period);
+                ThreadLogger.info("Started {} with period: {}", CLASS_NAME, period);
+            } else {
+                ThreadLogger.warn("{} has already started with period: {}.", CLASS_NAME, period);
             }
         }
     }
@@ -59,13 +62,16 @@ public class ThreadPoolGovernor {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
                 scheduledFuture = null;
-                ThreadLogger.info("Stopped {}.", ThreadPoolGovernor.class.getCanonicalName());
+                ThreadLogger.info("Stopped {}.", CLASS_NAME);
+            } else {
+                ThreadLogger.warn("{} has already stopped!", CLASS_NAME);
             }
         }
     }
 
     /**
-     * Can also be used to manage JDK thread pool
+     * Can also be used to manage JDK thread pool.
+     * SofaThreadPoolExecutor should **not** call this method!
      * @param name thread pool name
      * @param threadPoolExecutor thread pool instance
      */
@@ -121,8 +127,7 @@ public class ThreadPoolGovernor {
                 scheduledFuture.cancel(true);
                 scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                     TimeUnit.SECONDS);
-                ThreadLogger.info("Reschedule {} with period: {}",
-                    ThreadPoolGovernor.class.getCanonicalName(), period);
+                ThreadLogger.info("Reschedule {} with period: {}", CLASS_NAME, period);
             }
         }
     }

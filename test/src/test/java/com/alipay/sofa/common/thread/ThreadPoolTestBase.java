@@ -27,7 +27,8 @@ import org.junit.Before;
  * Created on 2020/3/18
  */
 public class ThreadPoolTestBase {
-    protected ListAppender<ILoggingEvent> governListAppender;
+    protected ListAppender<ILoggingEvent> infoListAppender;
+    protected ListAppender<ILoggingEvent> warnListAppender;
 
     @Before
     public void beforeTest() {
@@ -35,8 +36,11 @@ public class ThreadPoolTestBase {
         System.setProperty("logging.level.com.alipay.sofa.thread", "debug");
         System.setProperty("file.encoding", "UTF-8");
 
-        governListAppender = new ListAppender<ILoggingEvent>();
-        governListAppender.start();
-        //((Logger) ThreadLogger.THREAD_LOGGER).addAppender(governListAppender);
+        infoListAppender = new ListAppender<ILoggingEvent>();
+        warnListAppender = new ListAppender<ILoggingEvent>();
+        infoListAppender.start();
+        warnListAppender.start();
+        ((Logger) ThreadLogger.INFO_THREAD_LOGGER).addAppender(infoListAppender);
+        ((Logger) ThreadLogger.WARN_THREAD_LOGGER).addAppender(warnListAppender);
     }
 }
