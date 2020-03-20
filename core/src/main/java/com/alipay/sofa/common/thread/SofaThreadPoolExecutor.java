@@ -112,7 +112,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return "p" + period + "t" + taskTimeout + "u" + timeUnit + (this.hashCode() & 0xffff);
+        return "p" + period + "t" + taskTimeout + "u" + timeUnit + this.hashCode();
     }
 
     public synchronized void startSchedule() {
@@ -169,14 +169,17 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                 if (executionInfo.getExecutionTime() >= taskTimeout) {
                     ++decayedTaskCount;
 
-                    StringBuilder sb = new StringBuilder();
-                    for (StackTraceElement e : executionInfo.getThread().getStackTrace()) {
-                        sb.append("    ").append(e).append("\n");
+                    if (!executionInfo.isPrinted()) {
+                        executionInfo.setPrinted(true);
+                        StringBuilder sb = new StringBuilder();
+                        for (StackTraceElement e : executionInfo.getThread().getStackTrace()) {
+                            sb.append("    ").append(e).append("\n");
+                        }
+                        ThreadLogger
+                            .warn(
+                                "ThreadPool {}: task {} exceeds the limit of execution time with stack trace: \n    {}",
+                                getName(), task, sb.toString().trim());
                     }
-                    ThreadLogger
-                        .warn(
-                            "ThreadPool {}: task {} exceeds the limit of execution time with stack trace: \n    {}",
-                            getName(), task, sb.toString().trim());
                 }
             }
 
@@ -210,12 +213,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     static class RunnableExecutionInfo {
-        private long   executionTime;
-        private Thread thread;
+        private long             executionTime;
+        private Thread           thread;
+        private volatile boolean printed;
 
         public RunnableExecutionInfo(Thread thread) {
             executionTime = 0;
             this.thread = thread;
+            printed = false;
         }
 
         public void increaseBy(long period) {
@@ -236,6 +241,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
         public void setThread(Thread thread) {
             this.thread = thread;
+        }
+
+        public boolean isPrinted() {
+            return printed;
+        }
+
+        public void setPrinted(boolean printed) {
+            this.printed = printed;
         }
     }
 }
