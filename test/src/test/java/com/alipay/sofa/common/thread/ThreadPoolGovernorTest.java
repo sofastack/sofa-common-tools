@@ -138,10 +138,6 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         new SofaThreadPoolExecutor(1, 1, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10));
         Thread.sleep(2200);
 
-        for (ILoggingEvent e : infoListAppender.list) {
-            System.out.println(e);
-        }
-
         Assert.assertEquals(NEW_PERIOD, ThreadPoolGovernor.getPeriod());
         Assert.assertEquals(5, infoListAppender.list.size());
         Assert.assertEquals(0, warnListAppender.list.size());
