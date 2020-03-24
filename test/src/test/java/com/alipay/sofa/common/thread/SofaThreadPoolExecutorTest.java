@@ -50,7 +50,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             threadPool.getTimeUnit())));
 
         threadPool.setTaskTimeout(2200);
-        Assert.assertTrue(isLastInfoMatch(String.format("Updated taskTimeout to %s %s",
+        Assert.assertTrue(isLastInfoMatch(String.format("Updated '\\S+' taskTimeout to %s %s",
             threadPool.getTaskTimeout(), threadPool.getTimeUnit())));
 
         threadPool.execute(new SleepTask(4200));
@@ -116,22 +116,5 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
         Assert.assertEquals(numThreads, warnListAppender.list.size());
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));
-    }
-
-    static class SleepTask implements Runnable {
-        private long sleepTime;
-
-        public SleepTask(long sleepTime) {
-            this.sleepTime = sleepTime;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(sleepTime);
-            } catch (Exception e) {
-                // do nothing
-            }
-        }
     }
 }

@@ -235,7 +235,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
     public void setTaskTimeout(long taskTimeout) {
         this.taskTimeout = taskTimeout;
-        ThreadLogger.info("Updated taskTimeout to {} {}", taskTimeout, timeUnit);
+        ThreadLogger.info("Updated '{}' taskTimeout to {} {}", name, taskTimeout, timeUnit);
     }
 
     public TimeUnit getTimeUnit() {

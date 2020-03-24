@@ -109,4 +109,21 @@ public class ThreadPoolTestBase {
         }
         return true;
     }
+
+    static class SleepTask implements Runnable {
+        private long sleepTime;
+
+        public SleepTask(long sleepTime) {
+            this.sleepTime = sleepTime;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+    }
 }

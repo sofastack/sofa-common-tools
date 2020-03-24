@@ -17,6 +17,7 @@
 package com.alipay.sofa.common.utils;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,6 +32,41 @@ import java.util.WeakHashMap;
  */
 public class ClassUtil {
     private static final Map TYPE_MAP = Collections.synchronizedMap(new WeakHashMap());
+
+    /**
+     * Get field from specified object, will lookup in super class until found
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getField(String fieldName, Object o) {
+        Class<?> klass = o.getClass();
+        while (klass != null) {
+            try {
+                Field f = klass.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return (T) f.get(o);
+            } catch (Exception e) {
+                klass = klass.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set field of specified object to value, will try to operate on super class until success
+     */
+    public static <T> void setField(String fieldName, Object o, T value) {
+        Class<?> klass = o.getClass();
+        while (klass != null) {
+            try {
+                Field f = klass.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                f.set(o, value);
+                return;
+            } catch (Exception e) {
+                klass = klass.getSuperclass();
+            }
+        }
+    }
 
     public ClassUtil() {
     }
