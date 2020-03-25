@@ -20,6 +20,7 @@ import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.*;
 import com.alipay.sofa.common.log.proxy.TemporaryILoggerFactoryPool;
+import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import com.alipay.sofa.common.utils.ReportUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
@@ -102,7 +103,8 @@ public class MultiAppLoggerSpaceManager {
      * @return org.slf4j.Logger;
      */
     public static Logger getLoggerBySpace(String name, String spaceName) {
-        return getLoggerBySpace(name, new SpaceId(spaceName));
+        ClassLoader callerClassLoader = ClassLoaderUtil.getCallerClassLoader();
+        return getLoggerBySpace(name, new SpaceId(spaceName), callerClassLoader);
     }
 
     /**
@@ -113,7 +115,8 @@ public class MultiAppLoggerSpaceManager {
      * @return org.slf4j.Logger;
      */
     public static Logger getLoggerBySpace(String name, SpaceId spaceId) {
-        return getLoggerBySpace(name, spaceId, MultiAppLoggerSpaceManager.class.getClassLoader());
+        ClassLoader callerClassLoader = ClassLoaderUtil.getCallerClassLoader();
+        return getLoggerBySpace(name, spaceId, callerClassLoader);
     }
 
     /***
@@ -137,8 +140,9 @@ public class MultiAppLoggerSpaceManager {
      */
     public static Logger setLoggerLevel(String loggerName, SpaceId spaceId,
                                         AdapterLevel adapterLevel) {
+        ClassLoader callerClassLoader = ClassLoaderUtil.getCallerClassLoader();
         AbstractLoggerSpaceFactory abstractLoggerSpaceFactory = getILoggerFactoryBySpaceName(
-            spaceId, MultiAppLoggerSpaceManager.class.getClassLoader());
+            spaceId, callerClassLoader);
         try {
             abstractLoggerSpaceFactory.setLevel(loggerName, adapterLevel);
         } catch (Exception e) {
