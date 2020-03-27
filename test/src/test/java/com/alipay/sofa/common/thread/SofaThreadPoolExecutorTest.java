@@ -62,8 +62,10 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         Assert.assertTrue(consecutiveInfoPattern(4, "1,1,0,1,0", "1,1,0,1,0", "1,1,0,1,1",
             "1,1,0,1,1", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1", "0,0,1,1,0"));
         Assert
-            .assertTrue(isMatch(lastWarnString().split("\n")[0], WARN,
-                "Thread pool ('\\S+':) task (\\S+) exceeds the limit of execution time with stack trace: "));
+            .assertTrue(isMatch(
+                lastWarnString().split("\n")[0],
+                WARN,
+                "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ exceeds the limit of execution time with stack trace:"));
 
         threadPool.shutdown();
         threadPool.awaitTermination(1000, TimeUnit.SECONDS);

@@ -17,7 +17,9 @@
 package com.alipay.sofa.common.thread;
 
 import com.alipay.sofa.common.thread.log.ThreadLogger;
+import com.alipay.sofa.common.utils.ClassUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -26,6 +28,10 @@ import java.util.concurrent.*;
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
+    private static String                        SIMPLE_CLASS_NAME    = SofaThreadPoolExecutor.class
+                                                                          .getSimpleName();
+    private static SimpleDateFormat              DATE_FORMAT          = new SimpleDateFormat(
+                                                                          "yyyy-MM-dd HH:mm:ss,SSS");
     private static long                          DEFAULT_TASK_TIMEOUT = 30000;
     private static long                          DEFAULT_PERIOD       = 5000;
     private static TimeUnit                      DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
@@ -126,8 +132,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return "P" + period + "T" + taskTimeout + "U" + timeUnit
-               + String.format("%08x", this.hashCode());
+        return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
     }
 
     public synchronized void startSchedule() {
@@ -144,7 +149,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         }
     }
 
-    public synchronized void stopSchedule() {
+    public void stopSchedule() {
         synchronized (monitor) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
@@ -197,10 +202,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                         for (StackTraceElement e : executionInfo.getThread().getStackTrace()) {
                             sb.append("    ").append(e).append("\n");
                         }
+                        String traceId = traceIdSafari(executionInfo.getThread());
                         ThreadLogger
                             .warn(
-                                "Thread pool '{}': task {} exceeds the limit of execution time with stack trace: \n    {}",
-                                getName(), task, sb.toString().trim());
+                                "Task {} in thread pool {} started on {}{} exceeds the limit of execution time with stack trace:\n    {}",
+                                task, getName(), DATE_FORMAT.format(executionInfo
+                                    .getTaskKickOffTime()), traceId == null ? "" : " with traceId "
+                                                                                   + traceId, sb
+                                    .toString().trim());
                     }
                 }
             }
@@ -212,6 +221,36 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         } catch (Exception e) {
             ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}", this.name, e);
         }
+    }
+
+    /**
+     * Search in thread <code>t</code> for traceId if used in SOFA-RPC context.
+     * This method is protected in that subclass may need to customized logic.
+     * Using reflection not only because threadLocal fields of thread are private,
+     * but also we don't want to introduce tracer dependency.
+     * @param t the thread
+     * @return traceId, maybe null if not found
+     */
+    protected String traceIdSafari(Thread t) {
+        try {
+            for (Object o : (Object[]) ClassUtil.getField("table",
+                ClassUtil.getField("threadLocals", t))) {
+                if (o != null) {
+                    try {
+                        return ClassUtil.getField(
+                            "traceId",
+                            ClassUtil.getField("sofaTracerSpanContext",
+                                ClassUtil.getField("value", o)));
+                    } catch (Exception e) {
+                        // do nothing
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // This method shouldn't interfere with normal execution flow
+            return null;
+        }
+        return null;
     }
 
     public String getName() {
@@ -250,11 +289,13 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         private long             executionTime;
         private Thread           thread;
         private volatile boolean printed;
+        private long             taskKickOffTime;
 
         public RunnableExecutionInfo(Thread thread) {
             executionTime = 0;
             this.thread = thread;
             printed = false;
+            taskKickOffTime = System.currentTimeMillis();
         }
 
         public void increaseBy(long period) {
@@ -283,6 +324,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
         public void setPrinted(boolean printed) {
             this.printed = printed;
+        }
+
+        public long getTaskKickOffTime() {
+            return taskKickOffTime;
+        }
+
+        public void setTaskKickOffTime(long taskKickOffTime) {
+            this.taskKickOffTime = taskKickOffTime;
         }
     }
 }

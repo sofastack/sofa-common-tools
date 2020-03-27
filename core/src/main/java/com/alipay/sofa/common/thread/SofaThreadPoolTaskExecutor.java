@@ -77,8 +77,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
     }
 
     private String createName() {
-        return this.getClass().getSimpleName() + "P" + DEFAULT_PERIOD + "T" + DEFAULT_TASK_TIMEOUT
-               + "U" + DEFAULT_TIME_UNIT + String.format("%08x", this.hashCode());
+        return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
     }
 
     public void setTaskTimeout(long taskTimeout) {
