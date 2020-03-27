@@ -28,6 +28,8 @@ import java.util.concurrent.*;
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
+    private static String                        ENABLE_SCHEDULING    = System
+                                                                          .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY);
     private static String                        SIMPLE_CLASS_NAME    = SofaThreadPoolExecutor.class
                                                                           .getSimpleName();
     private static SimpleDateFormat              DATE_FORMAT          = new SimpleDateFormat(
@@ -119,8 +121,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
      */
     private void scheduleAndRegister(long period, TimeUnit unit) {
         ThreadPoolGovernor.registerThreadPoolExecutor(this);
-        if ("false".equals(System
-            .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY))) {
+        if (Boolean.FALSE.toString().equals(ENABLE_SCHEDULING)) {
             return;
         }
 
@@ -205,11 +206,13 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                         String traceId = traceIdSafari(executionInfo.getThread());
                         ThreadLogger
                             .warn(
-                                "Task {} in thread pool {} started on {}{} exceeds the limit of execution time with stack trace:\n    {}",
-                                task, getName(), DATE_FORMAT.format(executionInfo
-                                    .getTaskKickOffTime()), traceId == null ? "" : " with traceId "
-                                                                                   + traceId, sb
-                                    .toString().trim());
+                                "Task {} in thread pool {} started on {}{} exceeds the limit of {} execution time with stack trace:\n    {}",
+                                task, getName(),
+                                DATE_FORMAT.format(executionInfo.getTaskKickOffTime()),
+                                traceId == null ? "" : " with traceId " + traceId, getTaskTimeout()
+                                                                                   + getTimeUnit()
+                                                                                       .toString(),
+                                sb.toString().trim());
                     }
                 }
             }

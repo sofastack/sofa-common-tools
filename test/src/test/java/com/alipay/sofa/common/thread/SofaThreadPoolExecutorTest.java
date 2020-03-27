@@ -65,7 +65,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             .assertTrue(isMatch(
                 lastWarnString().split("\n")[0],
                 WARN,
-                "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ exceeds the limit of execution time with stack trace:"));
+                "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ exceeds the limit of \\S+ execution time with stack trace:"));
 
         threadPool.shutdown();
         threadPool.awaitTermination(1000, TimeUnit.SECONDS);
