@@ -92,7 +92,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.stopSchedule();
         Assert.assertTrue(isLastInfoMatch("Thread pool '\\S+' stopped."));
         threadPool.stopSchedule();
-        Assert.assertTrue(isLastWarnMatch("Thread pool '\\S+' is already stopped"));
+        Assert.assertTrue(isLastWarnMatch("Thread pool '\\S+' is not scheduling!"));
     }
 
     @Test

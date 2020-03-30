@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.common.thread;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

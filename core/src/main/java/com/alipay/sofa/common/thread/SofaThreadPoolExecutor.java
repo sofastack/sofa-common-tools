@@ -172,7 +172,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                 scheduledFuture = null;
                 ThreadLogger.info("Thread pool '{}' stopped.", name);
             } else {
-                ThreadLogger.warn("Thread pool '{}' is not scheduling", name);
+                ThreadLogger.warn("Thread pool '{}' is not scheduling!", name);
             }
         }
     }
