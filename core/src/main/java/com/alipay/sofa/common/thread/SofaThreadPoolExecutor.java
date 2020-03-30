@@ -75,6 +75,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
+                                  TimeUnit unit, BlockingQueue<Runnable> workQueue,
+                                  ThreadFactory threadFactory, RejectedExecutionHandler handler,
+                                  String name) {
+        this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler,
+            name, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD, DEFAULT_TIME_UNIT);
+    }
+
+    public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
         name = createName();
