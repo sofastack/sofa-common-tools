@@ -51,7 +51,7 @@ public class SofaThreadPoolTaskExecutorTest extends ThreadPoolTestBase {
         Thread.sleep(9500);
 
         Assert.assertEquals(13, infoListAppender.list.size());
-        Assert.assertEquals(2, warnListAppender.list.size());
+        Assert.assertEquals(2, aberrantListAppender.list.size());
         Assert.assertTrue(consecutiveInfoPattern(4, "1,1,0,1,0", "1,1,0,1,0", "1,1,0,1,1",
             "1,1,0,1,1", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1", "0,0,1,1,0"));
         Assert

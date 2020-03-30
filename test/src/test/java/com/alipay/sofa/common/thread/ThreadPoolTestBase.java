@@ -38,7 +38,7 @@ public class ThreadPoolTestBase {
     protected static final String         ERROR = "ERROR";
 
     protected ListAppender<ILoggingEvent> infoListAppender;
-    protected ListAppender<ILoggingEvent> warnListAppender;
+    protected ListAppender<ILoggingEvent> aberrantListAppender;
 
     @Before
     public void beforeTest() {
@@ -47,11 +47,11 @@ public class ThreadPoolTestBase {
         System.setProperty("file.encoding", "UTF-8");
 
         infoListAppender = new ListAppender<ILoggingEvent>();
-        warnListAppender = new ListAppender<ILoggingEvent>();
+        aberrantListAppender = new ListAppender<ILoggingEvent>();
         infoListAppender.start();
-        warnListAppender.start();
+        aberrantListAppender.start();
         ((Logger) ThreadLogger.INFO_THREAD_LOGGER).addAppender(infoListAppender);
-        ((Logger) ThreadLogger.WARN_THREAD_LOGGER).addAppender(warnListAppender);
+        ((Logger) ThreadLogger.WARN_THREAD_LOGGER).addAppender(aberrantListAppender);
     }
 
     @After
@@ -79,7 +79,7 @@ public class ThreadPoolTestBase {
         if (i < 0) {
             return "";
         }
-        return warnListAppender.list.get(i).toString();
+        return aberrantListAppender.list.get(i).toString();
     }
 
     protected String lastInfoString() {
@@ -87,7 +87,7 @@ public class ThreadPoolTestBase {
     }
 
     protected String lastWarnString() {
-        return getWarnViaIndex(warnListAppender.list.size() - 1);
+        return getWarnViaIndex(aberrantListAppender.list.size() - 1);
     }
 
     protected boolean isMatch(String str, String type, String reg) {
@@ -100,6 +100,10 @@ public class ThreadPoolTestBase {
 
     protected boolean isLastWarnMatch(String reg) {
         return isMatch(lastWarnString(), WARN, reg);
+    }
+
+    protected boolean isLastErrorMatch(String reg) {
+        return isMatch(lastWarnString(), ERROR, reg);
     }
 
     protected boolean consecutiveInfoPattern(int startIndex, String... patterns) {

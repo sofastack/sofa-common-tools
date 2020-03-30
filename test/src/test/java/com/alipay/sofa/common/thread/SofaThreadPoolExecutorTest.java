@@ -58,7 +58,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         Thread.sleep(9500);
 
         Assert.assertEquals(13, infoListAppender.list.size());
-        Assert.assertEquals(2, warnListAppender.list.size());
+        Assert.assertEquals(2, aberrantListAppender.list.size());
         Assert.assertTrue(consecutiveInfoPattern(4, "1,1,0,1,0", "1,1,0,1,0", "1,1,0,1,1",
             "1,1,0,1,1", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1", "0,0,1,1,0"));
         Assert
@@ -75,7 +75,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     @Test
     public void testRename() {
         threadPool.setName("sofaThreadPoolName");
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
         Assert.assertEquals(4, infoListAppender.list.size());
         Assert.assertTrue(isMatch(getInfoViaIndex(2), INFO,
             "Thread pool with name '\\S+' unregistered"));
@@ -99,7 +99,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     public void testShutdownViolently() {
         threadPool.shutdownNow();
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         }
         threadPool.shutdown();
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
-        Assert.assertEquals(numThreads, warnListAppender.list.size());
+        Assert.assertEquals(numThreads, aberrantListAppender.list.size());
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));
     }
 }

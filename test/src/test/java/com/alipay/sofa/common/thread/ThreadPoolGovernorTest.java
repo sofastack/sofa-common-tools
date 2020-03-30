@@ -39,6 +39,20 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
     }
 
     @Test
+    public void testSameThreadPoolName() {
+        String threadPoolName = "sameName";
+
+        ThreadPoolGovernor.registerThreadPoolExecutor(threadPoolName, new ThreadPoolExecutor(1, 1,
+            4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
+        ThreadPoolGovernor.registerThreadPoolExecutor(threadPoolName, new ThreadPoolExecutor(1, 1,
+            4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10)));
+        Assert
+            .assertTrue(isLastErrorMatch(String.format(
+                "Rejected registering request of instance .+ with duplicate name: %s",
+                threadPoolName)));
+    }
+
+    @Test
     public void testThreadPoolExecutor() throws Exception {
         String threadPoolName1 = "threadPoolExecutor1";
         String threadPoolName2 = "threadPoolExecutor2";
@@ -52,14 +66,14 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         Assert.assertEquals(7, infoListAppender.list.size());
         Assert.assertTrue(isMatch(getInfoViaIndex(1), INFO,
             String.format("Thread pool with name '%s' registered", threadPoolName1)));
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
 
         ThreadPoolGovernor.unregisterThreadPoolExecutor(threadPoolName1);
         ThreadPoolGovernor.unregisterThreadPoolExecutor(threadPoolName2);
         Assert.assertEquals(9, infoListAppender.list.size());
         Assert.assertTrue(isLastInfoMatch(String.format("Thread pool with name '%s' unregistered",
             threadPoolName2)));
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
     }
 
     @Test
@@ -73,7 +87,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         Thread.sleep(2200);
 
         Assert.assertEquals(9, infoListAppender.list.size());
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
         Assert.assertEquals(sofaThreadPoolExecutor1,
             ThreadPoolGovernor.getThreadPoolExecutor(sofaThreadPoolExecutor1.getName()));
         Assert.assertEquals(sofaThreadPoolExecutor2,
@@ -82,7 +96,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         ThreadPoolGovernor.unregisterThreadPoolExecutor(sofaThreadPoolExecutor1.getName());
         ThreadPoolGovernor.unregisterThreadPoolExecutor(sofaThreadPoolExecutor2.getName());
         Assert.assertEquals(11, infoListAppender.list.size());
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
         sofaThreadPoolExecutor1.shutdownNow();
         sofaThreadPoolExecutor2.shutdownNow();
     }
@@ -97,7 +111,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         Assert.assertEquals(1, infoListAppender.list.size());
         Assert.assertTrue(isMatch(lastWarnString(), ERROR,
             "Rejected registering request of instance .+"));
-        Assert.assertEquals(2, warnListAppender.list.size());
+        Assert.assertEquals(2, aberrantListAppender.list.size());
     }
 
     @Test
@@ -105,12 +119,12 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         ThreadPoolGovernor.startSchedule();
         Assert.assertTrue(ThreadPoolGovernor.isLoggable());
         Assert.assertEquals(1, infoListAppender.list.size());
-        Assert.assertEquals(1, warnListAppender.list.size());
+        Assert.assertEquals(1, aberrantListAppender.list.size());
 
         ThreadPoolGovernor.stopSchedule();
         ThreadPoolGovernor.stopSchedule();
         Assert.assertEquals(2, infoListAppender.list.size());
-        Assert.assertEquals(2, warnListAppender.list.size());
+        Assert.assertEquals(2, aberrantListAppender.list.size());
     }
 
     @Test
@@ -123,7 +137,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         Assert.assertEquals(CUSTOMIZED_PERIOD, ThreadPoolGovernor.getPeriod());
         Assert.assertFalse(ThreadPoolGovernor.isLoggable());
         Assert.assertEquals(5, infoListAppender.list.size());
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
         ThreadPoolGovernor.setLoggable(true);
     }
 
@@ -139,7 +153,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
 
         Assert.assertEquals(NEW_PERIOD, ThreadPoolGovernor.getPeriod());
         Assert.assertEquals(5, infoListAppender.list.size());
-        Assert.assertEquals(0, warnListAppender.list.size());
+        Assert.assertEquals(0, aberrantListAppender.list.size());
         ThreadPoolGovernor.setPeriod(CUSTOMIZED_PERIOD);
     }
 }
