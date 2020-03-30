@@ -110,7 +110,7 @@ public class ThreadPoolGovernor {
                             registry.get(name));
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 ThreadLogger.warn("{} is interrupted when running: {}", this, e);
             }
         }

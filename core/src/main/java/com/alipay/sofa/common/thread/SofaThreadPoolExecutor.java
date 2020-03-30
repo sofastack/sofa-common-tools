@@ -221,7 +221,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", getName(), this.getQueue()
                 .size(), executingTasks.size(), this.getPoolSize() - executingTasks.size(), this
                 .getPoolSize(), decayedTaskCount);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}", this.name, e);
         }
     }
@@ -244,12 +244,12 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                             "traceId",
                             ClassUtil.getField("sofaTracerSpanContext",
                                 ClassUtil.getField("value", o)));
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         // do nothing
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // This method shouldn't interfere with normal execution flow
             return null;
         }
