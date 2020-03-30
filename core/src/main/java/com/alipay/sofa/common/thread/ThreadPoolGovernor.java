@@ -85,8 +85,7 @@ public class ThreadPoolGovernor {
         }
 
         synchronized (registryNameMonitor) {
-            ThreadPoolExecutor executor = registry.get(name);
-            if (executor != null) {
+            if (registry.containsKey(name)) {
                 ThreadLogger.error(
                     "Rejected registering request of instance {} with duplicate name: {}",
                     threadPoolExecutor, name);
