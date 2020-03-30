@@ -54,7 +54,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             threadPool.getTaskTimeout(), threadPool.getTimeUnit())));
 
         threadPool.execute(new SleepTask(4200));
-        threadPool.execute(new SleepTask(4200));
+        threadPool.submit(new SleepCallableTask(4200));
         Thread.sleep(9500);
 
         Assert.assertEquals(13, infoListAppender.list.size());

@@ -25,6 +25,7 @@ import org.junit.Before;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -124,6 +125,24 @@ public class ThreadPoolTestBase {
             } catch (Exception e) {
                 // do nothing
             }
+        }
+    }
+
+    static class SleepCallableTask implements Callable<String> {
+        private long sleepTime;
+
+        public SleepCallableTask(long sleepTime) {
+            this.sleepTime = sleepTime;
+        }
+
+        @Override
+        public String call() throws Exception {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (Throwable e) {
+                // do nothing
+            }
+            return "sleepCallableTask";
         }
     }
 }

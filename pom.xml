@@ -225,12 +225,4 @@
             </distributionManagement>
         </profile>
     </profiles>
-
-    <distributionManagement>
-        <repository>
-            <id>nexus-server@alipay-dev</id>
-            <name>alipay dev Repository</name>
-            <url>http://mvn.dev.alipay.net/artifactory/content/repositories/Alipay-Snapshot/</url>
-        </repository>
-    </distributionManagement>
 </project>
