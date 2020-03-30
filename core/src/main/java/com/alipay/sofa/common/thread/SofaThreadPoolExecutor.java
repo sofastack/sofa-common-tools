@@ -28,7 +28,7 @@ import java.util.concurrent.*;
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
-    private static String                        ENABLE_SCHEDULING    = System
+    private static String                        ENABLE_LOGGING       = System
                                                                           .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY);
     private static String                        SIMPLE_CLASS_NAME    = SofaThreadPoolExecutor.class
                                                                           .getSimpleName();
@@ -136,7 +136,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
      */
     private void scheduleAndRegister(long period, TimeUnit unit) {
         ThreadPoolGovernor.registerThreadPoolExecutor(this);
-        if (Boolean.FALSE.toString().equals(ENABLE_SCHEDULING)) {
+        if (Boolean.FALSE.toString().equals(ENABLE_LOGGING)) {
             return;
         }
 
