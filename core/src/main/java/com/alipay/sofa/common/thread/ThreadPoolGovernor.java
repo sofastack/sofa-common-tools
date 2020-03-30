@@ -65,7 +65,7 @@ public class ThreadPoolGovernor {
                 scheduledFuture = null;
                 ThreadLogger.info("Stopped {}.", CLASS_NAME);
             } else {
-                ThreadLogger.warn("{} has already stopped!", CLASS_NAME);
+                ThreadLogger.warn("{} is not scheduling!", CLASS_NAME);
             }
         }
     }
