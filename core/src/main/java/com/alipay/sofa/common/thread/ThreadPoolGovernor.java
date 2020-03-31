@@ -32,19 +32,19 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    public static String                           CLASS_NAME          = ThreadPoolGovernor.class
-                                                                           .getCanonicalName();
-    private static long                            period              = 30;
-    private static boolean                         loggable            = false;
+    public static String                                         CLASS_NAME          = ThreadPoolGovernor.class
+                                                                                         .getCanonicalName();
+    private static long                                          period              = 30;
+    private static boolean                                       loggable            = false;
 
-    public static ScheduledExecutorService         scheduler           = Executors
-                                                                           .newScheduledThreadPool(1);
-    private static ScheduledFuture<?>              scheduledFuture;
-    private static final Object                    monitor             = new Object();
-    private static GovernorInfoDumper              governorInfoDumper  = new GovernorInfoDumper();
+    public static ScheduledExecutorService                       scheduler           = Executors
+                                                                                         .newScheduledThreadPool(1);
+    private static ScheduledFuture<?>                            scheduledFuture;
+    private static final Object                                  monitor             = new Object();
+    private static GovernorInfoDumper                            governorInfoDumper  = new GovernorInfoDumper();
 
-    private static Map<String, ThreadPoolExecutor> registry            = new ConcurrentHashMap<String, ThreadPoolExecutor>();
-    private static final Object                    registryNameMonitor = new Object();
+    private static ConcurrentHashMap<String, ThreadPoolExecutor> registry            = new ConcurrentHashMap<String, ThreadPoolExecutor>();
+    private static final Object                                  registryNameMonitor = new Object();
 
     public static void startSchedule() {
         synchronized (monitor) {
@@ -84,16 +84,14 @@ public class ThreadPoolGovernor {
             return;
         }
 
-        synchronized (registryNameMonitor) {
-            if (registry.containsKey(name)) {
-                ThreadLogger.error(
-                    "Rejected registering request of instance {} with duplicate name: {}",
-                    threadPoolExecutor, name);
-                return;
-            }
-            registry.put(name, threadPoolExecutor);
+        ThreadPoolExecutor existingExecutor = registry.putIfAbsent(name, threadPoolExecutor);
+        if (existingExecutor != null) {
+            ThreadLogger.error(
+                "Rejected registering request of instance {} with duplicate name: {}",
+                threadPoolExecutor, name);
+        } else {
+            ThreadLogger.info("Thread pool with name '{}' registered", name);
         }
-        ThreadLogger.info("Thread pool with name '{}' registered", name);
     }
 
     public static void registerThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
