@@ -32,19 +32,18 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    public static String                                         CLASS_NAME          = ThreadPoolGovernor.class
-                                                                                         .getCanonicalName();
-    private static long                                          period              = 30;
-    private static boolean                                       loggable            = false;
+    public static String                                         CLASS_NAME         = ThreadPoolGovernor.class
+                                                                                        .getCanonicalName();
+    private static long                                          period             = 30;
+    private static boolean                                       loggable           = false;
 
-    public static ScheduledExecutorService                       scheduler           = Executors
-                                                                                         .newScheduledThreadPool(1);
+    public static ScheduledExecutorService                       scheduler          = Executors
+                                                                                        .newScheduledThreadPool(1);
     private static ScheduledFuture<?>                            scheduledFuture;
-    private static final Object                                  monitor             = new Object();
-    private static GovernorInfoDumper                            governorInfoDumper  = new GovernorInfoDumper();
+    private static final Object                                  monitor            = new Object();
+    private static GovernorInfoDumper                            governorInfoDumper = new GovernorInfoDumper();
 
-    private static ConcurrentHashMap<String, ThreadPoolExecutor> registry            = new ConcurrentHashMap<String, ThreadPoolExecutor>();
-    private static final Object                                  registryNameMonitor = new Object();
+    private static ConcurrentHashMap<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
     public static void startSchedule() {
         synchronized (monitor) {
@@ -112,9 +111,9 @@ public class ThreadPoolGovernor {
         public void run() {
             try {
                 if (loggable) {
-                    for (String name : registry.keySet()) {
-                        ThreadLogger.info("Thread pool '{}' exists with instance: {}", name,
-                            registry.get(name));
+                    for (Map.Entry<String, ThreadPoolExecutor> entry : registry.entrySet()) {
+                        ThreadLogger.info("Thread pool '{}' exists with instance: {}",
+                            entry.getKey(), entry.getValue());
                     }
                 }
             } catch (Throwable e) {

@@ -43,6 +43,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     private long                                 taskTimeout          = DEFAULT_TASK_TIMEOUT;
     private long                                 period               = DEFAULT_PERIOD;
     private TimeUnit                             timeUnit             = DEFAULT_TIME_UNIT;
+    private long                                 taskTimeoutMilli     = timeUnit
+                                                                          .toMillis(taskTimeout);
     private ScheduledFuture<?>                   scheduledFuture;
     private final Object                         monitor              = new Object();
 
@@ -71,6 +73,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         this.taskTimeout = taskTimeout;
         this.period = period;
         this.timeUnit = timeUnit;
+        this.taskTimeoutMilli = timeUnit.toMillis(taskTimeout);
         scheduleAndRegister(period, timeUnit);
     }
 
@@ -205,11 +208,13 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     public void run() {
         try {
             int decayedTaskCount = 0;
-            for (Runnable task : executingTasks.keySet()) {
-                RunnableExecutionInfo executionInfo = executingTasks.get(task);
-                executionInfo.increaseBy(period);
+            for (Map.Entry<Runnable, RunnableExecutionInfo> entry : executingTasks.entrySet()) {
+                Runnable task = entry.getKey();
+                RunnableExecutionInfo executionInfo = entry.getValue();
+                long executionTime = System.currentTimeMillis()
+                                     - executionInfo.getTaskKickOffTime();
 
-                if (executionInfo.getExecutionTime() >= taskTimeout) {
+                if (executionTime >= taskTimeoutMilli) {
                     ++decayedTaskCount;
 
                     if (!executionInfo.isPrinted()) {
@@ -292,6 +297,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
     public void setTaskTimeout(long taskTimeout) {
         this.taskTimeout = taskTimeout;
+        this.taskTimeoutMilli = timeUnit.toMillis(taskTimeout);
         ThreadLogger.info("Updated '{}' taskTimeout to {} {}", name, taskTimeout, timeUnit);
     }
 
@@ -304,28 +310,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     static class RunnableExecutionInfo {
-        private long             executionTime;
         private Thread           thread;
         private volatile boolean printed;
         private long             taskKickOffTime;
 
         public RunnableExecutionInfo(Thread thread) {
-            executionTime = 0;
             this.thread = thread;
             printed = false;
             taskKickOffTime = System.currentTimeMillis();
-        }
-
-        public void increaseBy(long period) {
-            executionTime += period;
-        }
-
-        public long getExecutionTime() {
-            return executionTime;
-        }
-
-        public void setExecutionTime(long executionTime) {
-            this.executionTime = executionTime;
         }
 
         public Thread getThread() {
