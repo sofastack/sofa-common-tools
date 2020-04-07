@@ -80,6 +80,14 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
     }
 
+    public String getThreadPoolName() {
+        return sofaThreadPoolExecutor.getName();
+    }
+
+    public void setName(String threadPoolName) {
+        sofaThreadPoolExecutor.setName(threadPoolName);
+    }
+
     public void setTaskTimeout(long taskTimeout) {
         sofaThreadPoolExecutor.setTaskTimeout(taskTimeout);
     }
