@@ -5,16 +5,11 @@
     <parent>
         <artifactId>sofa-common-tools-parent</artifactId>
         <groupId>com.alipay.sofa.common</groupId>
-        <version>1.0.22</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sofa-common-tools</artifactId>
-
-    <properties>
-        <!-- log4j2 2.3 for jdk6  -->
-        <log4j2.version>2.3</log4j2.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -84,15 +79,17 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
