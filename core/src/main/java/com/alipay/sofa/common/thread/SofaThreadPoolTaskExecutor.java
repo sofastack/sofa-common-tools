@@ -84,7 +84,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         return sofaThreadPoolExecutor.getName();
     }
 
-    public void setName(String threadPoolName) {
+    public void setThreadPoolName(String threadPoolName) {
         sofaThreadPoolExecutor.setName(threadPoolName);
     }
 
