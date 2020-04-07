@@ -37,8 +37,11 @@ public class ThreadPoolGovernor {
     private static long                                          period             = 30;
     private static boolean                                       loggable           = false;
 
-    public static ScheduledExecutorService                       scheduler          = Executors
-                                                                                        .newScheduledThreadPool(1);
+    private static ScheduledExecutorService                      scheduler          = Executors
+                                                                                        .newScheduledThreadPool(
+                                                                                            1,
+                                                                                            new NamedThreadFactory(
+                                                                                                "ThreadPoolGovernor_SCHEDULER"));
     private static ScheduledFuture<?>                            scheduledFuture;
     private static final Object                                  monitor            = new Object();
     private static GovernorInfoDumper                            governorInfoDumper = new GovernorInfoDumper();

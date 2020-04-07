@@ -37,6 +37,12 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     private static long                          DEFAULT_TASK_TIMEOUT = 30000;
     private static long                          DEFAULT_PERIOD       = 5000;
     private static TimeUnit                      DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
+    private static ScheduledExecutorService      scheduler            = Executors
+                                                                          .newScheduledThreadPool(
+                                                                              1,
+                                                                              new NamedThreadFactory(
+                                                                                  SIMPLE_CLASS_NAME
+                                                                                          + "_SCHEDULER"));
 
     private String                               name;
 
@@ -144,8 +150,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         }
 
         synchronized (monitor) {
-            scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
-                period, unit);
+            scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
             ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period, unit);
         }
     }
@@ -157,8 +162,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     public synchronized void startSchedule() {
         synchronized (monitor) {
             if (scheduledFuture == null) {
-                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
-                    period, timeUnit);
+                scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, timeUnit);
                 ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period,
                     timeUnit);
             } else {
@@ -184,8 +188,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         synchronized (monitor) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
-                scheduledFuture = ThreadPoolGovernor.scheduler.scheduleAtFixedRate(this, period,
-                    period, unit);
+                scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
                 ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", name, period,
                     unit);
             }
