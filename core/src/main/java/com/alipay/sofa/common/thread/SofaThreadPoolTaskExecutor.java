@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit;
  * Created on 2020/3/23
  */
 public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
-    public static final String     SIMPLE_CLASS_NAME    = SofaThreadPoolTaskExecutor.class
-                                                            .getSimpleName();
-    private static long            DEFAULT_TASK_TIMEOUT = 30000;
-    private static long            DEFAULT_PERIOD       = 5000;
-    private static TimeUnit        DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
+    public static final String       SIMPLE_CLASS_NAME    = SofaThreadPoolTaskExecutor.class
+                                                              .getSimpleName();
+    protected static long            DEFAULT_TASK_TIMEOUT = 30000;
+    protected static long            DEFAULT_PERIOD       = 5000;
+    protected static TimeUnit        DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
 
-    private SofaThreadPoolExecutor sofaThreadPoolExecutor;
+    protected SofaThreadPoolExecutor sofaThreadPoolExecutor;
 
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
@@ -76,7 +76,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         return executor;
     }
 
-    private String createName() {
+    protected String createName() {
         return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
     }
 
