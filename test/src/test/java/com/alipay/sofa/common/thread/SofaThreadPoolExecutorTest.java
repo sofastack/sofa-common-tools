@@ -74,7 +74,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
 
     @Test
     public void testRename() {
-        threadPool.setName("sofaThreadPoolName");
+        threadPool.setThreadPoolName("sofaThreadPoolName");
         Assert.assertEquals(0, aberrantListAppender.list.size());
         Assert.assertEquals(4, infoListAppender.list.size());
         Assert.assertTrue(isMatch(getInfoViaIndex(2), INFO,
