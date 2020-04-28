@@ -38,6 +38,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
     protected static TimeUnit        DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
 
     protected SofaThreadPoolExecutor sofaThreadPoolExecutor;
+    protected String                 threadPoolName;
 
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
@@ -49,10 +50,15 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 
         SofaThreadPoolExecutor executor;
 
+        // When used as Spring bean, setter method is called before init method
+        if (threadPoolName == null) {
+            threadPoolName = createName();
+        }
+
         if (taskDecorator != null) {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, createName(), DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
+                rejectedExecutionHandler, threadPoolName, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
                 DEFAULT_TIME_UNIT) {
                 @Override
                 public void execute(Runnable command) {
@@ -62,7 +68,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         } else {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, createName(), DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
+                rejectedExecutionHandler, threadPoolName, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
                 DEFAULT_TIME_UNIT);
         }
 
@@ -81,11 +87,14 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
     }
 
     public String getThreadPoolName() {
-        return sofaThreadPoolExecutor.getName();
+        return threadPoolName;
     }
 
     public void setThreadPoolName(String threadPoolName) {
-        sofaThreadPoolExecutor.setName(threadPoolName);
+        this.threadPoolName = threadPoolName;
+        if (sofaThreadPoolExecutor != null) {
+            sofaThreadPoolExecutor.setThreadPoolName(threadPoolName);
+        }
     }
 
     public void setTaskTimeout(long taskTimeout) {

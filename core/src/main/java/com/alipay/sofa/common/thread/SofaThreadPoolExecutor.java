@@ -44,7 +44,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                                   SIMPLE_CLASS_NAME
                                                                                           + "_SCHEDULER"));
 
-    private String                               name;
+    private String                               threadPoolName;
 
     private long                                 taskTimeout          = DEFAULT_TASK_TIMEOUT;
     private long                                 period               = DEFAULT_PERIOD;
@@ -65,7 +65,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
      * @param workQueue same as in {@link ThreadPoolExecutor}
      * @param threadFactory same as in {@link ThreadPoolExecutor}
      * @param handler same as in {@link ThreadPoolExecutor}
-     * @param name name of this thread pool
+     * @param threadPoolName name of this thread pool
      * @param taskTimeout task execution timeout
      * @param period task checking and logging period
      * @param timeUnit unit of taskTimeout and period
@@ -73,9 +73,10 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory, RejectedExecutionHandler handler,
-                                  String name, long taskTimeout, long period, TimeUnit timeUnit) {
+                                  String threadPoolName, long taskTimeout, long period,
+                                  TimeUnit timeUnit) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
-        this.name = name;
+        this.threadPoolName = threadPoolName;
         this.taskTimeout = taskTimeout;
         this.period = period;
         this.timeUnit = timeUnit;
@@ -86,22 +87,23 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory, RejectedExecutionHandler handler,
-                                  String name) {
+                                  String threadPoolName) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler,
-            name, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD, DEFAULT_TIME_UNIT);
+            threadPoolName, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD, DEFAULT_TIME_UNIT);
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
-                                  TimeUnit unit, BlockingQueue<Runnable> workQueue, String name) {
+                                  TimeUnit unit, BlockingQueue<Runnable> workQueue,
+                                  String threadPoolName) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        this.name = name;
+        this.threadPoolName = threadPoolName;
         scheduleAndRegister(period, timeUnit);
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        name = createName();
+        threadPoolName = createName();
         scheduleAndRegister(period, timeUnit);
     }
 
@@ -109,7 +111,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
-        name = createName();
+        threadPoolName = createName();
         scheduleAndRegister(period, timeUnit);
     }
 
@@ -117,7 +119,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
-        name = createName();
+        threadPoolName = createName();
         scheduleAndRegister(period, timeUnit);
     }
 
@@ -125,14 +127,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
-        name = createName();
+        threadPoolName = createName();
         scheduleAndRegister(period, timeUnit);
     }
 
     @Override
     protected void terminated() {
         super.terminated();
-        ThreadPoolGovernor.unregisterThreadPoolExecutor(name);
+        ThreadPoolGovernor.unregisterThreadPoolExecutor(threadPoolName);
         synchronized (monitor) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
@@ -151,7 +153,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
         synchronized (monitor) {
             scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
-            ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period, unit);
+            ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
+                period, unit);
         }
     }
 
@@ -163,11 +166,11 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         synchronized (monitor) {
             if (scheduledFuture == null) {
                 scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, timeUnit);
-                ThreadLogger.info("Thread pool '{}' started with period: {} {}", name, period,
-                    timeUnit);
-            } else {
-                ThreadLogger.warn("Thread pool '{}' is already started with period: {} {}", name,
+                ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
                     period, timeUnit);
+            } else {
+                ThreadLogger.warn("Thread pool '{}' is already started with period: {} {}",
+                    threadPoolName, period, timeUnit);
             }
         }
     }
@@ -177,9 +180,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
                 scheduledFuture = null;
-                ThreadLogger.info("Thread pool '{}' stopped.", name);
+                ThreadLogger.info("Thread pool '{}' stopped.", threadPoolName);
             } else {
-                ThreadLogger.warn("Thread pool '{}' is not scheduling!", name);
+                ThreadLogger.warn("Thread pool '{}' is not scheduling!", threadPoolName);
             }
         }
     }
@@ -189,8 +192,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
                 scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
-                ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", name, period,
-                    unit);
+                ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", threadPoolName,
+                    period, unit);
             }
         }
     }
@@ -230,7 +233,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                         ThreadLogger
                             .warn(
                                 "Task {} in thread pool {} started on {}{} exceeds the limit of {} execution time with stack trace:\n    {}",
-                                task, getName(),
+                                task, getThreadPoolName(),
                                 DATE_FORMAT.format(executionInfo.getTaskKickOffTime()),
                                 traceId == null ? "" : " with traceId " + traceId, getTaskTimeout()
                                                                                    + getTimeUnit()
@@ -241,11 +244,12 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             }
 
             // threadPoolName, #queue, #executing, #idle, #pool, #decayed
-            ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", getName(), this.getQueue()
-                .size(), executingTasks.size(), this.getPoolSize() - executingTasks.size(), this
-                .getPoolSize(), decayedTaskCount);
+            ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", getThreadPoolName(), this
+                .getQueue().size(), executingTasks.size(),
+                this.getPoolSize() - executingTasks.size(), this.getPoolSize(), decayedTaskCount);
         } catch (Throwable e) {
-            ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}", this.name, e);
+            ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}",
+                this.threadPoolName, e);
         }
     }
 
@@ -279,14 +283,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         return null;
     }
 
-    public String getName() {
-        return name;
+    public String getThreadPoolName() {
+        return threadPoolName;
     }
 
-    public void setName(String name) {
-        ThreadPoolGovernor.unregisterThreadPoolExecutor(this.name);
-        this.name = name;
-        ThreadPoolGovernor.registerThreadPoolExecutor(name, this);
+    public void setThreadPoolName(String threadPoolName) {
+        ThreadPoolGovernor.unregisterThreadPoolExecutor(this.threadPoolName);
+        this.threadPoolName = threadPoolName;
+        ThreadPoolGovernor.registerThreadPoolExecutor(threadPoolName, this);
     }
 
     public void setPeriod(long period) {
@@ -301,7 +305,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     public void setTaskTimeout(long taskTimeout) {
         this.taskTimeout = taskTimeout;
         this.taskTimeoutMilli = timeUnit.toMillis(taskTimeout);
-        ThreadLogger.info("Updated '{}' taskTimeout to {} {}", name, taskTimeout, timeUnit);
+        ThreadLogger.info("Updated '{}' taskTimeout to {} {}", threadPoolName, taskTimeout,
+            timeUnit);
     }
 
     public TimeUnit getTimeUnit() {

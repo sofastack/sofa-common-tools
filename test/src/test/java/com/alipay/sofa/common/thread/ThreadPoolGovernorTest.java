@@ -89,12 +89,14 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
         Assert.assertEquals(9, infoListAppender.list.size());
         Assert.assertEquals(0, aberrantListAppender.list.size());
         Assert.assertEquals(sofaThreadPoolExecutor1,
-            ThreadPoolGovernor.getThreadPoolExecutor(sofaThreadPoolExecutor1.getName()));
+            ThreadPoolGovernor.getThreadPoolExecutor(sofaThreadPoolExecutor1.getThreadPoolName()));
         Assert.assertEquals(sofaThreadPoolExecutor2,
-            ThreadPoolGovernor.getThreadPoolExecutor(sofaThreadPoolExecutor2.getName()));
+            ThreadPoolGovernor.getThreadPoolExecutor(sofaThreadPoolExecutor2.getThreadPoolName()));
 
-        ThreadPoolGovernor.unregisterThreadPoolExecutor(sofaThreadPoolExecutor1.getName());
-        ThreadPoolGovernor.unregisterThreadPoolExecutor(sofaThreadPoolExecutor2.getName());
+        ThreadPoolGovernor
+            .unregisterThreadPoolExecutor(sofaThreadPoolExecutor1.getThreadPoolName());
+        ThreadPoolGovernor
+            .unregisterThreadPoolExecutor(sofaThreadPoolExecutor2.getThreadPoolName());
         Assert.assertEquals(11, infoListAppender.list.size());
         Assert.assertEquals(0, aberrantListAppender.list.size());
         sofaThreadPoolExecutor1.shutdownNow();

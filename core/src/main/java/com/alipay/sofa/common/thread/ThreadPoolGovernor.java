@@ -97,7 +97,7 @@ public class ThreadPoolGovernor {
     }
 
     public static void registerThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
-        registerThreadPoolExecutor(threadPoolExecutor.getName(), threadPoolExecutor);
+        registerThreadPoolExecutor(threadPoolExecutor.getThreadPoolName(), threadPoolExecutor);
     }
 
     public static void unregisterThreadPoolExecutor(String name) {
