@@ -92,6 +92,9 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 
     public void setThreadPoolName(String threadPoolName) {
         this.threadPoolName = threadPoolName;
+        if (sofaThreadPoolExecutor != null) {
+            sofaThreadPoolExecutor.setThreadPoolName(threadPoolName);
+        }
     }
 
     public void setTaskTimeout(long taskTimeout) {
