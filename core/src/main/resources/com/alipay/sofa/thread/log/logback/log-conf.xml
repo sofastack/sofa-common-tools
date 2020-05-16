@@ -13,7 +13,7 @@
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d %-5p %-24t - %m%n</pattern>
+            <pattern>%d %-5p %-5t - %m%n</pattern>
             <charset>${file.encoding}</charset>
         </encoder>
     </appender>
@@ -31,7 +31,7 @@
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d %-5p %-24t - %m%n</pattern>
+            <pattern>%d %-5p %-5t - %m%n</pattern>
             <charset>${file.encoding}</charset>
         </encoder>
     </appender>

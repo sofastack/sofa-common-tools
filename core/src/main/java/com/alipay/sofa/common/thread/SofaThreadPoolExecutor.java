@@ -41,8 +41,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                           .newScheduledThreadPool(
                                                                               1,
                                                                               new NamedThreadFactory(
-                                                                                  SIMPLE_CLASS_NAME
-                                                                                          + "_SCHEDULER"));
+                                                                                  "s.t.p.e"));
 
     private String                               threadPoolName;
 
@@ -163,38 +162,32 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     public synchronized void startSchedule() {
-        synchronized (monitor) {
-            if (scheduledFuture == null) {
-                scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, timeUnit);
-                ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
-                    period, timeUnit);
-            } else {
-                ThreadLogger.warn("Thread pool '{}' is already started with period: {} {}",
-                    threadPoolName, period, timeUnit);
-            }
+        if (scheduledFuture == null) {
+            scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, timeUnit);
+            ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
+                period, timeUnit);
+        } else {
+            ThreadLogger.warn("Thread pool '{}' is already started with period: {} {}",
+                threadPoolName, period, timeUnit);
         }
     }
 
-    public void stopSchedule() {
-        synchronized (monitor) {
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(true);
-                scheduledFuture = null;
-                ThreadLogger.info("Thread pool '{}' stopped.", threadPoolName);
-            } else {
-                ThreadLogger.warn("Thread pool '{}' is not scheduling!", threadPoolName);
-            }
+    public synchronized void stopSchedule() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+            ThreadLogger.info("Thread pool '{}' stopped.", threadPoolName);
+        } else {
+            ThreadLogger.warn("Thread pool '{}' is not scheduling!", threadPoolName);
         }
     }
 
-    private void reschedule(long period, TimeUnit unit) {
-        synchronized (monitor) {
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(true);
-                scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
-                ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", threadPoolName,
-                    period, unit);
-            }
+    private synchronized void reschedule(long period, TimeUnit unit) {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
+            ThreadLogger.info("Reschedule thread pool '{}' with period: {} {}", threadPoolName,
+                period, unit);
         }
     }
 

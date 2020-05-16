@@ -11,7 +11,7 @@
                      filePattern="${THREAD_LOG_PATH}/sofa-thread/aberrant-error.log.%d{yyyy-MM-dd}">
             <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout charset="${THREAD_FILE_ENCODING}">
-                <pattern>%d %-5p %-24t - %m%n</pattern>
+                <pattern>%d %-5p %-5t - %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
@@ -22,7 +22,7 @@
                      filePattern="${THREAD_LOG_PATH}/sofa-thread/thread-digest.log.%d{yyyy-MM-dd}">
             <ThresholdFilter level="${THREAD_LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout charset="${THREAD_FILE_ENCODING}">
-                <pattern>%d %-5p %-24t - %m%n</pattern>
+                <pattern>%d %-5p %-5t - %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
