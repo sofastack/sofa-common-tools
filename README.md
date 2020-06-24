@@ -1,98 +1,80 @@
-## sofa-common-tools
+# sofa-common-tools
 
 ![](https://travis-ci.com/sofastack/sofa-common-tools.svg?branch=master) 
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-common-tools/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-common-tools?branch=master) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 [![maven](https://img.shields.io/github/release/alipay/sofa-common-tools.svg)](https://github.com/sofastack/sofa-common-tools/releases)
 
-`sofa-common-tools` 是 SOFAStack 中间件依赖的一个通用工具包，通过自动感知应用的日志实现，提供中间件与应用隔离的日志空间打印能力。
-
-## 一、背景
-
-在日常开发中，应用避免不了都会打印日志，可能采用的通用日志接口开发框架 SLF4J，而对于具体的日志实现最常用的是 Logback、Log4j2 或者 Log4j。假设应用依赖的二方包其要使用的日志实现是 Log4j2，而应用一直使用的日志实现是 Log4j，而当应用要集成这个二方包时会发现由于两边依赖的日志实现不同引入的冲突无法解决，从而导致集成失败。
-
-为了解决上面描述的问题，常用的几种办法是：
-
-1. 二方包修改日志实现依赖，将其改为只依赖 Log4j 的实现类；或者改为面向 SLF4J 的编程接口打印日志，然后在集成应用中配置相应的 `appender` 和 `logger` 以确定日志输出目录和文件。
-2. 应用修改，修改为使用 Log4j2 的日志打印方式，并同时在集成应用中配置相应的 `appender` 和 `logger` 以确定日志输出目录和文件。
-
-不管是两种方法中的哪一种，都需要修改相应的日志实现以统一到使用相同的日志实现去打印并同时需要配置日志文件的输出目录。那么有没有一种办法，在同样的一个 class path 下，都是由同一个 ClassLoader 加载的类，保证二方包或者引入的中间件其不用任何配置就可以完成**日志文件相对固定目录的输出**并能够**统一日志实现**？或者说引入的二方包遵循一定的标准进行配置后，能够感知到 Logback、Log4j2 或者 Log4j 并能够将日志文件输出在相对固定的目录？
-
-答案是有的，开源的此 `sofa-common-tools` 就是在框架层面提供了解决方案，即二方包或者引入的中间件也只面向日志编程接口 SLF4J 去编程不直接使用具体日志实现的 API，具体的日志实现的选择权利交给应用开发者去选择，同时二方包或者中间件针对每一个日志实现提供了配置以输出日志到相对固定目录和文件。应用选择哪一个日志实现，这个框架就自动发现并选择应用开发者的日志实现进行打印并输出到相对固定目录和文件。
-
-根据 `sofa-common-tools` 的规范对常用日志实现（Logback、Log4j2 和 Log4j）均进行配置（配置日志输出文件和格式），当应用引入二方包或者中间件时，根据应用中已有的日志实现并选择该日志实现能够正确解析的配置文件来初始化完成二方包或者中间件的日志配置来完成日志的输出，并同时不会和某一个具体日志实现绑定。从而完成在不用业务配置额外的 `appender` 和 `logger` 或者业务不用修改任何配置的情况下，完成日志空间打印的隔离能力。
+`sofa-common-tools` is a common dependency of SOFAStack middleware, it provides:
+1. Separate log space for application and middleware
+2. SOFA thread 
  
-*前提：需要统一日志编程接口到 [SLF4J](https://www.slf4j.org/index.html)*
+The audience of this library is middleware and SDK developer. 
 
-## 二、使用场景和快速开始
+## Background
 
-### 2.1 使用场景和目标
+In daily developing, Java logging usually consists of choosing a log facade (e.g., JCL and SLF4j) and log implementation (e.g., Log4j2 and logback).
+Say you are developing an application that uses a JAR which utilizes log4j2 for logging.
+In such scenario, you cannot choose log implementation other than log4j2.
+Some solutions available:
+1. The jar uses log facade instead log implementation but application developers still have to provide log configuration
+2. The jar initialize loggers and appenders programmatically (This works well in Multi-ClassLoader environment where middleware/SDK developers handle many repeated work)
+3. Application resort to same log implementation as the JAR and provide also log configuration
 
-期望达到日志打印隔离的目的：使用此日志打印隔离框架的中间件或者二方库的依赖中不直接使用具体日志实现的 API 或者说不会和某一个日志实现绑定，避免干扰将要接入的应用指定的日志实现，但中间件或者二方库能够自动发现应用环境（或者说 classpath）内引入的日志实现，Logback、Log4j2 或者 Log4j,并按照相应的优先级只使用其中一份配置进行日志输出。
+None of the above solutions is perfect, `sofa-common-tools` provides a Midas touch: middleware/SDK developers print logs using *only* facade and hand the right to select whichever log implementation to application developer.
+At the mean time, middleware/SDK developers provide log configurations per log implementation.
+`sofa-common-tools` detects automatically the log implementation and initializes appenders and loggers for middleware/SDK.
+To differentiate SDKs/middlewares, each jar has to have its own log space identifiable via `SpaceID` in `sofa-common-tools`. 
 
-### 2.2 快速开始
+Some notes:
+- `sofa-common-tools` only supports SLF4j facade currently
 
-假设 RPC 接入，并定义的 `SpaceId` 的关键属性是 `com.alipay.sofa.rpc`。
-
-首先，需要根据 `SpaceId` 和日志打印隔离框架的关键 API 自定义一个 LoggerFactory，如：
+## Quick Start
+Say you are developing an OCR SDK for downstream to integrate. First, you choose `com.alipay.sdk.ocr` as your log space.
+Second, define a logger factory to retrieve all the loggers you need:
 
 ```java
-public class RpcLoggerFactory {
+package com.guaner.happycoding.playground.service;
 
-    private static final String RPC_LOG_SPACE = "com.alipay.sofa.rpc";
+import org.slf4j.Logger;
+import com.alipay.sofa.common.log.LoggerSpaceManager;
 
-    static {
-        //SpaceId init properties
-        Map spaceIdProperties = new HashMap<String, String>();
-        MultiAppLoggerSpaceManager.init(RPC_LOG_SPACE, spaceIdProperties);
-    }
+public class AlipayOcrLoggerFactory {
+    private static final String OCR_LOGGER_SPACE = "com.alipay.sdk.ocr";
 
-    public static org.slf4j.Logger getLogger(Class<?> clazz) {
-        if (clazz == null) {
+    public static Logger getLogger(String name) {
+        if (name == null || name.isEmpty()) {
             return null;
         }
-        return getLogger(clazz.getCanonicalName());
+
+        return LoggerSpaceManager.getLoggerBySpace(name, OCR_LOGGER_SPACE);
     }
 
-    public static org.slf4j.Logger getLogger(String name) {
-        //From "com/alipay/sofa/rpc/log" get the xml configuration and init,then get the logger object
-        return MultiAppLoggerSpaceManager.getLoggerBySpace(name, RPC_LOG_SPACE);
-    }
-}
-```
+    public static Logger getLogger(Class<?> klass) {
+        if (klass == null) {
+            return null;
+        }
 
-定义的 RpcLoggerFactory 主要定义自己的 `SpaceId` 并通过 `MultiAppLoggerSpaceManager.init` 完成初始化，同时抽象出一个 RpcLoggerFactory 方便代码中直接复用，初始化参数中可以针对当前的 `SpaceId` 设置一些属性参数用于在解析配置文件时完成对相应属性占位符的值替换。当然也提供了简化版的 API 即 `LoggerSpaceManager` 大家也可以使用。
-
-其次，在指定的 `SpaceId` 资源路径下编写针对不同日志实现 Logback、Log4j2 和 Log4j 的日志配置文件，具体的文件路径为：
-
-```
-└── com
-    └── alipay
-        └── sofa
-            └── rpc
-                └── log
-                    ├── log4j
-                    │   └── log-conf.xml
-                    ├── log4j2
-                    │   └── log-conf.xml
-                    └──  logback
-                        └── log-conf.xml
-```
-
-需要注意的是在每一个日志实现目录标识下的配置文件都编写对应日志实现能够解析的配置，如 `logback` 目录下的配置 `log-conf.xml` 应该是 Logback 能够解析的配置文件，否则将会报错。 
-
-最后，直接使用并测试验证
-
-```java
-public class LoggerSpaceManagerUsage {
-    public static void main(String[] args) {
-        Logger rpcLogger = RpcLoggerFactory.getLogger("com.alipay.foo");
-        rpcLogger.debug("hello world");
+        return getLogger(klass.getCanonicalName());
     }
 }
 ```
 
-如果 classpath 中引用的是 Logback 依赖作为日志打印框架，并在 `logback/log-conf.xml` 日志打印文件配置内容如下：
+Third, create log configuration for your log space in classpath (space name `com.alipay.sdk.ocr` maps to `com/alipay/sdk/ocr/log/` ), for example
+```
+$ cd com/alipay/sdk/ocr/log && tree
+.
+├── log4j
+│   └── log-conf.xml
+├── log4j2
+│   └── log-conf.xml
+└── logback
+    └── log-conf.xml
+```
+
+The directory name is quite self-evident. If application choose a log implementation you don't configure, error will be thrown.
+
+A sample configuration for logback `logback/log-conf.xml`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -103,167 +85,82 @@ public class LoggerSpaceManagerUsage {
         </encoder>
     </appender>
 
-    <logger name="com.foo.Bar" level="${logging.level.com.alipay.sofa.rpc}" additivity="false">
+    <logger name="com.alipay.foo" level="INFO" additivity="false">
         <appender-ref ref="stdout"/>
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>
 </configuration>
 ```
 
-控制台中包含如下的日志打印内容：
-
-```
-Sofa-Middleware-Log SLF4J : Actual binding is of type [ com.alipay.sofa.rpc Logback ]
-17:42:41.083 [main] DEBUG com.alipay.foo - hello world
-```
-
-## 三、功能特性
-
-### 3.1 日志配置的系统属性
-
-|变量名|在日志 xml 配置文件中使用样式|默认值|系统属性指定|
-|---|---|---|---|
-|logging.path|${logging.path}| ${user.home} |-Dlogging.path=/home/admin/logs|
-|file.encoding|${file.encoding} |UTF-8 |-Dfile.encoding=UTF-8|
-|logging.level.{spaceName} ，以 RPC 为例：logging.level.com.alipay.sofa.rpc|${logging.level.com.alipay.sofa.rpc}| INFO | -Dlogging.level.com.alipay.sofa.rpc=WARN|
-|logging.path.{spaceName} ，以 RPC 为例：logging.path.com.alipay.sofa.rpc |${logging.path.com.alipay.sofa.rpc}|${logging.path.com.alipay.sofa.rpc}|-Dlogging.path.com.alipay.sofa.rpc=/home/admin/logs/appname|
-
-### 3.2 关闭日志实现打印独立功能
-
-1. 关闭日志实现独立打印能力:通过系统属性 `-Dsofa.middleware.log.disable=true`。也许你暂时不希望二方库或者中间件的日志打印到独立目录下，希望集中打印方便本地开发和跑测试用例时集中显示，那么可以借助上面开关，关闭日志独立打印能力,注意这个是全部关闭即禁用掉中间件的独立日志空间功能。
-
-2. 关闭指定日志开关:作用是可以在大家完成编码,进行单元测试的时候,在所有的日志实现都引入 classpath后(当然都是 scope 为 test 的引入),可以采用这种方法自动化测试用例，如下面这种方式关闭掉 Logback 和 Log4j2，就可以单独测试在独立的日志空间下 Log4j 的正确使用:
-
+Lastly, just logging
 ```java
-//禁用logback
-System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
-//禁用log4j
-System.setProperty(Constants.LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
-```
-对应的几个日志实现独立打印能力的单独系统属性开关分别如下，设置相应的系统属性为 `true` 机会关闭对应的日志实现单独打印能力:
-
-```java
-//Class : com.alipay.sofa.common.log.Constants
-//禁用log4j日志实现
-String LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "log4j.middleware.log.disable";
-//禁用log4j2日志实现
-String LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY ="log4j2.middleware.log.disable";
-//禁用logback日志实现
-String LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "logback.middleware.log.disable";
-```
-
-### 3.3 提供动态改变日志级别的能力
-
-考虑到主流的日志实现框架 Logback、Log4j2 和 Log4j 定义的日志级别并且没有统一起来，即没有定义一个统一的日志级别管控 API，这样就导致在 slf4j-api 这个接口层面无法提供统一的一个入口作为日志级别标准。但是在某种情形下需要去动态改变日志级别，所以在 `sofa-common-toos` 中提供了基于`SpaceId` 和 `LoggerName` 的日志级别改变能力。
-
-`sofa-common-tools`日志级别定义为一个枚举类型，通过这个枚举类型并根据具体的日志实现，映射到具体的日志实现的级别上，通过此适配器方式来屏蔽不同日志实现所定义的级别差异：
-
-具体提供的 API 为：
-
-```java
-com.alipay.sofa.common.log.LoggerSpaceManager#setLoggerLevel
-```
-
-而对应的日志枚举级别为：`com.alipay.sofa.common.log.adapter.level.AdapterLevel`，提供如下几种级别的适配：
-
-```java
-public enum AdapterLevel {
-
-    /**
-     * An error in the application, possibly recoverable.
-     */
-    ERROR("error"),
-
-    /**
-     * An event that might possible lead to an error.
-     */
-    WARN("warn"),
-
-    /**
-     * An event for informational purposes.
-     */
-    INFO("info"),
-
-    /**
-     * A general debugging event.
-     */
-    DEBUG("debug"),
-
-    /**
-     * A fine-grained debug message, typically capturing the flow through the application.
-     */
-    TRACE("trace");
+public class Main {
+    public static void main(String[] args) {
+        Logger ocrLogger = AlipayOcrLoggerFactory.getLogger("com.alipay.foo");
+        ocrLogger.info("hello world");
+    }
 }
 ```
 
-## 四、配置说明
-### sofa.middleware.log.disable
-默认配置为 false, 禁止所有 logback/log4j/log4j2 日志打印. 日志默认打印在 ROOT Appender.
-
-**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dsofa.middleware.log.disable=true**
-
-### logback.middleware.log.disable
-默认配置为 false, 禁止使用 logback 日志实现
-
-**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlogback.middleware.log.disable=true**
-
-### log4j2.middleware.log.disable
-默认配置为 false, 禁止使用 log4j2 日志实现
-
-**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlog4j2.middleware.log.disable=true**
-
-### log4j.middleware.log.disable
-默认配置为 false, 禁止使用 log4j 日志实现
-
-**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dlog4j.middleware.log.disable=true**
-
-### 自身日志级别配置
-sofa-common-tools 在初始化绑定日志实现类时，会使用 `System.out` 打印详情信息，例如：
-```text
-Sofa-Middleware-Log:DEBUG  Actual binding is of type [ test.space Logback ]
+In console, the following log will be printed:
 ```
-可以通过 `sofa.middleware.log.internal.level=debug` 设置改日志类型打印级别，默认为 INFO.
+17:42:41.083 [main] INFO com.alipay.foo - hello world
+```
 
-**注: 该配置项只支持通过 -D 作为 VM 参数传入，例如 -Dsofa.middleware.log.internal.level=debug**
+## Configuration
+The configuration of corresponding logging implementation can be parameterized, that is to say, placeholders are allowed in XML file.
+By default, `sofa-common-tools` provides following parameters with sensible default values:
 
-### 配置日志级别
-+ 全局配置：支持使用 `*` 通配符配置，例如 `logging.level.com.* = info`, 则 `logging.levle.com.alipay.sofa.rpc` 日志空间的级别为 `info`。
-+ 单个日志空间配置：`logging.level.${spaceid}=info`，例如 `logging.levle.com.alipay.sofa.rpc=info`。则 RPC 日志空间级别为 `info`。
+|Parameter|Default value|
+|---|---|
+|logging.path| ${user.home} |
+|file.encoding|UTF-8 |
+|logging.level.{spaceName}| INFO |
+|logging.path.{spaceName}|${logging.path}|
 
-**支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
+Application is able to override the value through JVM options, e.g., `-Dlogging.path=/home/admin`.
 
-### 自定义日志配置文件
-每个人日志空间中，logback/log4j2/log4j 都会提供一份默认的日志配置文件，可以使用 `logging.config.{space id}=log-conf-xx.xml` 覆盖默认配置文件。
+### Debugging
+1. The logging ability can be disabled totally through `sofa.middleware.log.disable` JVM option (Of course for middleware/SDK jar using `sofa-common-tools`).
+2. Debugging with specific log implementation, lock-down of other log implementation, e.g., `-Dlogback.middleware.log.disable=true` disables logback. All supported switch:
+    - log4j.middleware.log.disable
+    - log4j2.middleware.log.disable
+    - logback.middleware.log.disable
 
-**支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
+### Miscellaneous
+- sofa.middleware.log.disable, defaults to `false`
+- logback.middleware.log.disable, defaults to `false`
+- log4j2.middleware.log.disable, defaults to `false`
+- log4j.middleware.log.disable, defaults to `false`
 
-### 日志打印控制台
-+ 全局配置
-    + 开关 `sofa.middleware.log.console` 将所有日志空间均打印在 console 端, 默认为 false. 
-    + 日志级别控制 `sofa.middleware.log.console.level` 配置所有打印在 console 端的日志空间级别，默认为 INFO.
-+ 日志空间独立配置
-    + 开关 `sofa.middleware.log.${spaceid}.console` 指定 space id 日志空间打印在 console 端，默认为 false. 优先级高于全局配置。
-    + 日志级别控制 `sofa.middleware.log.{space id}.console.level` 配置 space id 日志空间打印在 console 的日志级别，默认为 INFO. 优先级高于全局配置。
-    
-**支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
+#### LogLog
+`sofa-common-tools` uses internally `System.out` for logging, logging level can be set via JVM option `sofa.middleware.log.internal.level`.
 
-### 控制台日志格式
-+ logback: `sofa.middleware.log.console.logback.pattern` 配置打印在 console 端的 logback 日志格式. 默认为 `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n`
-+ log4j2: `sofa.middleware.log.console.log4j2.pattern` 配置打印在 console 端的 log4j 日志格式. 默认为 `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %X{PID} --- [%15.15t] %-40.40logger{39} : %m%n`
+#### Console logging
+- Global configuration
+    - Switch `sofa.middleware.log.console` toggles console logging for all middleware/SDK, defaults to `false`
+    - `sofa.middleware.log.console.level` configures log level globally
+- Independent middleware/SDK configuration
+    + Switch `sofa.middleware.log.${spaceid}.console` toggles console logging for corresponding middleware/SDK, defaults to `false`
+    + `sofa.middleware.log.{space id}.console.level` configures log level correspondingly, which overrides global log level  
 
-**支持通过 -D 作为 VM 参数传入以及在 Spring Boot 的 application.yml 配置文件传入（依赖 log-sofa-boot-starter）**
+##### Logging pattern
++ logback: `sofa.middleware.log.console.logback.pattern` defaults to `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n`
++ log4j2: `sofa.middleware.log.console.log4j2.pattern` defaults to `%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %X{PID} --- [%15.15t] %-40.40logger{39} : %m%n`
 
-## 五、编译
-Maven 3.2.5+, JDK Version 1.7+
+Console logging options can be passed through JVM option or Spring Boot `properties`.
 
-## 六、LICENSE
+## Compiling
+Maven 3.2.5+, JDK Version 1.6+
+
+## LICENSE
 
 [Apache 2.0](./LICENSE)
 
-## 七、Contribution
+## Contribution
 
 [Contribution Guide](./CONTRIBUTING.md)
 

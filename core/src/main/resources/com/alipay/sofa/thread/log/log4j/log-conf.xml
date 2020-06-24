@@ -8,7 +8,7 @@
         <param name="encoding" value="${file.encoding}"/>
         <param name="threshold" value="warn"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %-24t - %m%n"/>
+            <param name="ConversionPattern" value="%d %-5p %-5t - %m%n"/>
         </layout>
     </appender>
 
@@ -18,7 +18,7 @@
         <param name="encoding" value="${file.encoding}"/>
         <param name="threshold" value="${logging.level.com.alipay.sofa.thread}"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %-24t - %m%n"/>
+            <param name="ConversionPattern" value="%d %-5p %-5t - %m%n"/>
         </layout>
     </appender>
 

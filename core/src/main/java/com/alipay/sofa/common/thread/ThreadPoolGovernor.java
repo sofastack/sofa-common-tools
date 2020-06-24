@@ -41,35 +41,31 @@ public class ThreadPoolGovernor {
                                                                                         .newScheduledThreadPool(
                                                                                             1,
                                                                                             new NamedThreadFactory(
-                                                                                                "ThreadPoolGovernor_SCHEDULER"));
+                                                                                                "t.p.g"));
     private static ScheduledFuture<?>                            scheduledFuture;
     private static final Object                                  monitor            = new Object();
     private static GovernorInfoDumper                            governorInfoDumper = new GovernorInfoDumper();
 
     private static ConcurrentHashMap<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
-    public static void startSchedule() {
-        synchronized (monitor) {
-            if (scheduledFuture == null) {
-                scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
-                    TimeUnit.SECONDS);
-                ThreadLogger.info("Started {} with period: {} SECONDS", CLASS_NAME, period);
-            } else {
-                ThreadLogger.warn("{} has already started with period: {} SECONDS.", CLASS_NAME,
-                    period);
-            }
+    public synchronized static void startSchedule() {
+        if (scheduledFuture == null) {
+            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                TimeUnit.SECONDS);
+            ThreadLogger.info("Started {} with period: {} SECONDS", CLASS_NAME, period);
+        } else {
+            ThreadLogger
+                .warn("{} has already started with period: {} SECONDS.", CLASS_NAME, period);
         }
     }
 
-    public static void stopSchedule() {
-        synchronized (monitor) {
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(true);
-                scheduledFuture = null;
-                ThreadLogger.info("Stopped {}.", CLASS_NAME);
-            } else {
-                ThreadLogger.warn("{} is not scheduling!", CLASS_NAME);
-            }
+    public synchronized static void stopSchedule() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+            ThreadLogger.info("Stopped {}.", CLASS_NAME);
+        } else {
+            ThreadLogger.warn("{} is not scheduling!", CLASS_NAME);
         }
     }
 
