@@ -134,13 +134,11 @@ public class AlipayOcrLoggerFactory {
     static {
         // Note: this step is important, as in Ark environment your SDK may be used in module dependency
         // and will be initialized multiple times.
-        if (MultiAppLoggerSpaceManager.isSpaceInitialized(OCR_LOGGER_SPACE)) {
-            return;
+        if (!MultiAppLoggerSpaceManager.isSpaceInitialized(OCR_LOGGER_SPACE)) {
+            Map spaceIdProperties = new HashMap<String, String>();
+            // Initialize your parameters here
+            MultiAppLoggerSpaceManager.init(OCR_LOGGER_SPACE, spaceIdProperties);
         }
-
-        Map spaceIdProperties = new HashMap<String, String>();
-        // Initialize your parameters here
-        MultiAppLoggerSpaceManager.init(OCR_LOGGER_SPACE, spaceIdProperties);
     }
 
     public static Logger getLogger(String name) {
