@@ -34,8 +34,6 @@ Say you are developing an OCR SDK for downstream to integrate. First, you choose
 Second, define a logger factory to retrieve all the loggers you need:
 
 ```java
-package com.guaner.happycoding.playground.service;
-
 import org.slf4j.Logger;
 import com.alipay.sofa.common.log.LoggerSpaceManager;
 
@@ -122,6 +120,44 @@ By default, `sofa-common-tools` provides following parameters with sensible defa
 |logging.path.{spaceName}|${logging.path}|
 
 Application is able to override the value through JVM options, e.g., `-Dlogging.path=/home/admin`.
+
+### Customized Parameter
+Middlewares/SDKs can defined customized parameters for xml placeholders as well.
+Those parameters must be initialized before using:
+```java
+import org.slf4j.Logger;
+import com.alipay.sofa.common.log.LoggerSpaceManager;import java.util.HashMap;
+
+public class AlipayOcrLoggerFactory {
+    private static final String OCR_LOGGER_SPACE = "com.alipay.sdk.ocr";
+
+    static {
+        // Note: this step is important, as in Ark environment your SDK may be used in module dependency
+        // and will be initialized multiple times.
+        if (!MultiAppLoggerSpaceManager.isSpaceInitialized(OCR_LOGGER_SPACE)) {
+            Map spaceIdProperties = new HashMap<String, String>();
+            // Initialize your parameters here
+            MultiAppLoggerSpaceManager.init(OCR_LOGGER_SPACE, spaceIdProperties);
+        }
+    }
+
+    public static Logger getLogger(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+
+        return LoggerSpaceManager.getLoggerBySpace(name, OCR_LOGGER_SPACE);
+    }
+
+    public static Logger getLogger(Class<?> klass) {
+        if (klass == null) {
+            return null;
+        }
+
+        return getLogger(klass.getCanonicalName());
+    }
+}
+```
 
 ### Debugging
 1. The logging ability can be disabled totally through `sofa.middleware.log.disable` JVM option (Of course for middleware/SDK jar using `sofa-common-tools`).
