@@ -24,6 +24,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
@@ -48,6 +49,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                                1,
                                                                                new NamedThreadFactory(
                                                                                    "s.t.p.e"));
+    private static AtomicInteger POOL_COUNTER = new AtomicInteger(0);
 
     private String                                threadPoolName;
 
@@ -164,7 +166,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
+        return SIMPLE_CLASS_NAME + String.format("%08x", POOL_COUNTER.getAndIncrement());
     }
 
     public synchronized void startSchedule() {
