@@ -9,7 +9,9 @@
 1. Separate log space for application and middleware
 2. SOFA thread 
  
-The audience of this library is middleware and SDK developer. 
+The audience of this library is middleware and SDK developer.
+
+**Note:** Since version 1.2.0, sofa-common-tools don't support JDK 1.6 anymore. 
 
 ## Background
 
