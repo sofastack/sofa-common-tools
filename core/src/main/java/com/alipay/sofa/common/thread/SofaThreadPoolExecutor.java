@@ -49,7 +49,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                                1,
                                                                                new NamedThreadFactory(
                                                                                    "s.t.p.e"));
-    private static AtomicInteger POOL_COUNTER = new AtomicInteger(0);
+    private static AtomicInteger                  POOL_COUNTER         = new AtomicInteger(0);
 
     private String                                threadPoolName;
 
