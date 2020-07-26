@@ -49,7 +49,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                                1,
                                                                                new NamedThreadFactory(
                                                                                    "s.t.p.e"));
-    private static AtomicInteger                  POOL_COUNTER         = new AtomicInteger(0);
+    private static final AtomicInteger            POOL_COUNTER         = new AtomicInteger(0);
 
     private String                                threadPoolName;
 
@@ -59,7 +59,6 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     private long                                  taskTimeoutMilli     = timeUnit
                                                                            .toMillis(taskTimeout);
     private ScheduledFuture<?>                    scheduledFuture;
-    private final Object                          monitor              = new Object();
 
     private Map<Runnable, RunnableExecutionInfo>  executingTasks       = new ConcurrentHashMap<Runnable, RunnableExecutionInfo>();
 
@@ -142,7 +141,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     protected void terminated() {
         super.terminated();
         ThreadPoolGovernor.unregisterThreadPoolExecutor(threadPoolName);
-        synchronized (monitor) {
+        synchronized (this) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
             }
@@ -158,7 +157,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             return;
         }
 
-        synchronized (monitor) {
+        synchronized (this) {
             scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
             ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
                 period, unit);
