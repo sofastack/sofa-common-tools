@@ -19,6 +19,7 @@ package com.alipay.sofa.common.thread;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +43,7 @@ public class ThreadPoolTestBase {
 
     @Before
     public void beforeTest() {
+        System.setProperty(Constants.LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "false");
         System.setProperty("logging.path", "./logs");
         System.setProperty("logging.level.com.alipay.sofa.thread", "debug");
         System.setProperty("file.encoding", "UTF-8");
