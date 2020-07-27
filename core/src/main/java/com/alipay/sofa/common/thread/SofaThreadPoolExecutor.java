@@ -337,11 +337,15 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
 
         @Override
         public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+
             if (obj instanceof ExecutingRunnable) {
                 ExecutingRunnable er = (ExecutingRunnable) obj;
                 return this.t == er.t && this.r == er.r;
             }
-            return super.equals(obj);
+            return false;
         }
 
         @Override
