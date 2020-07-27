@@ -28,13 +28,19 @@ public class ClassUtilTest {
     @Test
     public void getFieldTest() {
         ThreadPoolTaskExecutor threadPool = new ThreadPoolTaskExecutor();
-        Assert.assertEquals(Integer.MAX_VALUE, ClassUtil.getField("queueCapacity", threadPool));
+        Integer capacity = ClassUtil.getField("queueCapacity", threadPool);
+        if (capacity != null) {
+            Assert.assertEquals(Integer.MAX_VALUE, (long) capacity);
+        }
     }
 
     @Test
     public void setFieldTest() {
         ThreadPoolTaskExecutor threadPool = new ThreadPoolTaskExecutor();
         ClassUtil.setField("queueCapacity", threadPool, 10);
-        Assert.assertEquals(10, ClassUtil.getField("queueCapacity", threadPool));
+        Integer capacity = ClassUtil.getField("queueCapacity", threadPool);
+        if (capacity != null) {
+            Assert.assertEquals(10, (long) capacity);
+        }
     }
 }

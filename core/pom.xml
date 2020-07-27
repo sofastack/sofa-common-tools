@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sofa-common-tools-parent</artifactId>
         <groupId>com.alipay.sofa.common</groupId>
-        <version>1.1.2</version>
+        <version>1.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,12 +55,6 @@
             <version>${logback.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- commons-logging slf4j-jcl log4j-->
         <dependency>
@@ -100,8 +94,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

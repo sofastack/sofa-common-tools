@@ -19,41 +19,48 @@ package com.alipay.sofa.common.thread;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.utils.ClassUtil;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnable {
-    private static String                        ENABLE_LOGGING       = System
-                                                                          .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY);
-    private static String                        SIMPLE_CLASS_NAME    = SofaThreadPoolExecutor.class
-                                                                          .getSimpleName();
-    private static SimpleDateFormat              DATE_FORMAT          = new SimpleDateFormat(
-                                                                          "yyyy-MM-dd HH:mm:ss,SSS");
-    private static long                          DEFAULT_TASK_TIMEOUT = 30000;
-    private static long                          DEFAULT_PERIOD       = 5000;
-    private static TimeUnit                      DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
-    private static ScheduledExecutorService      scheduler            = Executors
-                                                                          .newScheduledThreadPool(
-                                                                              1,
-                                                                              new NamedThreadFactory(
-                                                                                  "s.t.p.e"));
+    private static final String                   ENABLE_LOGGING       = System
+                                                                           .getProperty(SofaThreadConstants.SOFA_THREAD_POOL_LOGGING_CAPABILITY);
+    private static final String                   SIMPLE_CLASS_NAME    = SofaThreadPoolExecutor.class
+                                                                           .getSimpleName();
+    private static final DateTimeFormatter        DATE_FORMAT          = DateTimeFormatter
+                                                                           .ofPattern(
+                                                                               "yyyy-MM-dd HH:mm:ss,SSS")
+                                                                           .withZone(
+                                                                               ZoneId
+                                                                                   .systemDefault());
+    private static final long                     DEFAULT_TASK_TIMEOUT = 30000;
+    private static final long                     DEFAULT_PERIOD       = 5000;
+    private static final TimeUnit                 DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
+    private static final ScheduledExecutorService scheduler            = Executors
+                                                                           .newScheduledThreadPool(
+                                                                               1,
+                                                                               new NamedThreadFactory(
+                                                                                   "s.t.p.e"));
+    private static final AtomicInteger            POOL_COUNTER         = new AtomicInteger(0);
 
-    private String                               threadPoolName;
+    private String                                threadPoolName;
 
-    private long                                 taskTimeout          = DEFAULT_TASK_TIMEOUT;
-    private long                                 period               = DEFAULT_PERIOD;
-    private TimeUnit                             timeUnit             = DEFAULT_TIME_UNIT;
-    private long                                 taskTimeoutMilli     = timeUnit
-                                                                          .toMillis(taskTimeout);
-    private ScheduledFuture<?>                   scheduledFuture;
-    private final Object                         monitor              = new Object();
+    private long                                  taskTimeout          = DEFAULT_TASK_TIMEOUT;
+    private long                                  period               = DEFAULT_PERIOD;
+    private TimeUnit                              timeUnit             = DEFAULT_TIME_UNIT;
+    private long                                  taskTimeoutMilli     = timeUnit
+                                                                           .toMillis(taskTimeout);
+    private ScheduledFuture<?>                    scheduledFuture;
 
-    private Map<Runnable, RunnableExecutionInfo> executingTasks       = new ConcurrentHashMap<Runnable, RunnableExecutionInfo>();
+    private Map<Runnable, RunnableExecutionInfo>  executingTasks       = new ConcurrentHashMap<Runnable, RunnableExecutionInfo>();
 
     /**
      * Basic constructor
@@ -134,7 +141,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     protected void terminated() {
         super.terminated();
         ThreadPoolGovernor.unregisterThreadPoolExecutor(threadPoolName);
-        synchronized (monitor) {
+        synchronized (this) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
             }
@@ -150,7 +157,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             return;
         }
 
-        synchronized (monitor) {
+        synchronized (this) {
             scheduledFuture = scheduler.scheduleAtFixedRate(this, period, period, unit);
             ThreadLogger.info("Thread pool '{}' started with period: {} {}", threadPoolName,
                 period, unit);
@@ -158,7 +165,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     }
 
     private String createName() {
-        return SIMPLE_CLASS_NAME + String.format("%08x", this.hashCode());
+        return SIMPLE_CLASS_NAME + String.format("%08x", POOL_COUNTER.getAndIncrement());
     }
 
     public synchronized void startSchedule() {
@@ -223,15 +230,18 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                             sb.append("    ").append(e).append("\n");
                         }
                         String traceId = traceIdSafari(executionInfo.getThread());
-                        ThreadLogger
-                            .warn(
-                                "Task {} in thread pool {} started on {}{} exceeds the limit of {} execution time with stack trace:\n    {}",
-                                task, getThreadPoolName(),
-                                DATE_FORMAT.format(executionInfo.getTaskKickOffTime()),
-                                traceId == null ? "" : " with traceId " + traceId, getTaskTimeout()
-                                                                                   + getTimeUnit()
-                                                                                       .toString(),
-                                sb.toString().trim());
+                        try {
+                            ThreadLogger
+                                .warn(
+                                    "Task {} in thread pool {} started on {}{} exceeds the limit of {} execution time with stack trace:\n    {}",
+                                    task, getThreadPoolName(), DATE_FORMAT.format(Instant
+                                        .ofEpochMilli(executionInfo.getTaskKickOffTime())),
+                                    traceId == null ? "" : " with traceId " + traceId,
+                                    getTaskTimeout() + getTimeUnit().toString(), sb.toString()
+                                        .trim());
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
