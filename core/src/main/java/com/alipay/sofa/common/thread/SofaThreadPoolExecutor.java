@@ -60,7 +60,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                                                                            .toMillis(taskTimeout);
     private ScheduledFuture<?>                    scheduledFuture;
 
-    private Map<Runnable, RunnableExecutionInfo>  executingTasks       = new ConcurrentHashMap<Runnable, RunnableExecutionInfo>();
+    private final Map<ExecutingRunnable, RunnableExecutionInfo>  executingTasks       = new ConcurrentHashMap<>();
 
     /**
      * Basic constructor
@@ -201,21 +201,22 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
-        executingTasks.put(r, new RunnableExecutionInfo(t));
+        executingTasks.put(new ExecutingRunnable(r, t), new RunnableExecutionInfo());
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        executingTasks.remove(r);
+        executingTasks.remove(new ExecutingRunnable(r, Thread.currentThread()));
     }
 
     @Override
     public void run() {
         try {
             int decayedTaskCount = 0;
-            for (Map.Entry<Runnable, RunnableExecutionInfo> entry : executingTasks.entrySet()) {
-                Runnable task = entry.getKey();
+            for (Map.Entry<ExecutingRunnable, RunnableExecutionInfo> entry : executingTasks.entrySet()) {
+                Runnable task = entry.getKey().r;
+                Thread executingThread = entry.getKey().t;
                 RunnableExecutionInfo executionInfo = entry.getValue();
                 long executionTime = System.currentTimeMillis()
                                      - executionInfo.getTaskKickOffTime();
@@ -226,10 +227,10 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
                     if (!executionInfo.isPrinted()) {
                         executionInfo.setPrinted(true);
                         StringBuilder sb = new StringBuilder();
-                        for (StackTraceElement e : executionInfo.getThread().getStackTrace()) {
+                        for (StackTraceElement e : executingThread.getStackTrace()) {
                             sb.append("    ").append(e).append("\n");
                         }
-                        String traceId = traceIdSafari(executionInfo.getThread());
+                        String traceId = traceIdSafari(executingThread);
                         try {
                             ThreadLogger
                                 .warn(
@@ -320,23 +321,46 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
         return period;
     }
 
+    static class ExecutingRunnable {
+        public Runnable r;
+        public Thread t;
+
+        public ExecutingRunnable(Runnable r, Thread t) {
+            this.r = r;
+            this.t = t;
+        }
+
+        @Override
+        public int hashCode() {
+            return toString().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+
+            if (obj instanceof ExecutingRunnable) {
+                ExecutingRunnable er = (ExecutingRunnable) obj;
+                return this.t == er.t && this.r == er.r;
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return r.toString() + t.toString();
+        }
+    }
+
     static class RunnableExecutionInfo {
-        private Thread           thread;
         private volatile boolean printed;
         private long             taskKickOffTime;
 
-        public RunnableExecutionInfo(Thread thread) {
-            this.thread = thread;
+        public RunnableExecutionInfo() {
             printed = false;
             taskKickOffTime = System.currentTimeMillis();
-        }
-
-        public Thread getThread() {
-            return thread;
-        }
-
-        public void setThread(Thread thread) {
-            this.thread = thread;
         }
 
         public boolean isPrinted() {
