@@ -29,26 +29,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandler {
 
-    private final RejectedExecutionHandler delegate;
-    private TimeWaitRunner                 timeWaitRunner;
-    private SofaThreadPoolExecutor         threadPoolExecutor;
-
-    public RejectedExecutionHandler getDelegate() {
-        return delegate;
-    }
-
-    public void setTimeWaitRunner(TimeWaitRunner timeWaitRunner) {
-        this.timeWaitRunner = timeWaitRunner;
-    }
-
-    public TimeWaitRejectedExecutionHandler(RejectedExecutionHandler delegate) {
-        this.delegate = delegate;
-    }
+    private RejectedExecutionHandler delegate;
+    private TimeWaitRunner           timeWaitRunner;
+    private SofaThreadPoolExecutor   threadPoolExecutor;
 
     public TimeWaitRejectedExecutionHandler(SofaThreadPoolExecutor executor, long waitTime,
                                             TimeUnit timeUnit) {
         this.delegate = new ThreadPoolExecutor.AbortPolicy();
         this.timeWaitRunner = new TimeWaitRunner(timeUnit.toMillis(waitTime));
+        this.delegate = executor.getRejectedExecutionHandler();
         this.threadPoolExecutor = executor;
     }
 
@@ -56,10 +45,6 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
         timeWaitRunner.doWithRunnable(this::logStackTrace);
         getDelegate().rejectedExecution(r, executor);
-    }
-
-    public void setThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
-        this.threadPoolExecutor = threadPoolExecutor;
     }
 
     private void logStackTrace() {
@@ -70,6 +55,18 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
                 "Queue of thread pool {} is full with all stack trace: \n    {}\n\n",
                 threadPoolName, allStackTrace);
         }
+    }
+
+    public RejectedExecutionHandler getDelegate() {
+        return delegate;
+    }
+
+    public void setTimeWaitRunner(TimeWaitRunner timeWaitRunner) {
+        this.timeWaitRunner = timeWaitRunner;
+    }
+
+    public void setThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
+        this.threadPoolExecutor = threadPoolExecutor;
     }
 
 }
