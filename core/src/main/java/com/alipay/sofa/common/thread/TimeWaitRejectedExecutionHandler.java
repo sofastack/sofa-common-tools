@@ -35,6 +35,7 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
 
     public TimeWaitRejectedExecutionHandler(SofaThreadPoolExecutor executor, long waitTime,
                                             TimeUnit timeUnit) {
+        this.delegate = new ThreadPoolExecutor.AbortPolicy();
         this.timeWaitRunner = new TimeWaitRunner(timeUnit.toMillis(waitTime));
         this.delegate = executor.getRejectedExecutionHandler();
         this.threadPoolExecutor = executor;
@@ -58,6 +59,10 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
 
     public RejectedExecutionHandler getDelegate() {
         return delegate;
+    }
+
+    public void setDelegate(RejectedExecutionHandler delegate) {
+        this.delegate = delegate;
     }
 
     public void setTimeWaitRunner(TimeWaitRunner timeWaitRunner) {
