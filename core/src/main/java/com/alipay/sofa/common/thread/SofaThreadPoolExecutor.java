@@ -23,7 +23,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -255,6 +263,17 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor implements Runnab
             ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}",
                 this.threadPoolName, e);
         }
+    }
+
+
+    public String getAllStackTrace() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<ExecutingRunnable, RunnableExecutionInfo> entry : executingTasks.entrySet()) {
+            for (StackTraceElement e : entry.getKey().t.getStackTrace()) {
+                sb.append("    ").append(e).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     /**
