@@ -22,39 +22,39 @@ package com.alipay.sofa.common.config;
  */
 public class SofaConfig<T> {
 
-    String   key;
+    private final String   key;
     /**
      * alias of sofa config, previous alias has higher priority
      */
-    String[] alias;
+    private final String[] alias;
 
-    T        defaultValue;
+    private final T        defaultValue;
 
-    String   description;
+    private final String   description;
 
-    Class<T> type;
+    private T              value;
 
     /**
      * change in this config will take effect at runtime
+     * todo add listener
      */
-    boolean  instantly;
+    private final boolean  instantly;
 
-    public SofaConfig(String key, String[] alias, Class<T> type, T defaultValue, boolean instantly,
+    public SofaConfig(String key, String[] alias, T defaultValue, boolean instantly,
                       String description) {
         this.key = key;
         this.alias = alias;
-        this.type = type;
         this.defaultValue = defaultValue;
         this.instantly = instantly;
         this.description = description;
     }
 
-    public static <T> SofaConfig<T> build(String key, Class<T> type, T defaultValue, boolean instantly, String description) {
-        return new SofaConfig<>(key, null, type, defaultValue, instantly, description);
+    public static <T> SofaConfig<T> build(String key, T defaultValue, boolean instantly, String description) {
+        return new SofaConfig<>(key, null , defaultValue, instantly, description);
     }
 
-    public static <T> SofaConfig<T> build(String key, Class<T> type, T defaultValue, boolean instantly, String description,String[] alias) {
-        return new SofaConfig<>(key, alias, type, defaultValue, instantly, description);
+    public static <T> SofaConfig<T> build(String key, T defaultValue, boolean instantly, String description,String[] alias) {
+        return new SofaConfig<>(key, alias, defaultValue, instantly, description);
     }
 
     public String getKey() {
@@ -74,11 +74,21 @@ public class SofaConfig<T> {
     }
 
     public Class<T> getType() {
-        return type;
+        return (Class<T>) defaultValue.getClass();
     }
 
     public boolean isInstantly() {
         return instantly;
+    }
+
+    public T getOrDefault() {
+        return SofaCommonConfig.getInstance().getOrDefault(this);
+    }
+
+    public static class Value<T> {
+        private T            value;
+        private ConfigSource configSource;
+
     }
 
 }

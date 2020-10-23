@@ -22,9 +22,9 @@ package com.alipay.sofa.common.config;
  */
 public interface CommonConfig {
 
-    <T> T getConfig(SofaConfig<T> key);
+    <T> T getOrDefault(SofaConfig<T> key);
 
-    <T> T getConfig(SofaConfig<T> key, T defaultValue);
+    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
 
-    void setConfigSource(ConfigSource configSource);
+    void addConfigSource(ConfigSource configSource);
 }

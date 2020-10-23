@@ -29,7 +29,6 @@ public class CommonToolsConfig {
     public static final SofaConfig       COMMON_LOG_LEVEL         = SofaConfig
                                                                       .build(
                                                                           LOG_PREFIX + "level",
-                                                                          String.class,
                                                                           "info",
                                                                           true,
                                                                           "控制日志输出级别",
@@ -38,7 +37,6 @@ public class CommonToolsConfig {
     public static final SofaConfig       COMMON_LOG_FILE          = SofaConfig
                                                                       .build(
                                                                           LOG_PREFIX + "file",
-                                                                          String.class,
                                                                           "./logs",
                                                                           false,
                                                                           "控制输出路径",
@@ -49,7 +47,6 @@ public class CommonToolsConfig {
     public static final SofaConfig<Long> COMMON_THREAD_LOG_PERIOD = SofaConfig
                                                                       .build(
                                                                           THREAD_PREFIX + "period",
-                                                                          Long.class,
                                                                           10L,
                                                                           false,
                                                                           "控制线程信息打印间隔",

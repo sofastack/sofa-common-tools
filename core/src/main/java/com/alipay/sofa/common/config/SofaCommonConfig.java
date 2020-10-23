@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.common.config;
 
+import com.alipay.sofa.common.utils.OrderComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.OrderComparator;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class SofaCommonConfig implements CommonConfig {
 
     static{
         INSTANCE = new SofaCommonConfig();
-        INSTANCE.setConfigSource(new SystemPropertyConfigSource());
+        INSTANCE.addConfigSource(new SystemPropertyConfigSource());
     }
 
     List<ConfigSource> configSources = new LinkedList<>();
@@ -45,13 +45,16 @@ public class SofaCommonConfig implements CommonConfig {
         return INSTANCE;
     }
 
-
     @Override
-    public <T> T getConfig(SofaConfig<T> key) {
-        return getConfig(key,null);
+    public <T> T getOrDefault(SofaConfig<T> key) {
+        return getConfig(key,key.getDefaultValue());
     }
 
     @Override
+    public <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault) {
+        return getConfig(key,customDefault);
+    }
+
     public <T> T getConfig(SofaConfig<T> key, T defaultValue) {
         T result = null;
         for (ConfigSource configSource : configSources) {
@@ -61,21 +64,19 @@ public class SofaCommonConfig implements CommonConfig {
             }
         }
 
-        if(defaultValue!=null){
-            if(!key.getDefaultValue().equals(defaultValue)){
-                LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",key.toString(),key.getDefaultValue(),defaultValue);
-            }
-            return defaultValue;
-        }else{
-           return key.getDefaultValue();
+        if(!key.getDefaultValue().equals(defaultValue)){
+            LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",key.toString(),key.getDefaultValue(),defaultValue);
         }
+        return defaultValue;
     }
 
 
 
     @Override
-    public void setConfigSource(ConfigSource configSource) {
+    public void addConfigSource(ConfigSource configSource) {
         configSources.add(configSource);
         OrderComparator.sort(configSources);
     }
+
+
 }

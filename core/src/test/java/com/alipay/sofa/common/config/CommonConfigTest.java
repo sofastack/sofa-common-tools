@@ -30,15 +30,15 @@ public class CommonConfigTest {
     @Test
     public void commonConfigTest() {
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getKey(), "1000");
-        Long config = SofaCommonConfig.getInstance().getConfig(COMMON_THREAD_LOG_PERIOD);
+        Long config = SofaCommonConfig.getInstance().getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(1000L, config.longValue());
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getKey(), "");
-        config = SofaCommonConfig.getInstance().getConfig(COMMON_THREAD_LOG_PERIOD);
+        config = SofaCommonConfig.getInstance().getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(10L, config.longValue());
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getAlias()[0], "8");
-        config = SofaCommonConfig.getInstance().getConfig(COMMON_THREAD_LOG_PERIOD);
+        config = SofaCommonConfig.getInstance().getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(8L, config.longValue());
 
     }

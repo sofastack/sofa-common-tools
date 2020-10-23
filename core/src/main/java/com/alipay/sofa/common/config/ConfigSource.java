@@ -16,12 +16,13 @@
  */
 package com.alipay.sofa.common.config;
 
-import org.springframework.core.Ordered;
+import com.alipay.sofa.common.utils.Ordered;
 
 /**
  * @author zhaowang
  * @version : ConfigSource.java, v 0.1 2020年10月20日 7:57 下午 zhaowang Exp $
  */
+//todo 自己实现 Ordered
 public interface ConfigSource extends Ordered {
 
     <T> T getConfig(SofaConfig<T> key);

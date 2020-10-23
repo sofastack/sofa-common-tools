@@ -37,7 +37,7 @@ public abstract class AbstractConfigSource implements ConfigSource {
     @Override
     public <T> T getConfig(SofaConfig<T> key) {
         String value = getStringConfig(key);
-        return changeValueType(value, key.getType());
+        return (T) changeValueType(value, key.getDefaultValue().getClass());
 
     }
 
