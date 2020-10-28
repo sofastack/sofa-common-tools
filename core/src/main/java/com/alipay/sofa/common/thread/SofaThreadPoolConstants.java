@@ -17,9 +17,20 @@
 package com.alipay.sofa.common.thread;
 
 /**
+ * The constants for the Sofa Thread Pool
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/3/19
  */
-public class SofaThreadConstants {
-    public static final String SOFA_THREAD_POOL_LOGGING_CAPABILITY = "sofa_thread_pool_logging_capability";
+public class SofaThreadPoolConstants {
+
+    public static final String  SOFA_THREAD_POOL_LOGGING_CAPABILITY = "sofa_thread_pool_logging_capability";
+
+    public static final long    DEFAULT_TASK_TIMEOUT                = 30000;
+
+    public static final long    DEFAULT_PERIOD                      = 5000;
+
+    public static final long    DEFAULT_GOVERNOR_INTERVAL           = 30;
+
+    public static final boolean DEFAULT_GOVERNOR_LOGGER_ENABLE      = false;
+
 }
