@@ -18,11 +18,20 @@ package com.alipay.sofa.common.log.factory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.core.util.OptionHelper;
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
+import org.slf4j.Marker;
 
 import java.net.URL;
 import java.util.*;
@@ -54,6 +63,51 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         } catch (JoranException e) {
             throw new IllegalStateException("Logback loggerSpaceFactory build error", e);
         }
+
+        String value = properties.getProperty(String.format(
+            Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId.getSpaceName()));
+        if (StringUtil.isEmpty(value)) {
+            value = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
+        }
+        if ("true".equalsIgnoreCase(value)) {
+            ConsoleAppender<ILoggingEvent> appender = createConsoleAppender(loggerContext,
+                properties);
+            loggerContext.addTurboFilter(new TurboFilter() {
+                @Override
+                public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
+                                          Level level, String format, Object[] params, Throwable t) {
+                    if (!logger.isAttached(appender)) {
+                        logger.addAppender(appender);
+                        logger.setLevel(getConsoleLevel(spaceId.getSpaceName(), properties));
+                    }
+                    return FilterReply.NEUTRAL;
+                }
+            });
+        }
+    }
+
+    private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext loggerContext, Properties properties) {
+        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        String logPattern = properties.getProperty(
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
+        encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
+        encoder.setContext(loggerContext);
+        encoder.start();
+        appender.setEncoder(encoder);
+        appender.setName("CONSOLE");
+        appender.start();
+        return appender;
+    }
+
+    private Level getConsoleLevel(String spaceId, Properties properties) {
+        String defaultLevel = properties.getProperty(
+            Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "INFO");
+        String level = properties.getProperty(
+            String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, spaceId),
+            defaultLevel);
+        return Level.toLevel(level, Level.INFO);
     }
 
     @Override

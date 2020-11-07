@@ -58,7 +58,7 @@ public final class LogEnvUtils {
         try {
             return (spaceClassloader.loadClass("org.slf4j.impl.Log4jLoggerFactory") != null);
         } catch (ClassNotFoundException e) {
-            //   logger.debug("log4j dependency is not existed.");
+            // logger.debug("log4j dependency is not existed.");
             return false;
         }
     }
@@ -121,7 +121,8 @@ public final class LogEnvUtils {
             String lowerCaseKey = entry.getKey().toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
                 || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
-                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
+                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)
+                || lowerCaseKey.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX)) {
                 properties.put(lowerCaseKey, entry.getValue());
             }
         }
@@ -132,7 +133,8 @@ public final class LogEnvUtils {
             String lowerCaseKey = ((String) entry.getKey()).toLowerCase();
             if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
                 || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
-                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)) {
+                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)
+                || lowerCaseKey.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX)) {
                 properties.put(lowerCaseKey, (String) entry.getValue());
             }
         }
@@ -197,5 +199,4 @@ public final class LogEnvUtils {
                || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
                || key.equals(LOG_ENCODING_PROP_KEY);
     }
-
 }
