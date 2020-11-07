@@ -85,42 +85,31 @@ public final class LogEnvUtils {
     }
 
     /**
-     * 对通用的全局日志相关的配置变量进行整理
+     * 对通用的全局日志相关的配置变量进行整理：
      * logging.path
      * loggingRoot
-     * file.encoding
-     * PID
+     * file.encoding, defaults to UTF-8
+     * Setting PID
      */
     public static Map<String, String> processGlobalSystemLogProperties() {
         if (globalSystemProperties != null) {
             return globalSystemProperties;
         }
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
 
-        /**
-         * 设置进程号上下文，用于日志打印.
-         */
         properties.put(PROCESS_MARKER, ProcessIdUtil.getProcessId());
-
-        /**
-         *  以系统变量file.encoding为准,获取不到再默认设置为UTF-8
-         */
         properties.put(LOG_ENCODING_PROP_KEY, System.getProperty(LOG_ENCODING_PROP_KEY, UTF8_STR));
 
-        /**
-         *  以系统变量 logging.path 和 loggingRoot 为准，优先 logging.path 配置项
-         */
+        // 以系统变量 logging.path 和 loggingRoot 为准，优先 logging.path 配置项
         String loggingPath = System.getProperty(LOG_PATH);
         String loggingRoot = System.getProperty(OLD_LOG_PATH);
         if (!StringUtil.isBlank(loggingPath)) {
-            //以loggingPath为准（可覆盖loggingRoot）
             loggingRoot = loggingPath;
         } else if (!StringUtil.isBlank(loggingRoot)) {
-            // only loggingRoot is configured
             loggingPath = loggingRoot;
         } else {
-            //还是提供一个默认值$HOME/logs,否则中间件单元测试报错,需要手动设置路径
+            // 还是提供一个默认值 $HOME/logs，否则中间件单元测试报错，需要手动设置路径
             loggingPath = LOGGING_PATH_DEFAULT;
             loggingRoot = LOGGING_PATH_DEFAULT;
         }
