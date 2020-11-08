@@ -16,14 +16,21 @@
  */
 package com.alipay.sofa.common.log.factory;
 
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.message.Message;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.slf4j.Logger;
 
@@ -40,12 +47,16 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.0.15
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
+    private static final String CONSOLE = "CONSOLE";
 
     private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
     private SpaceId                       spaceId;
     private Properties                    properties;
     private LoggerContext                 loggerContext;
     private URL                           confFile;
+
+    private final ConsoleAppender consoleAppender;
+    private final Level consoleLevel;
 
     /**
      * @param source logback,log4j2,log4j,temp,nop
@@ -56,7 +67,12 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.spaceId = spaceId;
         this.properties = properties;
         this.confFile = confFile;
+
+        consoleAppender = createConsoleAppender();
+        consoleLevel = getConsoleLevel();
+
         this.loggerContext = initialize();
+        attachConsoleAppender();
     }
 
     private LoggerContext initialize() throws Throwable {
@@ -71,23 +87,14 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         ConfigurationFactory configurationFactory = ConfigurationFactory.getInstance();
         try {
             // log4j-core 2.3 version
-            Class<?>[] parameterTypes = new Class[3];
-            parameterTypes[0] = String.class;
-            parameterTypes[1] = URI.class;
-            parameterTypes[2] = ClassLoader.class;
             Method getConfigurationMethod = configurationFactory.getClass().getMethod(
-                "getConfiguration", parameterTypes);
+                "getConfiguration", String.class, URI.class, ClassLoader.class);
             config = (Configuration) getConfigurationMethod.invoke(configurationFactory,
                 spaceId.getSpaceName(), confFile.toURI(), this.getClass().getClassLoader());
         } catch (NoSuchMethodException noSuchMethodException) {
             // log4j-core 2.7+ version
-            Class<?>[] parameterTypes = new Class[4];
-            parameterTypes[0] = LoggerContext.class;
-            parameterTypes[1] = String.class;
-            parameterTypes[2] = URI.class;
-            parameterTypes[3] = ClassLoader.class;
             Method getConfigurationMethod = configurationFactory.getClass().getMethod(
-                "getConfiguration", parameterTypes);
+                "getConfiguration", LoggerContext.class, String.class, URI.class, ClassLoader.class);
             config = (Configuration) getConfigurationMethod.invoke(configurationFactory, context,
                 spaceId.getSpaceName(), confFile.toURI(), this.getClass().getClassLoader());
         }
@@ -102,6 +109,48 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
         context.start(config);
         return context;
+    }
+
+    private void attachConsoleAppender() {
+        String value = properties.getProperty(String.format(
+                Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_SWITCH, spaceId.getSpaceName()));
+        if (StringUtil.isEmpty(value)) {
+            value = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
+        }
+
+        if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
+            loggerContext.addFilter(new AbstractFilter() {
+                @Override
+                public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Message msg,
+                                     Throwable t) {
+                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                        logger.addAppender(consoleAppender);
+                        logger.setLevel(consoleLevel);
+                    }
+                    return Result.NEUTRAL;
+                }
+
+                @Override
+                public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Object msg,
+                                     Throwable t) {
+                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                        logger.addAppender(consoleAppender);
+                        logger.setLevel(consoleLevel);
+                    }
+                    return Result.NEUTRAL;
+                }
+
+                @Override
+                public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, String msg,
+                                     Object... params) {
+                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                        logger.addAppender(consoleAppender);
+                        logger.setLevel(consoleLevel);
+                    }
+                    return Result.NEUTRAL;
+                }
+            });
+        }
     }
 
     @Override
@@ -122,6 +171,24 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
         loggerMap.putIfAbsent(name, newLogger(name, loggerContext));
         return loggerMap.get(name);
+    }
+
+    private ConsoleAppender createConsoleAppender() {
+        String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
+
+        PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
+        ConsoleAppender.Builder builder = ConsoleAppender.newBuilder();
+        builder.withLayout(patternLayout).withName(CONSOLE);
+        ConsoleAppender appender = builder.build();
+        appender.start();
+        return appender;
+    }
+
+    private Level getConsoleLevel() {
+        String defaultLevel = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "INFO");
+        String level = properties.getProperty(String.format(Constants.SOFA_MIDDLEWARE_SINGLE_LOG_CONSOLE_LEVEL, spaceId), defaultLevel);
+        return Level.toLevel(level);
     }
 
     private Logger newLogger(String name, LoggerContext loggerContext) {

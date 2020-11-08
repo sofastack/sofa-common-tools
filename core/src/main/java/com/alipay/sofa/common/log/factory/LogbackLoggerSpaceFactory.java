@@ -73,7 +73,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         if (StringUtil.isEmpty(value)) {
             value = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
         }
-        if ("true".equalsIgnoreCase(value)) {
+        if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
             loggerContext.addTurboFilter(new TurboFilter() {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
