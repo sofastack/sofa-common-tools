@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<String, Logger>();
+    private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
     private SpaceId                       spaceId;
     private Properties                    properties;
     private LoggerContext                 loggerContext;

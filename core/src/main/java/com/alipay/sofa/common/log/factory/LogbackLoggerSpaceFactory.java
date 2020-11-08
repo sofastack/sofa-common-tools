@@ -42,10 +42,13 @@ import java.util.*;
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private SpaceId       spaceId;
-    private LoggerContext loggerContext;
-    private Properties    properties;
-    private URL           confFile;
+    private SpaceId                              spaceId;
+    private LoggerContext                        loggerContext;
+    private Properties                           properties;
+
+    // Console appender on this logger context
+    private final ConsoleAppender<ILoggingEvent> consoleAppender;
+    private final Level                          consoleLevel;
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -53,7 +56,8 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.spaceId = spaceId;
         this.loggerContext = loggerContext;
         this.properties = properties;
-        this.confFile = confFile;
+        consoleAppender = createConsoleAppender(loggerContext, properties);
+        consoleLevel = getConsoleLevel(spaceId.getSpaceName(), properties);
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             loggerContext.putProperty((String) entry.getKey(), (String) entry.getValue());
@@ -70,15 +74,13 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
             value = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
         }
         if ("true".equalsIgnoreCase(value)) {
-            ConsoleAppender<ILoggingEvent> appender = createConsoleAppender(loggerContext,
-                properties);
             loggerContext.addTurboFilter(new TurboFilter() {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
-                    if (!logger.isAttached(appender)) {
-                        logger.addAppender(appender);
-                        logger.setLevel(getConsoleLevel(spaceId.getSpaceName(), properties));
+                    if (!logger.isAttached(consoleAppender)) {
+                        logger.addAppender(consoleAppender);
+                        logger.setLevel(consoleLevel);
                     }
                     return FilterReply.NEUTRAL;
                 }
@@ -101,6 +103,14 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return appender;
     }
 
+    public SpaceId getSpaceId() {
+        return spaceId;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
     private Level getConsoleLevel(String spaceId, Properties properties) {
         String defaultLevel = properties.getProperty(
             Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "INFO");
@@ -116,7 +126,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     }
 
     @Override
-    public Logger setLevel(String loggerName, AdapterLevel adapterLevel) throws Exception {
+    public Logger setLevel(String loggerName, AdapterLevel adapterLevel) {
         ch.qos.logback.classic.Logger logbackLogger = (ch.qos.logback.classic.Logger) this
             .getLogger(loggerName);
         Level logbackLevel = this.toLogbackLevel(adapterLevel);
