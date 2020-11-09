@@ -38,20 +38,19 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
 
     @Test
     public void testDecayedTask() throws Exception {
-        Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO,
-            "Thread pool with name '\\S+' registered"));
-        Assert.assertTrue(isLastInfoMatch(String.format(
-            "Thread pool '\\S+' started with period: %s %s", threadPool.getPeriod(),
-            threadPool.getTimeUnit())));
+        Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO, String.format(
+            "Thread pool '\\S+' started with period: %s %s", threadPool.getConfig().getPeriod(),
+            threadPool.getConfig().getTimeUnit())));
+        Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' registered"));
 
-        threadPool.setPeriod(1000);
+        threadPool.updatePeriod(1000);
         Assert.assertTrue(isLastInfoMatch(String.format(
-            "Reschedule thread pool '\\S+' with period: %s %s", threadPool.getPeriod(),
-            threadPool.getTimeUnit())));
+            "Restart thread pool '\\S+' with period: %s %s", threadPool.getConfig().getPeriod(),
+            threadPool.getConfig().getTimeUnit())));
 
-        threadPool.setTaskTimeout(2200);
+        threadPool.updateTaskTimeout(2200);
         Assert.assertTrue(isLastInfoMatch(String.format("Updated '\\S+' taskTimeout to %s %s",
-            threadPool.getTaskTimeout(), threadPool.getTimeUnit())));
+            threadPool.getConfig().getTaskTimeout(), threadPool.getConfig().getTimeUnit())));
 
         threadPool.execute(new SleepTask(4200));
         threadPool.submit(new SleepCallableTask(4200));
@@ -74,10 +73,10 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
 
     @Test
     public void testRename() {
-        threadPool.setThreadPoolName("sofaThreadPoolName");
+        threadPool.updateThreadPoolName("sofaThreadPoolName");
         Assert.assertEquals(0, aberrantListAppender.list.size());
-        Assert.assertEquals(4, infoListAppender.list.size());
-        Assert.assertTrue(isMatch(getInfoViaIndex(2), INFO,
+        Assert.assertEquals(6, infoListAppender.list.size());
+        Assert.assertTrue(isMatch(getInfoViaIndex(3), INFO,
             "Thread pool with name '\\S+' unregistered"));
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' registered"));
     }
@@ -86,8 +85,8 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     public void testStartStopThreadPool() {
         threadPool.startSchedule();
         Assert.assertTrue(isLastWarnMatch(String.format(
-            "Thread pool '\\S+' is already started with period: %s %s", threadPool.getPeriod(),
-            threadPool.getTimeUnit())));
+            "Thread pool '\\S+' is already started with period: %s %s", threadPool.getConfig()
+                .getPeriod(), threadPool.getConfig().getTimeUnit())));
 
         threadPool.stopSchedule();
         Assert.assertTrue(isLastInfoMatch("Thread pool '\\S+' stopped."));
@@ -109,8 +108,8 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.stopSchedule();
         threadPool = new SofaThreadPoolExecutor(100, 100, 0, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(10));
-        threadPool.setPeriod(100);
-        threadPool.setTaskTimeout(2050);
+        threadPool.updatePeriod(100);
+        threadPool.updateTaskTimeout(2050);
         for (int i = 0; i < numThreads; ++i) {
             threadPool.execute(new SleepTask(5050));
         }

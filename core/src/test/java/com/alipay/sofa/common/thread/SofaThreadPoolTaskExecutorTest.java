@@ -29,16 +29,16 @@ public class SofaThreadPoolTaskExecutorTest extends ThreadPoolTestBase {
         SofaThreadPoolTaskExecutor threadPool = new SofaThreadPoolTaskExecutor();
         threadPool.initialize();
         Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO, String.format(
-            "Thread pool with name '%s\\S+' registered",
-            SofaThreadPoolTaskExecutor.SIMPLE_CLASS_NAME)));
-        Assert.assertTrue(isLastInfoMatch(String.format(
             "Thread pool '%s\\S+' started with period: %s %s",
             SofaThreadPoolTaskExecutor.SIMPLE_CLASS_NAME, threadPool.getPeriod(),
             threadPool.getTimeUnit())));
+        Assert.assertTrue(isLastInfoMatch(String.format(
+            "Thread pool with name '%s\\S+' registered",
+            SofaThreadPoolTaskExecutor.SIMPLE_CLASS_NAME)));
 
         threadPool.setPeriod(1000);
         Assert.assertTrue(isLastInfoMatch(String.format(
-            "Reschedule thread pool '%s\\S+' with period: %s %s",
+            "Restart thread pool '%s\\S+' with period: %s %s",
             SofaThreadPoolTaskExecutor.SIMPLE_CLASS_NAME, threadPool.getPeriod(),
             threadPool.getTimeUnit())));
 
