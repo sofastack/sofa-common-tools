@@ -227,7 +227,7 @@ public class ThreadPoolGovernor {
     }
 
     /**
-     * Update the log swtirch of the dump task
+     * Update the log switch of the dump task
      * @param loggable whether log the dump
      */
     public void setLoggable(boolean loggable) {
