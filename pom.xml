@@ -7,7 +7,6 @@
     <version>1.2.0</version>
     <modules>
         <module>core</module>
-        <module>log-sofa-boot-starter</module>
     </modules>
     <packaging>pom</packaging>
 
