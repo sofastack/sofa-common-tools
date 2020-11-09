@@ -39,6 +39,10 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
 
     protected String                          namespace;
 
+    protected long                            taskTimeout;
+
+    protected long                            period;
+
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
                                                  RejectedExecutionHandler rejectedExecutionHandler) {
@@ -48,7 +52,8 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
         }
 
         SofaScheduledThreadPoolExecutor executor = new SofaScheduledThreadPoolExecutor(
-            getPoolSize(), threadFactory, rejectedExecutionHandler, threadPoolName, namespace);
+            getPoolSize(), threadFactory, rejectedExecutionHandler, threadPoolName, namespace,
+            taskTimeout, period, TimeUnit.MILLISECONDS);
 
         Boolean removeOnCancelPolicy = ClassUtil.getField("removeOnCancelPolicy", this);
         if (removeOnCancelPolicy) {
@@ -95,6 +100,7 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
     }
 
     public void setTaskTimeout(long taskTimeout) {
+        this.taskTimeout = taskTimeout;
         if (sofaScheduledThreadPoolExecutor != null) {
             sofaScheduledThreadPoolExecutor.updateTaskTimeout(taskTimeout);
         }
@@ -108,6 +114,7 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
     }
 
     public void setPeriod(long period) {
+        this.period = period;
         if (sofaScheduledThreadPoolExecutor != null) {
             sofaScheduledThreadPoolExecutor.updatePeriod(period);
         }

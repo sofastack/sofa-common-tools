@@ -82,6 +82,16 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     }
 
     @Test
+    public void testSetNamespace() {
+        threadPool.updateNamespace("sofaThreadNamespace");
+        Assert.assertEquals(0, aberrantListAppender.list.size());
+        Assert.assertEquals(6, infoListAppender.list.size());
+        Assert.assertTrue(isMatch(getInfoViaIndex(3), INFO,
+            "Thread pool with name '\\S+' unregistered"));
+        Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' registered"));
+    }
+
+    @Test
     public void testStartStopThreadPool() {
         threadPool.startSchedule();
         Assert.assertTrue(isLastWarnMatch(String.format(

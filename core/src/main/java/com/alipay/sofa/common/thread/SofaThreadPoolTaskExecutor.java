@@ -38,6 +38,10 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 
     protected String                 namespace;
 
+    protected long                   taskTimeout;
+
+    protected long                   period;
+
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
                                                  RejectedExecutionHandler rejectedExecutionHandler) {
@@ -56,7 +60,8 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         if (taskDecorator != null) {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, namespace) {
+                rejectedExecutionHandler, threadPoolName, namespace, taskTimeout, period,
+                TimeUnit.MILLISECONDS) {
                 @Override
                 public void execute(Runnable command) {
                     super.execute(taskDecorator.decorate(command));
@@ -65,7 +70,8 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         } else {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, namespace);
+                rejectedExecutionHandler, threadPoolName, namespace, taskTimeout, period,
+                TimeUnit.MILLISECONDS);
         }
 
         Boolean allowCoreThreadTimeOut = ClassUtil.getField("allowCoreThreadTimeOut", this);
@@ -109,10 +115,10 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
             return 0;
         }
         return sofaThreadPoolExecutor.getConfig().getTaskTimeout();
-
     }
 
     public void setTaskTimeout(long taskTimeout) {
+        this.taskTimeout = taskTimeout;
         if (sofaThreadPoolExecutor != null) {
             sofaThreadPoolExecutor.updateTaskTimeout(taskTimeout);
         }
@@ -126,6 +132,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
     }
 
     public void setPeriod(long period) {
+        this.period = period;
         if (sofaThreadPoolExecutor != null) {
             sofaThreadPoolExecutor.updatePeriod(period);
         }
