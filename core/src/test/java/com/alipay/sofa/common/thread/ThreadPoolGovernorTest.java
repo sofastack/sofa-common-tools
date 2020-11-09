@@ -132,6 +132,10 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), "");
         SofaThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaThreadPoolExecutor(1, 1, 4,
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), "");
+        ThreadPoolGovernor.getInstance().unregisterThreadPoolExecutor(
+            sofaThreadPoolExecutor1.getConfig());
+        ThreadPoolGovernor.getInstance().unregisterThreadPoolExecutor(
+            sofaThreadPoolExecutor2.getConfig());
         Field filed = ThreadPoolConfig.class.getDeclaredField("identity");
         filed.setAccessible(true);
         filed.set(sofaThreadPoolExecutor1.getConfig(), null);
@@ -140,7 +144,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
             sofaThreadPoolExecutor1.getConfig(), sofaThreadPoolExecutor1.getStatistics());
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(sofaThreadPoolExecutor2,
             sofaThreadPoolExecutor2.getConfig(), sofaThreadPoolExecutor2.getStatistics());
-        Assert.assertEquals(5, infoListAppender.list.size());
+        Assert.assertEquals(9, infoListAppender.list.size());
         Assert.assertTrue(isMatch(lastWarnString(), ERROR,
             "Rejected registering request of instance .+"));
         Assert.assertEquals(2, aberrantListAppender.list.size());
