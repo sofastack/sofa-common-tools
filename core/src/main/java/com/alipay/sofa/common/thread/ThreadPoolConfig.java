@@ -53,7 +53,7 @@ public class ThreadPoolConfig {
         this.threadPoolName = builder.threadPoolName;
         this.namespace = builder.namespace;
         this.taskTimeout = builder.taskTimeout == 0 ? DEFAULT_TASK_TIMEOUT : builder.taskTimeout;
-        this.period = builder.period == 0 ? DEFAULT_PERIOD : period;
+        this.period = builder.period == 0 ? DEFAULT_PERIOD : builder.period;
         this.timeUnit = builder.timeUnit == null ? TimeUnit.MILLISECONDS : builder.timeUnit;
         this.taskTimeoutMilli = this.timeUnit.toMillis(this.taskTimeout);
         this.identity = buildIdentity();
