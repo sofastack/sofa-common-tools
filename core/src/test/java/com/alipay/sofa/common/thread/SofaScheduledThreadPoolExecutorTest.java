@@ -20,20 +20,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
- * Created on 2020/3/19
+ * @author huzijie
+ * @version SofaScheduledTreadPoolExecutorTest.java, v 0.1 2020年11月09日 2:42 下午 huzijie Exp $
  */
-public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
-    private SofaThreadPoolExecutor threadPool;
+public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
+    private SofaScheduledThreadPoolExecutor threadPool;
 
     @Before
     public void setup() {
-        threadPool = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(2));
+        threadPool = new SofaScheduledThreadPoolExecutor(1);
     }
 
     @Test
@@ -52,14 +50,14 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         Assert.assertTrue(isLastInfoMatch(String.format("Updated '\\S+' taskTimeout to %s %s",
             threadPool.getConfig().getTaskTimeout(), threadPool.getConfig().getTimeUnit())));
 
-        threadPool.execute(new SleepTask(4200));
-        threadPool.submit(new SleepCallableTask(4200));
-        Thread.sleep(9500);
+        threadPool.scheduleWithFixedDelay(new SleepTask(4200), 0, 1, TimeUnit.SECONDS);
+        Thread.sleep(10500);
 
-        Assert.assertEquals(13, infoListAppender.list.size());
+        Assert.assertEquals(14, infoListAppender.list.size());
         Assert.assertEquals(2, aberrantListAppender.list.size());
-        Assert.assertTrue(consecutiveInfoPattern(4, "1,1,0,1,0", "1,1,0,1,0", "1,1,0,1,1",
-            "1,1,0,1,1", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1", "0,0,1,1,0"));
+        Assert.assertTrue(consecutiveInfoPattern(4, "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
+            "0,1,0,1,1", "1,0,1,1,0", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1",
+            "1,0,1,1,0"));
         Assert
             .assertTrue(isMatch(
                 lastWarnString().split("\n")[0],
@@ -113,15 +111,14 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
 
     @Test
     public void testLoggingBurst() throws Exception {
-        int numThreads = 100;
+        int numThreads = 5;
 
         threadPool.stopSchedule();
-        threadPool = new SofaThreadPoolExecutor(100, 100, 0, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(10));
+        threadPool = new SofaScheduledThreadPoolExecutor(5);
         threadPool.updatePeriod(100);
         threadPool.updateTaskTimeout(2050);
         for (int i = 0; i < numThreads; ++i) {
-            threadPool.execute(new SleepTask(5050));
+            threadPool.schedule(new SleepTask(5050), 1, TimeUnit.SECONDS);
         }
         threadPool.shutdown();
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
