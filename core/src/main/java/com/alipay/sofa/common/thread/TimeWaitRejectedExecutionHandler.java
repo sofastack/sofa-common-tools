@@ -83,5 +83,4 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
     public void setThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
     }
-
 }
