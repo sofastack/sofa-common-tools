@@ -14,19 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.log.spi;
-
-import com.alipay.sofa.common.log.SpaceId;
-import org.apache.logging.log4j.core.LoggerContext;
-
-import java.net.URL;
-import java.util.Properties;
+package com.alipay.sofa.common.thread;
 
 /**
- * @author qilong.zql
- * @since 1.0.15
+ * The execution info of the runnable task
+ * @author huzijie
+ * @version RunnableExecutionInfo.java, v 0.1 2020年10月26日 4:22 下午 huzijie Exp $
  */
-public interface Log4j2ReInitializer {
-    void reInitialize(SpaceId spaceId, LoggerContext loggerContext, Properties properties,
-                      URL confFile);
+class RunnableExecutionInfo {
+
+    private volatile boolean printed;
+
+    private long             taskKickOffTime;
+
+    public RunnableExecutionInfo() {
+        printed = false;
+        taskKickOffTime = System.currentTimeMillis();
+    }
+
+    public boolean isPrinted() {
+        return printed;
+    }
+
+    public void setPrinted(boolean printed) {
+        this.printed = printed;
+    }
+
+    public long getTaskKickOffTime() {
+        return taskKickOffTime;
+    }
+
+    public void setTaskKickOffTime(long taskKickOffTime) {
+        this.taskKickOffTime = taskKickOffTime;
+    }
 }

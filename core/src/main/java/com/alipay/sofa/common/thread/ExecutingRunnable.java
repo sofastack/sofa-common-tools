@@ -17,9 +17,39 @@
 package com.alipay.sofa.common.thread;
 
 /**
- * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
- * Created on 2020/3/19
+ * The wrapper to the {@link Runnable} to save it's execute {@link Thread}
+ * @author huzijie
+ * @version ExecutingRunnable.java, v 0.1 2020年10月26日 4:22 下午 huzijie Exp $
  */
-public class SofaThreadConstants {
-    public static final String SOFA_THREAD_POOL_LOGGING_CAPABILITY = "sofa_thread_pool_logging_capability";
+class ExecutingRunnable {
+    public Runnable r;
+    public Thread   t;
+
+    public ExecutingRunnable(Runnable r, Thread t) {
+        this.r = r;
+        this.t = t;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof ExecutingRunnable) {
+            ExecutingRunnable er = (ExecutingRunnable) obj;
+            return this.t == er.t && this.r == er.r;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return r.toString() + t.toString();
+    }
 }

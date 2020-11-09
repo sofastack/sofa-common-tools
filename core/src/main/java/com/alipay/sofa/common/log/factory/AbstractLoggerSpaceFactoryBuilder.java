@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.log.factory;
 
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
@@ -71,13 +72,25 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
     }
 
     private URL getSpaceLogConfigFileURL(ClassLoader spaceClassloader, String spaceName) {
+        /*
+         * customize log config file like logging.path.config.{space id}. it can be
+         * configured via VM option or spring boot config file. Notice that when
+         * configured via VM option and use log4j2, the configure file path must
+         * end with log4j2/log-conf-custom.xml.
+         */
+        String loggingConfig = spaceInfo.getProperty(String.format(Constants.LOGGING_CONFIG_PATH,
+            spaceId.getSpaceName()));
+        if (StringUtil.isNotEmpty(loggingConfig)) {
+            return spaceClassloader.getResource(loggingConfig);
+        }
+
         String suffix = LogEnvUtils.getLogConfEnvSuffix(spaceName);
 
         //TODO avoid this pattern "log-conf.xml.console"
         String logConfigLocation = spaceName.replace('.', '/') + "/" + LOG_DIRECTORY + "/"
                                    + getLoggingToolName() + "/" + LOG_XML_CONFIG_FILE_NAME + suffix;
 
-        String configProperyConfigLocation = spaceName.replace('.', '/') + "/" + LOG_DIRECTORY
+        String configPropertyConfigLocation = spaceName.replace('.', '/') + "/" + LOG_DIRECTORY
                                              + "/" + getLoggingToolName() + "/"
                                              + LOG_CONFIG_PROPERTIES + suffix;
 
@@ -86,7 +99,7 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         try {
 
             //拿到 log
-            List<URL> logConfigFileUrls = new ArrayList<URL>();
+            List<URL> logConfigFileUrls = new ArrayList<>();
             Enumeration<URL> logUrls = spaceClassloader.getResources(logConfigLocation);
             // 可能存在多个文件。
             if (logUrls != null) {
@@ -98,9 +111,8 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
             }
 
             //拿到配置文件
-            List<URL> configPropertyFileUrls = new ArrayList<URL>();
-            Enumeration<URL> configUrls = spaceClassloader
-                .getResources(configProperyConfigLocation);
+            List<URL> configPropertyFileUrls = new ArrayList<>();
+            Enumeration<URL> configUrls = spaceClassloader.getResources(configPropertyConfigLocation);
             // 可能存在多个文件。
             if (configUrls != null) {
                 while (configUrls.hasMoreElements()) {
@@ -129,17 +141,6 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
             if (logger.isWarnEnabled()) {
                 logger.warn("Error when get resources of " + spaceName + " from classpath", e);
             }
-        }
-
-        /**
-         * customize log config file like logging.path.config.{space id}. it can be
-         * configured via VM option or spring boot config file. Notice that when
-         * configured via VM option and use log4j2, the configure file path must
-         * end with log4j2/log-conf-custom.xml.
-         */
-        String loggingConfig = System.getProperty(String.format(LOGGING_CONFIG_PATH, spaceName));
-        if (!StringUtil.isBlank(loggingConfig)) {
-            configFileUrl = spaceClassloader.getResource(loggingConfig);
         }
 
         AssertUtil.state(configFileUrl != null, this + " build error: No " + getLoggingToolName()

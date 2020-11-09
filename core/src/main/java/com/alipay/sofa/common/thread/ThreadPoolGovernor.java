@@ -20,49 +20,66 @@ import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+
+import static com.alipay.sofa.common.thread.SofaThreadPoolConstants.DEFAULT_GOVERNOR_INTERVAL;
+import static com.alipay.sofa.common.thread.SofaThreadPoolConstants.DEFAULT_GOVERNOR_LOGGER_ENABLE;
 
 /**
+ * The governor to manager the {@link ThreadPoolExecutor}s
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/3/17
  */
 public class ThreadPoolGovernor {
-    public static String                                         CLASS_NAME         = ThreadPoolGovernor.class
+    private ThreadPoolGovernor () {}
+
+    private static final ThreadPoolGovernor INSTANCE = new ThreadPoolGovernor();
+
+    public static String                                  CLASS_NAME         = ThreadPoolGovernor.class
                                                                                         .getCanonicalName();
-    private static long                                          period             = 30;
-    private static boolean                                       loggable           = false;
 
-    private static ScheduledExecutorService                      scheduler          = Executors
-                                                                                        .newScheduledThreadPool(
-                                                                                            1,
-                                                                                            new NamedThreadFactory(
-                                                                                                "t.p.g"));
-    private static ScheduledFuture<?>                            scheduledFuture;
-    private static final Object                                  monitor            = new Object();
-    private static GovernorInfoDumper                            governorInfoDumper = new GovernorInfoDumper();
+    private final ScheduledExecutorService                governorScheduler =  Executors.newScheduledThreadPool(1,
+                                                                                            new NamedThreadFactory("t.p.g"));
 
-    private static ConcurrentHashMap<String, ThreadPoolExecutor> registry           = new ConcurrentHashMap<String, ThreadPoolExecutor>();
+    private final ScheduledExecutorService                monitorScheduler =   Executors.newScheduledThreadPool(
+                              Runtime.getRuntime().availableProcessors() + 1, new NamedThreadFactory("s.t.p.e"));
 
-    public synchronized static void startSchedule() {
-        if (scheduledFuture == null) {
-            scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+    private final Object                                   monitor            = new Object();
+
+    private final GovernorInfoDumper                       governorInfoDumper = new GovernorInfoDumper();
+
+    private final ConcurrentHashMap<String, ThreadPoolMonitorWrapper>   registry           = new ConcurrentHashMap<>();
+
+    private long                                          period             = DEFAULT_GOVERNOR_INTERVAL;
+
+    private boolean                                       loggable           = DEFAULT_GOVERNOR_LOGGER_ENABLE;
+
+    private ScheduledFuture<?> governorScheduledFuture;
+
+    public static ThreadPoolGovernor getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * Start the governor info dump task
+     */
+    public synchronized void startSchedule() {
+        if (governorScheduledFuture == null) {
+            governorScheduledFuture = governorScheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
                 TimeUnit.SECONDS);
             ThreadLogger.info("Started {} with period: {} SECONDS", CLASS_NAME, period);
         } else {
-            ThreadLogger
-                .warn("{} has already started with period: {} SECONDS.", CLASS_NAME, period);
+            ThreadLogger.warn("{} has already started with period: {} SECONDS.", CLASS_NAME, period);
         }
     }
 
-    public synchronized static void stopSchedule() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-            scheduledFuture = null;
+    /**
+     * Stop the governor info dump task
+     */
+    public synchronized void stopSchedule() {
+        if (governorScheduledFuture != null) {
+            governorScheduledFuture.cancel(true);
+            governorScheduledFuture = null;
             ThreadLogger.info("Stopped {}.", CLASS_NAME);
         } else {
             ThreadLogger.warn("{} is not scheduling!", CLASS_NAME);
@@ -70,49 +87,112 @@ public class ThreadPoolGovernor {
     }
 
     /**
-     * Can also be used to manage JDK thread pool.
-     * SofaThreadPoolExecutor should **not** call this method!
-     * @param name thread pool name
-     * @param threadPoolExecutor thread pool instance
+     * Restart the governor info dump task
      */
-    public static void registerThreadPoolExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
+    private void reScheduleInfoDump() {
+        synchronized (monitor) {
+            if (governorScheduledFuture != null) {
+                governorScheduledFuture.cancel(true);
+                governorScheduledFuture = governorScheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
+                        TimeUnit.SECONDS);
+                ThreadLogger.info("Reschedule {} with period: {} SECONDS", CLASS_NAME, period);
+            }
+        }
+    }
+
+    /**
+     * Register the {@link ThreadPoolExecutor} with {@link ThreadPoolConfig}
+     * and {@link ThreadPoolStatistics} to the governor
+     * @param threadPoolExecutor the base thread pool
+     * @param threadPoolConfig the description of the thread pool
+     * @param threadPoolStatistics the running statistics of the thread pool
+     */
+    public void registerThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor,
+                                           ThreadPoolConfig threadPoolConfig,
+                                           ThreadPoolStatistics threadPoolStatistics) {
+        final String name = threadPoolConfig.getIdentity();
         if (StringUtil.isEmpty(name)) {
             ThreadLogger.error("Rejected registering request of instance {} with empty name: {}.",
-                threadPoolExecutor, name);
+                    threadPoolExecutor, name);
             return;
         }
 
-        ThreadPoolExecutor existingExecutor = registry.putIfAbsent(name, threadPoolExecutor);
-        if (existingExecutor != null) {
+        ThreadPoolMonitorWrapper threadPoolMonitorWrapper = new ThreadPoolMonitorWrapper(threadPoolExecutor
+                , threadPoolConfig, threadPoolStatistics);
+        if (registry.putIfAbsent(name, threadPoolMonitorWrapper) != null) {
             ThreadLogger.error(
-                "Rejected registering request of instance {} with duplicate name: {}",
-                threadPoolExecutor, name);
+                    "Rejected registering request of instance {} with duplicate name: {}",
+                    threadPoolExecutor, name);
         } else {
+            registry.get(name).startMonitor();
             ThreadLogger.info("Thread pool with name '{}' registered", name);
         }
     }
 
-    public static void registerThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
-        registerThreadPoolExecutor(threadPoolExecutor.getThreadPoolName(), threadPoolExecutor);
+    /**
+     * Unregister the {@link ThreadPoolExecutor} by it's {@link ThreadPoolConfig}
+     * @param threadPoolConfig the description of the thread pool, it's identity is unique
+     */
+    public void unregisterThreadPoolExecutor(ThreadPoolConfig threadPoolConfig) {
+        final String name = threadPoolConfig.getIdentity();
+        if (StringUtil.isEmpty(name)) {
+            ThreadLogger.error("Thread pool with empty name unregistered, may cause memory leak");
+            return;
+        }
+        ThreadPoolMonitorWrapper threadPoolMonitorWrapper = registry.remove(name);
+        if (threadPoolMonitorWrapper != null) {
+            threadPoolMonitorWrapper.stopMonitor();
+            ThreadLogger.info("Thread pool with name '{}' unregistered", name);
+        }
     }
 
-    public static void unregisterThreadPoolExecutor(String name) {
-        registry.remove(name);
-        ThreadLogger.info("Thread pool with name '{}' unregistered", name);
+    /**
+     * Get the {@link ThreadPoolExecutor} by it's identity
+     * @param identity the unique identity
+     * @return the {@link ThreadPoolExecutor}
+     */
+    public ThreadPoolExecutor getThreadPoolExecutor(String identity) {
+        return registry.get(identity).getThreadPoolExecutor();
     }
 
-    public static ThreadPoolExecutor getThreadPoolExecutor(String name) {
-        return registry.get(name);
+    /**
+     * Start the monitor the {@link ThreadPoolExecutor} registered in the governor
+     * @param threadPoolConfig the description of the thread pool, it's identity is unique
+     */
+    public void startSchedule(ThreadPoolConfig threadPoolConfig) {
+        ThreadPoolMonitorWrapper monitor = registry.get(threadPoolConfig.getIdentity());
+        monitor.startMonitor();
     }
 
-    static class GovernorInfoDumper implements Runnable {
+    /**
+     * Stop to monitor the {@link ThreadPoolExecutor} registered in the governor
+     * @param threadPoolConfig the description of the thread pool, it's identity is unique
+     */
+    public void stopSchedule(ThreadPoolConfig threadPoolConfig) {
+        ThreadPoolMonitorWrapper monitor = registry.get(threadPoolConfig.getIdentity());
+        monitor.stopMonitor();
+    }
+
+    /**
+     * Restart the monitor the {@link ThreadPoolExecutor} registered in the governor
+     * @param threadPoolConfig the description of the thread pool, it's identity is unique
+     */
+    public void reSchedule(ThreadPoolConfig threadPoolConfig) {
+        ThreadPoolMonitorWrapper monitor = registry.get(threadPoolConfig.getIdentity());
+        monitor.restartMonitor();
+    }
+
+    /**
+     * The task to dump all {@link ThreadPoolExecutor} registered in the governor
+     */
+    class GovernorInfoDumper implements Runnable {
         @Override
         public void run() {
             try {
                 if (loggable) {
-                    for (Map.Entry<String, ThreadPoolExecutor> entry : registry.entrySet()) {
+                    for (Map.Entry<String, ThreadPoolMonitorWrapper> entry : registry.entrySet()) {
                         ThreadLogger.info("Thread pool '{}' exists with instance: {}",
-                            entry.getKey(), entry.getValue());
+                            entry.getKey(), entry.getValue().getThreadPoolExecutor());
                     }
                 }
             } catch (Throwable e) {
@@ -121,28 +201,44 @@ public class ThreadPoolGovernor {
         }
     }
 
-    public static long getPeriod() {
+    /**
+     * The period of the dump task
+     * @return the period
+     */
+    public long getPeriod() {
         return period;
     }
 
-    public static void setPeriod(long period) {
-        ThreadPoolGovernor.period = period;
-
-        synchronized (monitor) {
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(true);
-                scheduledFuture = scheduler.scheduleAtFixedRate(governorInfoDumper, period, period,
-                    TimeUnit.SECONDS);
-                ThreadLogger.info("Reschedule {} with period: {} SECONDS", CLASS_NAME, period);
-            }
-        }
+    /**
+     * update the period of the dump task, then restart the task
+     * @param period the dump task period
+     */
+    public void setPeriod(long period) {
+        this.period = period;
+        reScheduleInfoDump();
     }
 
-    public static boolean isLoggable() {
+    /**
+     * The log switch of the dump task
+     * @return whether log the dump
+     */
+    public boolean isLoggable() {
         return loggable;
     }
 
-    public static void setLoggable(boolean loggable) {
-        ThreadPoolGovernor.loggable = loggable;
+    /**
+     * Update the log switch of the dump task
+     * @param loggable whether log the dump
+     */
+    public void setLoggable(boolean loggable) {
+        this.loggable = loggable;
+    }
+
+    /**
+     * The thread pool to executor the monitor tasks
+     * @return the {@link ScheduledExecutorService}
+     */
+    public ScheduledExecutorService getMonitorScheduler() {
+        return monitorScheduler;
     }
 }

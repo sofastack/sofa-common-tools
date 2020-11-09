@@ -14,14 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.log.spi;
-
-import ch.qos.logback.classic.turbo.TurboFilter;
+package com.alipay.sofa.common.thread;
 
 /**
- * @author qilong.zql
- * @since 1.0.15
+ * The constants for the Sofa Thread Pool
+ * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
+ * Created on 2020/3/19
  */
-public interface LogbackFilterGenerator {
-    TurboFilter[] generatorFilters();
+public class SofaThreadPoolConstants {
+
+    public static final String  SOFA_THREAD_POOL_LOGGING_CAPABILITY = "sofa_thread_pool_logging_capability";
+
+    public static final long    DEFAULT_TASK_TIMEOUT                = 30000;
+
+    public static final long    DEFAULT_PERIOD                      = 5000;
+
+    public static final long    DEFAULT_GOVERNOR_INTERVAL           = 30;
+
+    public static final boolean DEFAULT_GOVERNOR_LOGGER_ENABLE      = false;
+
 }

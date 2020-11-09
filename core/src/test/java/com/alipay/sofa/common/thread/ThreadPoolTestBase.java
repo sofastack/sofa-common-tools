@@ -27,7 +27,6 @@ import org.junit.Before;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
@@ -59,13 +58,14 @@ public class ThreadPoolTestBase {
     @After
     @SuppressWarnings("unchecked")
     public void clearUp() throws Exception {
-        ThreadPoolGovernor.stopSchedule();
+        ThreadPoolGovernor.getInstance().stopSchedule();
 
         Field f = ThreadPoolGovernor.class.getDeclaredField("registry");
         f.setAccessible(true);
-        Map<String, ThreadPoolExecutor> registry = (Map<String, ThreadPoolExecutor>) f.get(null);
-        for (ThreadPoolExecutor executor : registry.values()) {
-            executor.shutdownNow();
+        Map<String, ThreadPoolMonitorWrapper> registry = (Map<String, ThreadPoolMonitorWrapper>) f
+            .get(ThreadPoolGovernor.getInstance());
+        for (ThreadPoolMonitorWrapper executor : registry.values()) {
+            executor.getThreadPoolExecutor().shutdownNow();
         }
         registry.clear();
     }
