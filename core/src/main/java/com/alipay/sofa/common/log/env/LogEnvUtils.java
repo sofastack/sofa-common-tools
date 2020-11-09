@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.log.env;
 
+import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.utils.*;
 
 import java.util.HashMap;
@@ -85,58 +86,67 @@ public final class LogEnvUtils {
     }
 
     /**
-     * 对通用的全局日志相关的配置变量进行整理：
-     * logging.path
-     * loggingRoot
-     * file.encoding, defaults to UTF-8
-     * Setting PID
+     * Processing global configuration for sofa-common-logging, priorities as follows:
+     * 1. JVM System Properties
+     * 2. OS Env Properties
+     * 3. External Configurations
+     *
+     * Some configurations specific to SOFA:
+     * 1. logging.path
+     * 2. loggingRoot
+     * 3. file.encoding, defaults to UTF-8
+     * 4. PID
      */
     public static Map<String, String> processGlobalSystemLogProperties() {
         if (globalSystemProperties != null) {
             return globalSystemProperties;
         }
 
-        Map<String, String> properties = new HashMap<>();
+        // Firstly, Load from external configurations
+        Map<String, String> properties = new HashMap<>(CommonLoggingConfigurations.getExternalConfigurations());
+
+        // Secondly, process configurations from OS env
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (isSofaCommonLoggingPrefix(lowerCaseKey)) {
+                properties.put(lowerCaseKey, entry.getValue());
+            }
+        }
+
+        // Thirdly, process configurations from JVM System Properties
+        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
+                continue;
+            }
+            String lowerCaseKey = ((String) entry.getKey()).toLowerCase();
+            if (isSofaCommonLoggingPrefix(lowerCaseKey)) {
+                properties.put(lowerCaseKey, (String) entry.getValue());
+            }
+        }
 
         properties.put(PROCESS_MARKER, ProcessIdUtil.getProcessId());
-        properties.put(LOG_ENCODING_PROP_KEY, System.getProperty(LOG_ENCODING_PROP_KEY, UTF8_STR));
+        if (System.getProperties().contains(LOG_ENCODING_PROP_KEY)) {
+            properties.put(LOG_ENCODING_PROP_KEY, System.getProperty(LOG_ENCODING_PROP_KEY));
+        } else {
+            properties.putIfAbsent(LOG_ENCODING_PROP_KEY, UTF8_STR);
+        }
 
-        // 以系统变量 logging.path 和 loggingRoot 为准，优先 logging.path 配置项
+        // logging.path has priority over loggingRoot
         String loggingPath = System.getProperty(LOG_PATH);
         String loggingRoot = System.getProperty(OLD_LOG_PATH);
         if (!StringUtil.isBlank(loggingPath)) {
             loggingRoot = loggingPath;
         } else if (!StringUtil.isBlank(loggingRoot)) {
             loggingPath = loggingRoot;
-        } else {
-            // 还是提供一个默认值 $HOME/logs，否则中间件单元测试报错，需要手动设置路径
-            loggingPath = LOGGING_PATH_DEFAULT;
-            loggingRoot = LOGGING_PATH_DEFAULT;
         }
-        properties.put(LOG_PATH, loggingPath);
-        properties.put(OLD_LOG_PATH, loggingRoot);
 
-        //设置 logging.level.* 和 logging.path.* 配置
-        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
-            String lowerCaseKey = entry.getKey().toLowerCase();
-            if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
-                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
-                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)
-                || lowerCaseKey.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX)) {
-                properties.put(lowerCaseKey, entry.getValue());
-            }
-        }
-        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
-                continue;
-            }
-            String lowerCaseKey = ((String) entry.getKey()).toLowerCase();
-            if (lowerCaseKey.startsWith(LOG_LEVEL_PREFIX)
-                || lowerCaseKey.startsWith(LOG_PATH_PREFIX)
-                || lowerCaseKey.startsWith(LOG_CONFIG_PREFIX)
-                || lowerCaseKey.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX)) {
-                properties.put(lowerCaseKey, (String) entry.getValue());
-            }
+        if (StringUtil.isNotEmpty(loggingPath)) {
+            properties.put(LOG_PATH, loggingPath);
+            properties.put(OLD_LOG_PATH, loggingRoot);
+        } else {
+            // Defaults to $HOME/logs
+            properties.putIfAbsent(LOG_PATH, LOGGING_PATH_DEFAULT);
+            properties.putIfAbsent(OLD_LOG_PATH, LOGGING_PATH_DEFAULT);
         }
 
         globalSystemProperties = properties;
@@ -193,10 +203,13 @@ public final class LogEnvUtils {
         return ClassUtil.isPresent("com.alipay.sofa.common.boot.logging.Mark");
     }
 
-    public static boolean filterAllLogConfig(String key) {
+    private static boolean isSofaCommonLoggingPrefix(String key) {
         return key.startsWith(SOFA_MIDDLEWARE_CONFIG_PREFIX) || key.startsWith(LOG_LEVEL_PREFIX)
-               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX)
-               || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
+               || key.startsWith(LOG_PATH_PREFIX) || key.startsWith(LOG_CONFIG_PREFIX);
+    }
+
+    public static boolean isSofaCommonLoggingConfig(String key) {
+        return isSofaCommonLoggingPrefix(key) || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
                || key.equals(LOG_ENCODING_PROP_KEY);
     }
 }

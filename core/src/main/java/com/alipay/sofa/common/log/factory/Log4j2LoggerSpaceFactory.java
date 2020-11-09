@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.log.factory;
 
+import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
@@ -123,7 +124,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Message msg,
                                      Throwable t) {
-                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
+                            && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
                         logger.setLevel(consoleLevel);
                     }
@@ -133,7 +135,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Object msg,
                                      Throwable t) {
-                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
+                            && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
                         logger.setLevel(consoleLevel);
                     }
@@ -143,7 +146,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, String msg,
                                      Object... params) {
-                    if (!logger.getAppenders().containsKey(CONSOLE)) {
+                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
+                            && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
                         logger.setLevel(consoleLevel);
                     }

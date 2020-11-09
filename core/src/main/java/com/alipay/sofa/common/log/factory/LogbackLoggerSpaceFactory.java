@@ -26,6 +26,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.OptionHelper;
+import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.log.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
@@ -78,7 +79,8 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
-                    if (!logger.isAttached(consoleAppender)) {
+                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
+                        && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
                         logger.setLevel(consoleLevel);
                     }
