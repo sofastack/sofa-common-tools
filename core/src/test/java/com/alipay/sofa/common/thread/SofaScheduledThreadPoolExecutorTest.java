@@ -53,11 +53,11 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.scheduleWithFixedDelay(new SleepTask(4200), 0, 1, TimeUnit.SECONDS);
         Thread.sleep(10500);
 
-        Assert.assertEquals(14, infoListAppender.list.size());
+        Assert.assertEquals(20, infoListAppender.list.size());
         Assert.assertEquals(2, aberrantListAppender.list.size());
         Assert.assertTrue(consecutiveInfoPattern(4, "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
-            "0,1,0,1,1", "1,0,1,1,0", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1",
-            "1,0,1,1,0"));
+            "0,1,0,1,1", "1,0,1,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d",
+            "0,1,0,1,1", "0,420\\d", "0,1,0,1,1", "0,420\\d", "1,0,1,1,0", "0,420\\d"));
         Assert
             .assertTrue(isMatch(
                 lastWarnString().split("\n")[0],

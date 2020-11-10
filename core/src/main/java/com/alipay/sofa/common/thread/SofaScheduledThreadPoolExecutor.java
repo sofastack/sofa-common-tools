@@ -19,10 +19,7 @@ package com.alipay.sofa.common.thread;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.utils.StringUtil;
 
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -120,15 +117,20 @@ public class SofaScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
-        this.statistics.getExecutingTasks().put(new ExecutingRunnable(r, t),
-            new RunnableExecutionInfo());
+        ExecutingRunnable runner = new ExecutingRunnable(r);
+        runner.setThread(t);
+        this.statistics.getExecutingTasks().put(runner, System.currentTimeMillis());
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        this.statistics.getExecutingTasks()
-            .remove(new ExecutingRunnable(r, Thread.currentThread()));
+        ExecutingRunnable runner = new ExecutingRunnable(r);
+        runner.setThread(Thread.currentThread());
+        this.statistics.addTotalRunningTime(System.currentTimeMillis()
+                                            - statistics.getExecutingTasks().get(runner));
+        this.statistics.addTotalTaskCount();
+        this.statistics.getExecutingTasks().remove(runner);
     }
 
     @Override

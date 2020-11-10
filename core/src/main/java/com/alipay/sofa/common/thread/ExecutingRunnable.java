@@ -21,13 +21,25 @@ package com.alipay.sofa.common.thread;
  * @author huzijie
  * @version ExecutingRunnable.java, v 0.1 2020年10月26日 4:22 下午 huzijie Exp $
  */
-class ExecutingRunnable {
-    public Runnable r;
-    public Thread   t;
+class ExecutingRunnable implements Runnable {
 
-    public ExecutingRunnable(Runnable r, Thread t) {
-        this.r = r;
-        this.t = t;
+    public Runnable          originRunnable;
+
+    public Thread            thread;
+
+    private long             enqueueTime;
+
+    private long             dequeueTime;
+
+    private long             finishTime;
+
+    private volatile boolean printed;
+
+    public ExecutingRunnable(Runnable originRunnable) {
+        if (originRunnable == null) {
+            throw new NullPointerException();
+        }
+        this.originRunnable = originRunnable;
     }
 
     @Override
@@ -43,13 +55,69 @@ class ExecutingRunnable {
 
         if (obj instanceof ExecutingRunnable) {
             ExecutingRunnable er = (ExecutingRunnable) obj;
-            return this.t == er.t && this.r == er.r;
+            return this.thread == er.thread && this.originRunnable == er.originRunnable;
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return r.toString() + t.toString();
+        if (thread == null) {
+            return originRunnable.toString();
+        }
+        return originRunnable.toString() + thread.toString();
+    }
+
+    @Override
+    public void run() {
+        originRunnable.run();
+    }
+
+    public long getEnqueueTime() {
+        return enqueueTime;
+    }
+
+    public void setEnqueueTime(long enqueueTime) {
+        this.enqueueTime = enqueueTime;
+    }
+
+    public long getDequeueTime() {
+        return dequeueTime;
+    }
+
+    public void setDequeueTime(long dequeueTime) {
+        this.dequeueTime = dequeueTime;
+    }
+
+    public long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Thread getThread() {
+        return thread;
+    }
+
+    public void setThread(Thread thread) {
+        this.thread = thread;
+    }
+
+    public boolean isPrinted() {
+        return printed;
+    }
+
+    public void setPrinted(boolean printed) {
+        this.printed = printed;
+    }
+
+    public long getRunningTime() {
+        return finishTime - dequeueTime;
+    }
+
+    public long getStayInQueueTime() {
+        return dequeueTime - enqueueTime;
     }
 }
