@@ -19,7 +19,10 @@ package com.alipay.sofa.common.thread;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.utils.StringUtil;
 
-import java.util.concurrent.*;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
