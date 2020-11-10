@@ -46,16 +46,24 @@ public class ThreadPoolMonitorRunner implements Runnable {
     public void run() {
         try {
             int decayedTaskCount = 0;
-            for (Map.Entry<ExecutingRunnable, RunnableExecutionInfo> entry : statistics
-                .getExecutingTasks().entrySet()) {
+            for (Map.Entry<ExecutingRunnable, Long> entry : statistics.getExecutingTasks()
+                .entrySet()) {
                 decayedTaskCount = calculateDecayedTaskCounts(decayedTaskCount, entry);
             }
 
             // threadPoolName, #queue, #executing, #idle, #pool, #decayed
             ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", config.getIdentity(),
-                this.statistics.getQueueSize(), statistics.getExecutingTasks().size(),
-                this.statistics.getPoolSize() - statistics.getExecutingTasks().size(),
-                this.statistics.getPoolSize(), decayedTaskCount);
+                statistics.getQueueSize(), statistics.getExecutingTasks().size(),
+                statistics.getPoolSize() - statistics.getExecutingTasks().size(),
+                statistics.getPoolSize(), decayedTaskCount);
+            if (statistics.getTotalTaskCount() != 0) {
+                // just log for thread pool which has task executed
+                // SofaScheduledThreadPoolExecutor don't count the in queue time, it's always 0
+                // threadPoolName, #averageStayInQueueTime, #averageRunningTime, #averageQueueSize
+                ThreadLogger.info("Thread pool '{}' average static info: [{},{}]",
+                    config.getIdentity(), statistics.getAverageStayInQueueTime(),
+                    statistics.getAverageRunningTime());
+            }
         } catch (Throwable e) {
             ThreadLogger.warn("ThreadPool '{}' is interrupted when running: {}",
                 this.config.getIdentity(), e);
@@ -69,15 +77,16 @@ public class ThreadPoolMonitorRunner implements Runnable {
      * @return the updated count
      */
     private int calculateDecayedTaskCounts(int decayedTaskCount,
-                                           Map.Entry<ExecutingRunnable, RunnableExecutionInfo> entry) {
-        Runnable task = entry.getKey().r;
-        Thread executingThread = entry.getKey().t;
-        RunnableExecutionInfo executionInfo = entry.getValue();
-        long executionTime = System.currentTimeMillis() - executionInfo.getTaskKickOffTime();
+                                           Map.Entry<ExecutingRunnable, Long> entry) {
+        ExecutingRunnable task = entry.getKey();
+        // SofaThreadPoolExecutor use task.getDequeueTime(), SofaScheduledThreadPoolExecutor use entry.getValue()
+        long executionTime = System.currentTimeMillis()
+                             - (task.getDequeueTime() == 0 ? entry.getValue() : task
+                                 .getDequeueTime());
 
         if (executionTime >= config.getTaskTimeoutMilli()) {
             ++decayedTaskCount;
-            printStackTrace(task, executingThread, executionInfo);
+            printStackTrace(task, entry.getKey().getThread());
         }
         return decayedTaskCount;
     }
@@ -86,12 +95,10 @@ public class ThreadPoolMonitorRunner implements Runnable {
      * Print the decayed task's stack trace
      * @param task the decayed task
      * @param executingThread the execute thread of the task
-     * @param executionInfo the execution info of the task
      */
-    private void printStackTrace(Runnable task, Thread executingThread,
-                                 RunnableExecutionInfo executionInfo) {
-        if (!executionInfo.isPrinted()) {
-            executionInfo.setPrinted(true);
+    private void printStackTrace(ExecutingRunnable task, Thread executingThread) {
+        if (!task.isPrinted()) {
+            task.setPrinted(true);
             StringBuilder sb = new StringBuilder();
             for (StackTraceElement e : executingThread.getStackTrace()) {
                 sb.append("    ").append(e).append("\n");
@@ -101,12 +108,10 @@ public class ThreadPoolMonitorRunner implements Runnable {
                 ThreadLogger
                     .warn(
                         "Task {} in thread pool {} started on {}{} exceeds the limit of {} execution time with stack trace:\n    {}",
-                        task, config.getIdentity(), DATE_FORMAT.format(Instant
-                            .ofEpochMilli(executionInfo.getTaskKickOffTime())),
-                        traceId == null ? "" : " with traceId " + traceId, config.getTaskTimeout()
-                                                                           + config.getTimeUnit()
-                                                                               .toString(), sb
-                            .toString().trim());
+                        task, config.getIdentity(), DATE_FORMAT.format(Instant.ofEpochMilli(task
+                            .getDequeueTime())), traceId == null ? "" : " with traceId " + traceId,
+                        config.getTaskTimeout() + config.getTimeUnit().toString(), sb.toString()
+                            .trim());
             } catch (Throwable e) {
                 e.printStackTrace();
             }

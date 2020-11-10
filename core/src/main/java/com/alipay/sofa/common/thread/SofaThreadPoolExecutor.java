@@ -133,17 +133,30 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     @Override
+    public void execute(Runnable command) {
+        ExecutingRunnable runner = new ExecutingRunnable(command);
+        runner.setEnqueueTime(System.currentTimeMillis());
+        super.execute(runner);
+    }
+
+    @Override
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
-        this.statistics.getExecutingTasks().put(new ExecutingRunnable(r, t),
-            new RunnableExecutionInfo());
+        ExecutingRunnable executingRunnable = (ExecutingRunnable) r;
+        executingRunnable.setDequeueTime(System.currentTimeMillis());
+        executingRunnable.setThread(t);
+        this.statistics.getExecutingTasks().put(executingRunnable, 0L);
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        this.statistics.getExecutingTasks()
-            .remove(new ExecutingRunnable(r, Thread.currentThread()));
+        ExecutingRunnable executingRunnable = (ExecutingRunnable) r;
+        executingRunnable.setFinishTime(System.currentTimeMillis());
+        this.statistics.addTotalTaskCount();
+        this.statistics.addTotalRunningTime(executingRunnable.getRunningTime());
+        this.statistics.addTotalStayInQueueTime(executingRunnable.getStayInQueueTime());
+        this.statistics.getExecutingTasks().remove(executingRunnable);
     }
 
     @Override

@@ -19,6 +19,8 @@ package com.alipay.sofa.common.thread;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.ScheduledFuture;
+
 /**
  * @author huzijie
  * @version SofaThreadPoolTaskScheduler.java, v 0.1 2020年11月09日 3:04 下午 huzijie Exp $
@@ -47,15 +49,15 @@ public class SofaThreadPoolTaskSchedulerTest extends ThreadPoolTestBase {
         Assert.assertTrue(isLastInfoMatch(String.format("Updated '%s\\S+' taskTimeout to %s %s",
             SofaThreadPoolTaskScheduler.SIMPLE_CLASS_NAME, threadPool.getTaskTimeout(),
             threadPool.getTimeUnit())));
-        threadPool.scheduleWithFixedDelay(new SleepTask(4200), 1000);
+        ScheduledFuture future = threadPool.scheduleWithFixedDelay(new SleepTask(4200), 1000);
 
         Thread.sleep(10500);
 
-        Assert.assertEquals(14, infoListAppender.list.size());
+        Assert.assertEquals(20, infoListAppender.list.size());
         Assert.assertEquals(2, aberrantListAppender.list.size());
         Assert.assertTrue(consecutiveInfoPattern(4, "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
-            "0,1,0,1,1", "1,0,1,1,0", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1",
-            "1,0,1,1,0"));
+            "0,1,0,1,1", "1,0,1,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d",
+            "0,1,0,1,1", "0,420\\d", "0,1,0,1,1", "0,420\\d", "1,0,1,1,0", "0,420\\d"));
         Assert
             .assertTrue(isMatch(
                 lastWarnString().split("\n")[0],
@@ -64,6 +66,7 @@ public class SofaThreadPoolTaskSchedulerTest extends ThreadPoolTestBase {
                     .format(
                         "Task \\S+ in thread pool (%s\\S+) started on \\S+ \\S+ exceeds the limit of \\S+ execution time with stack trace:",
                         SofaThreadPoolTaskScheduler.SIMPLE_CLASS_NAME)));
+        future.cancel(true);
         threadPool.setWaitForTasksToCompleteOnShutdown(true);
         threadPool.setAwaitTerminationSeconds(100);
         threadPool.shutdown();

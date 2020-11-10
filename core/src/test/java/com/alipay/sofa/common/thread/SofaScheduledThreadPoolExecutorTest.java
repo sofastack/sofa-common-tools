@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,20 +51,22 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
         Assert.assertTrue(isLastInfoMatch(String.format("Updated '\\S+' taskTimeout to %s %s",
             threadPool.getConfig().getTaskTimeout(), threadPool.getConfig().getTimeUnit())));
 
-        threadPool.scheduleWithFixedDelay(new SleepTask(4200), 0, 1, TimeUnit.SECONDS);
+        ScheduledFuture future = threadPool.scheduleWithFixedDelay(new SleepTask(4200), 0, 1,
+            TimeUnit.SECONDS);
         Thread.sleep(10500);
 
-        Assert.assertEquals(14, infoListAppender.list.size());
+        Assert.assertEquals(20, infoListAppender.list.size());
         Assert.assertEquals(2, aberrantListAppender.list.size());
         Assert.assertTrue(consecutiveInfoPattern(4, "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
-            "0,1,0,1,1", "1,0,1,1,0", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1",
-            "1,0,1,1,0"));
+            "0,1,0,1,1", "1,0,1,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d",
+            "0,1,0,1,1", "0,420\\d", "0,1,0,1,1", "0,420\\d", "1,0,1,1,0", "0,420\\d"));
         Assert
             .assertTrue(isMatch(
                 lastWarnString().split("\n")[0],
                 WARN,
                 "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ exceeds the limit of \\S+ execution time with stack trace:"));
 
+        future.cancel(true);
         threadPool.shutdown();
         threadPool.awaitTermination(1000, TimeUnit.SECONDS);
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));

@@ -59,9 +59,9 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
 
     private String getAllStackTrace(SofaThreadPoolExecutor threadPoolExecutor) {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<ExecutingRunnable, RunnableExecutionInfo> entry : threadPoolExecutor
-            .getStatistics().getExecutingTasks().entrySet()) {
-            for (StackTraceElement e : entry.getKey().t.getStackTrace()) {
+        for (Map.Entry<ExecutingRunnable, Long> entry : threadPoolExecutor.getStatistics()
+            .getExecutingTasks().entrySet()) {
+            for (StackTraceElement e : entry.getKey().thread.getStackTrace()) {
                 sb.append("    ").append(e).append("\n");
             }
         }

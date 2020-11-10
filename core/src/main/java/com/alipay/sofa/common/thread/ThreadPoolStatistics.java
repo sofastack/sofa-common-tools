@@ -19,6 +19,7 @@ package com.alipay.sofa.common.thread;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The running statics of a {@link ThreadPoolExecutor}
@@ -26,8 +27,30 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @version ThreadPoolStatistics.java, v 0.1 2020年10月26日 5:38 下午 huzijie Exp $
  */
 public class ThreadPoolStatistics {
+    /**
+     * the counted {@link ThreadPoolExecutor}
+     */
     private final ThreadPoolExecutor threadPoolExecutor;
-    private final Map<ExecutingRunnable, RunnableExecutionInfo> executingTasks = new ConcurrentHashMap<>();
+
+    /**
+     * the key is executing tasks, the value is dequeue time when executor is {@link SofaScheduledThreadPoolExecutor}
+     */
+    private final Map<ExecutingRunnable, Long> executingTasks = new ConcurrentHashMap<>();
+
+    /**
+     * the total time for task executing
+     */
+    AtomicLong totalRunningTime          = new AtomicLong();
+
+    /**
+     * the total time for task in queue
+     */
+    AtomicLong totalStayInQueueTime = new AtomicLong();
+
+    /**
+     * total tasks put to thread pool
+     */
+    AtomicLong totalTaskCount            = new AtomicLong();
 
     public ThreadPoolStatistics(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
@@ -37,7 +60,7 @@ public class ThreadPoolStatistics {
      * Return the running tasks of the {@link ThreadPoolExecutor}
      * @return the executingTasks
      */
-    public Map<ExecutingRunnable, RunnableExecutionInfo> getExecutingTasks() {
+    public Map<ExecutingRunnable, Long> getExecutingTasks() {
         return executingTasks;
     }
 
@@ -55,5 +78,54 @@ public class ThreadPoolStatistics {
      */
     public long getPoolSize() {
         return threadPoolExecutor.getPoolSize();
+    }
+
+    /**
+     * add total running time
+     * @param runningTime the added runningTime
+     */
+    public void addTotalRunningTime(long runningTime) {
+        totalRunningTime.addAndGet(runningTime);
+    }
+
+    /**
+     * add total stay in queue time
+     * @param stayInQueueTime the added stay in queue time
+     */
+    public void addTotalStayInQueueTime(long stayInQueueTime) {
+        totalStayInQueueTime.addAndGet(stayInQueueTime);
+    }
+
+    /**
+     * increase total task count
+     */
+    public void addTotalTaskCount() {
+        totalTaskCount.incrementAndGet();
+    }
+
+    /**
+     * return the total task count
+     * @return the total task count
+     */
+    public long getTotalTaskCount() {
+        return totalTaskCount.get();
+    }
+
+    /**
+     * get the average running time during the thread pool started
+     * @return average running time
+     */
+    public long getAverageRunningTime() {
+        return this.totalTaskCount.get() == 0 ? -1 : this.totalRunningTime.get()
+                / this.totalTaskCount.get();
+    }
+
+    /**
+     * get the average stay in queue time during the thread pool started
+     * @return average stay in queue time
+     */
+    public long getAverageStayInQueueTime() {
+        return this.totalTaskCount.get() == 0 ? -1 : this.totalStayInQueueTime.get()
+                / this.totalTaskCount.get();
     }
 }
