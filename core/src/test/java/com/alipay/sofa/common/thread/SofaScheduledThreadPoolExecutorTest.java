@@ -44,7 +44,6 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
         }
     }
 
-
     @Test
     public void testDecayedTask() throws Exception {
         Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO, String.format(
