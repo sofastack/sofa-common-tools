@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,14 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     public void setup() {
         threadPool = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(2));
+    }
+
+    @After
+    public void cleanExecutor() throws InterruptedException {
+        if (!threadPool.isShutdown()) {
+            threadPool.shutdown();
+            threadPool.awaitTermination(1000, TimeUnit.SECONDS);
+        }
     }
 
     @Test
