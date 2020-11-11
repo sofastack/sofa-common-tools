@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author <a href=mailto:orezsilence@163.com>zhangchengxi</a>
  */
-public class TimeWaitRejectedExecutionHandlerTest {
+public class TimeWaitRejectedExecutionHandlerTest extends ThreadPoolTestBase {
 
     @Test
     public void test() throws InterruptedException {

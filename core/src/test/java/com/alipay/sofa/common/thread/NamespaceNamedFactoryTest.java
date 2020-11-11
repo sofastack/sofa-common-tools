@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * @author huzijie
  * @version ThreadNamespaceTest.java, v 0.1 2020年11月11日 11:04 上午 huzijie Exp $
  */
-public class NamespaceNamedFactoryTest {
+public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
 
     @Test
     public void testNamespaceNamedThreadFactory() throws ExecutionException, InterruptedException {

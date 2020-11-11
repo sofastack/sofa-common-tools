@@ -63,6 +63,7 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         TestTaskDecorator.clearCount();
         sofaThreadPoolTaskExecutorA.submit(() -> { }).get();
         Assert.assertEquals(1, TestTaskDecorator.count.get());
+        sofaThreadPoolTaskExecutorA.shutdown();
     }
 
     @Test
@@ -77,8 +78,9 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         Assert.assertEquals(3000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getTaskTimeout());
         Assert.assertEquals(5000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getPeriod());
         TestTaskDecorator.clearCount();
-        sofaThreadPoolTaskExecutorA.submit(() -> { }).get();
+        sofaThreadPoolTaskExecutorB.submit(() -> { }).get();
         Assert.assertEquals(1, TestTaskDecorator.count.get());
+        sofaThreadPoolTaskExecutorB.shutdown();
     }
 
     @Configuration
