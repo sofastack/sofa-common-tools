@@ -69,11 +69,9 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
         Assert.assertTrue(consecutiveInfoPattern(4, "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
             "0,1,0,1,1", "1,0,1,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d", "0,1,0,1,0", "0,420\\d",
             "0,1,0,1,1", "0,420\\d", "0,1,0,1,1", "0,420\\d", "1,0,1,1,0", "0,420\\d"));
-        Assert
-            .assertTrue(isMatch(
-                lastWarnString().split("\n")[0],
-                WARN,
-                "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ exceeds the limit of \\S+ execution time with stack trace:"));
+        Assert.assertTrue(isMatch(lastWarnString().split("\n")[0], WARN,
+            "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ with traceId \\S+"
+                    + " exceeds the limit of \\S+ execution time with stack trace:"));
 
         future.cancel(true);
         threadPool.shutdown();

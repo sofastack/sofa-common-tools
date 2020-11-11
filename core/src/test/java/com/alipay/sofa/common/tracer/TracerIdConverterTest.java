@@ -34,8 +34,10 @@ public class TracerIdConverterTest {
         Assert.assertEquals("sampleTraceId", traceId);
         Field field = TracerIdConverter.class.getDeclaredField("tracerIdAdapter");
         field.setAccessible(true);
+        TracerIdAdapter tracerIdAdapter = (TracerIdAdapter) field.get(converter);
         field.set(converter, null);
         traceId = converter.traceIdSafari(Thread.currentThread());
         Assert.assertNull(traceId);
+        field.set(converter, tracerIdAdapter);
     }
 }
