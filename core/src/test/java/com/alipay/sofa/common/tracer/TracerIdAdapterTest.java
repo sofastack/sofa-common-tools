@@ -25,19 +25,19 @@ import java.lang.reflect.Field;
  * @author huzijie
  * @version TracerIdConverter.java, v 0.1 2020年11月11日 5:40 下午 huzijie Exp $
  */
-public class TracerIdConverterTest {
+public class TracerIdAdapterTest {
 
     @Test
     public void testTraceIdConverter() throws NoSuchFieldException, IllegalAccessException {
-        TracerIdConverter converter = TracerIdConverter.getInstance();
+        TracerIdAdapter converter = TracerIdAdapter.getInstance();
         String traceId = converter.traceIdSafari(Thread.currentThread());
         Assert.assertEquals("sampleTraceId", traceId);
-        Field field = TracerIdConverter.class.getDeclaredField("tracerIdAdapter");
+        Field field = TracerIdAdapter.class.getDeclaredField("tracerIdRetriever");
         field.setAccessible(true);
-        TracerIdAdapter tracerIdAdapter = (TracerIdAdapter) field.get(converter);
+        TracerIdRetriever tracerIdRetriever = (TracerIdRetriever) field.get(converter);
         field.set(converter, null);
         traceId = converter.traceIdSafari(Thread.currentThread());
         Assert.assertNull(traceId);
-        field.set(converter, tracerIdAdapter);
+        field.set(converter, tracerIdRetriever);
     }
 }

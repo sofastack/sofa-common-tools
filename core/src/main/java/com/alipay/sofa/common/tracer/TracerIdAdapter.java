@@ -16,17 +16,51 @@
  */
 package com.alipay.sofa.common.tracer;
 
-/**
- * Adapter for different tracer system
- * @author huzijie
- * @version TracerAdpater.java, v 0.1 2020年11月11日 5:31 下午 huzijie Exp $
- */
-public interface TracerIdAdapter {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    /**
-     * get trace id from the thread
-     * @param thread the thread
-     * @return the trace Id
-     */
-    String getTracerId(Thread thread);
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+/**
+ * use custom {@link TracerIdRetriever} to find trace id
+ * @author huzijie
+ * @version TracerAdapter.java, v 0.1 2020年11月11日 5:29 下午 huzijie Exp $
+ */
+public class TracerIdAdapter {
+
+    private static final Logger          logger   = LoggerFactory.getLogger(TracerIdAdapter.class);
+
+    private static final TracerIdAdapter INSTANCE = new TracerIdAdapter();
+
+    private TracerIdRetriever            tracerIdRetriever;
+
+    private TracerIdAdapter() {
+        ServiceLoader<TracerIdRetriever> serviceLoader = ServiceLoader
+            .load(TracerIdRetriever.class);
+        Iterator<TracerIdRetriever> tracerIdAdapterIterator = serviceLoader.iterator();
+        if (tracerIdAdapterIterator.hasNext()) {
+            this.tracerIdRetriever = tracerIdAdapterIterator.next();
+            logger.info("TracerIdConverter use tracerIdAdapter '{}'", tracerIdRetriever.getClass()
+                .getName());
+        } else {
+            logger.info("TracerIdConverter can not find any tracerIdAdapter");
+        }
+    }
+
+    public static TracerIdAdapter getInstance() {
+        return INSTANCE;
+    }
+
+    public String traceIdSafari(Thread t) {
+        if (tracerIdRetriever == null) {
+            return null;
+        }
+        try {
+            return tracerIdRetriever.getTracerId(t);
+        } catch (Exception e) {
+            //ignore
+            return null;
+        }
+    }
 }
