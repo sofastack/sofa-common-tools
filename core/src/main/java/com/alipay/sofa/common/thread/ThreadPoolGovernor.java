@@ -54,11 +54,11 @@ public class ThreadPoolGovernor {
 
     private final ConcurrentHashMap<String, ThreadPoolNamespace>        namespaceMap       = new ConcurrentHashMap<>();
 
-    private long                                                        governorPeriod = DEFAULT_GOVERNOR_INTERVAL;
+    private volatile long                                                        governorPeriod = DEFAULT_GOVERNOR_INTERVAL;
 
-    private boolean                                                     governorLoggable = DEFAULT_GOVERNOR_LOGGER_ENABLE;
+    private volatile boolean                                                     governorLoggable = DEFAULT_GOVERNOR_LOGGER_ENABLE;
 
-    private boolean                                                     globalMonitorLoggable = DEFAULT_GLOBAL_MONITOR_LOGGER_ENABLE;
+    private volatile boolean                                                     globalMonitorLoggable = DEFAULT_GLOBAL_MONITOR_LOGGER_ENABLE;
 
     private ScheduledFuture<?> governorScheduledFuture;
 
