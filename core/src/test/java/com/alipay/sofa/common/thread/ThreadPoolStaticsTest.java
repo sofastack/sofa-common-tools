@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @author huzijie
  * @version ThreadPoolStaticsTest.java, v 0.1 2020年11月10日 11:56 上午 huzijie Exp $
  */
-public class ThreadPoolStaticsTest {
+public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
 
     @Test
     public void testSofaThreadPoolExecutor() throws Exception {

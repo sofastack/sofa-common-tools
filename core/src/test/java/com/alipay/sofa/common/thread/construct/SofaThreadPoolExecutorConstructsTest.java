@@ -18,6 +18,7 @@ package com.alipay.sofa.common.thread.construct;
 
 import com.alipay.sofa.common.thread.SofaThreadPoolConstants;
 import com.alipay.sofa.common.thread.SofaThreadPoolExecutor;
+import com.alipay.sofa.common.thread.ThreadPoolTestBase;
 import com.alipay.sofa.common.thread.namespace.NamespaceNamedThreadFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
  * @author huzijie
  * @version SofaThreadPoolTaskExecutorApiTest.java, v 0.1 2020年11月09日 3:38 下午 huzijie Exp $
  */
-public class SofaThreadPoolExecutorConstructsTest {
+public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
 
     private static final Class<?>           namespaceThreadFactory = NamespaceNamedThreadFactory.class;
 

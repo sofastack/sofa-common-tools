@@ -65,6 +65,7 @@ public class ThreadPoolTestBase {
         Map<String, ThreadPoolMonitorWrapper> registry = (Map<String, ThreadPoolMonitorWrapper>) f
             .get(ThreadPoolGovernor.getInstance());
         for (ThreadPoolMonitorWrapper executor : registry.values()) {
+            executor.stopMonitor();
             executor.getThreadPoolExecutor().shutdownNow();
         }
         registry.clear();

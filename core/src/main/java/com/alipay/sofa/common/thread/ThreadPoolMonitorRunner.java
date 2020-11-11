@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.thread;
 
 import com.alipay.sofa.common.thread.log.ThreadLogger;
-import com.alipay.sofa.common.utils.TracerUtil;
+import com.alipay.sofa.common.tracer.TracerIdAdapter;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -103,7 +103,7 @@ public class ThreadPoolMonitorRunner implements Runnable {
             for (StackTraceElement e : executingThread.getStackTrace()) {
                 sb.append("    ").append(e).append("\n");
             }
-            String traceId = TracerUtil.traceIdSafari(executingThread);
+            String traceId = TracerIdAdapter.getInstance().traceIdSafari(executingThread);
             try {
                 ThreadLogger
                     .warn(

@@ -42,7 +42,7 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
 
     @Autowired
     @Qualifier("testSofaThreadPoolTaskSchedulerB")
-    private ThreadPoolTaskScheduler sofaThreadPoolTaskExecutorB;
+    private ThreadPoolTaskScheduler sofaThreadPoolTaskSchedulerB;
 
     @Test
     public void testSofaThreadPoolTaskSchedulerA() {
@@ -61,25 +61,27 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getPeriod());
         Assert.assertTrue(sofaThreadPoolTaskSchedulerA.getScheduledThreadPoolExecutor()
             .getRemoveOnCancelPolicy());
+        sofaThreadPoolTaskSchedulerA.shutdown();
     }
 
     @Test
     public void testSofaThreadPoolTaskSchedulerB() {
-        Assert.assertTrue(sofaThreadPoolTaskExecutorB instanceof SofaThreadPoolTaskScheduler);
-        Assert.assertEquals(10, sofaThreadPoolTaskExecutorB.getScheduledThreadPoolExecutor()
+        Assert.assertTrue(sofaThreadPoolTaskSchedulerB instanceof SofaThreadPoolTaskScheduler);
+        Assert.assertEquals(10, sofaThreadPoolTaskSchedulerB.getScheduledThreadPoolExecutor()
             .getCorePoolSize());
         Assert.assertEquals("testThreadSchedulerB-",
-            sofaThreadPoolTaskExecutorB.getThreadNamePrefix());
+            sofaThreadPoolTaskSchedulerB.getThreadNamePrefix());
         Assert.assertEquals("testThreadPoolNameB",
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskExecutorB).getThreadPoolName());
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getThreadPoolName());
         Assert.assertEquals("testNamespaceB",
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskExecutorB).getNamespace());
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getNamespace());
         Assert.assertEquals(3000,
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskExecutorB).getTaskTimeout());
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getTaskTimeout());
         Assert.assertEquals(5000,
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskExecutorB).getPeriod());
-        Assert.assertTrue(sofaThreadPoolTaskExecutorB.getScheduledThreadPoolExecutor()
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getPeriod());
+        Assert.assertTrue(sofaThreadPoolTaskSchedulerB.getScheduledThreadPoolExecutor()
             .getRemoveOnCancelPolicy());
+        sofaThreadPoolTaskSchedulerB.shutdown();
     }
 
     @Configuration
