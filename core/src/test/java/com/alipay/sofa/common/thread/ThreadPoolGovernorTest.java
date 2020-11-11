@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,9 +33,9 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
 
     @Before
     public void threadPoolGovernorTestSetup() {
-        ThreadPoolGovernor.getInstance().setPeriod(CUSTOMIZED_PERIOD);
-        ThreadPoolGovernor.getInstance().setLoggable(true);
-        ThreadPoolGovernor.getInstance().startSchedule();
+        ThreadPoolGovernor.getInstance().setGovernorPeriod(CUSTOMIZED_PERIOD);
+        ThreadPoolGovernor.getInstance().setGovernorLoggable(true);
+        ThreadPoolGovernor.getInstance().startGovernorSchedule();
     }
 
     @Test
@@ -102,7 +101,7 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
     @Test
     public void testSofaThreadPoolExecutor() throws Exception {
         Assert.assertTrue(isLastInfoMatch(String.format("Started \\S+ with period: %s SECONDS",
-            ThreadPoolGovernor.getInstance().getPeriod())));
+            ThreadPoolGovernor.getInstance().getGovernorPeriod())));
         SofaThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaThreadPoolExecutor(1, 1, 4,
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10));
         SofaThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaThreadPoolExecutor(1, 1, 4,
@@ -152,44 +151,45 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
 
     @Test
     public void testStartStopGovernor() {
-        ThreadPoolGovernor.getInstance().startSchedule();
-        Assert.assertTrue(ThreadPoolGovernor.getInstance().isLoggable());
+        ThreadPoolGovernor.getInstance().startGovernorSchedule();
+        Assert.assertTrue(ThreadPoolGovernor.getInstance().isGovernorLoggable());
         Assert.assertEquals(1, infoListAppender.list.size());
         Assert.assertEquals(1, aberrantListAppender.list.size());
 
-        ThreadPoolGovernor.getInstance().stopSchedule();
-        ThreadPoolGovernor.getInstance().stopSchedule();
+        ThreadPoolGovernor.getInstance().stopGovernorSchedule();
+        ThreadPoolGovernor.getInstance().stopGovernorSchedule();
         Assert.assertEquals(2, infoListAppender.list.size());
         Assert.assertEquals(2, aberrantListAppender.list.size());
     }
 
     @Test
     public void testGovernorLoggable() throws Exception {
-        ThreadPoolGovernor.getInstance().setLoggable(false);
+        ThreadPoolGovernor.getInstance().setGovernorLoggable(false);
         new SofaThreadPoolExecutor(1, 1, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10));
         new SofaThreadPoolExecutor(1, 1, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10));
         Thread.sleep(2200);
 
-        Assert.assertEquals(CUSTOMIZED_PERIOD, ThreadPoolGovernor.getInstance().getPeriod());
-        Assert.assertFalse(ThreadPoolGovernor.getInstance().isLoggable());
+        Assert
+            .assertEquals(CUSTOMIZED_PERIOD, ThreadPoolGovernor.getInstance().getGovernorPeriod());
+        Assert.assertFalse(ThreadPoolGovernor.getInstance().isGovernorLoggable());
         Assert.assertEquals(5, infoListAppender.list.size());
         Assert.assertEquals(0, aberrantListAppender.list.size());
-        ThreadPoolGovernor.getInstance().setLoggable(true);
+        ThreadPoolGovernor.getInstance().setGovernorLoggable(true);
     }
 
     @Test
     public void testGovernorReschedule() throws Exception {
         long NEW_PERIOD = 2;
 
-        ThreadPoolGovernor.getInstance().setPeriod(NEW_PERIOD);
+        ThreadPoolGovernor.getInstance().setGovernorPeriod(NEW_PERIOD);
         Assert.assertTrue(isLastInfoMatch(String.format("Reschedule %s with period: %s SECONDS",
             ThreadPoolGovernor.CLASS_NAME, NEW_PERIOD)));
         new SofaThreadPoolExecutor(1, 1, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10));
         Thread.sleep(2200);
 
-        Assert.assertEquals(NEW_PERIOD, ThreadPoolGovernor.getInstance().getPeriod());
+        Assert.assertEquals(NEW_PERIOD, ThreadPoolGovernor.getInstance().getGovernorPeriod());
         Assert.assertEquals(5, infoListAppender.list.size());
         Assert.assertEquals(0, aberrantListAppender.list.size());
-        ThreadPoolGovernor.getInstance().setPeriod(CUSTOMIZED_PERIOD);
+        ThreadPoolGovernor.getInstance().setGovernorPeriod(CUSTOMIZED_PERIOD);
     }
 }

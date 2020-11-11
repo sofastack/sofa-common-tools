@@ -56,7 +56,7 @@ public class ThreadPoolConfig {
         this.period = builder.period == 0 ? DEFAULT_PERIOD : builder.period;
         this.timeUnit = builder.timeUnit == null ? TimeUnit.MILLISECONDS : builder.timeUnit;
         this.taskTimeoutMilli = this.timeUnit.toMillis(this.taskTimeout);
-        this.identity = buildIdentity();
+        this.identity = buildIdentity(this.threadPoolName, this.namespace);
     }
 
     /**
@@ -117,12 +117,12 @@ public class ThreadPoolConfig {
 
     public void setThreadPoolName(String threadPoolName) {
         this.threadPoolName = threadPoolName;
-        this.identity = buildIdentity();
+        this.identity = buildIdentity(this.threadPoolName, this.namespace);
     }
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
-        this.identity = buildIdentity();
+        this.identity = buildIdentity(this.threadPoolName, this.namespace);
     }
 
     public void setTaskTimeout(long taskTimeout) {
@@ -145,7 +145,7 @@ public class ThreadPoolConfig {
      * The generate method of the identity
      * @return the generated identity
      */
-    private String buildIdentity() {
+    public static String buildIdentity(String threadPoolName, String namespace) {
         if (StringUtil.isEmpty(namespace)) {
             return threadPoolName;
         }

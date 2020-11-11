@@ -120,6 +120,14 @@ public class ThreadPoolMonitorWrapper {
     }
 
     /**
+     * Return the {@link ThreadPoolConfig}
+     * @return the {@link ThreadPoolConfig}
+     */
+    public ThreadPoolConfig getThreadPoolConfig() {
+        return threadPoolConfig;
+    }
+
+    /**
      * Return whether the monitor task is started
      * @return started
      */
