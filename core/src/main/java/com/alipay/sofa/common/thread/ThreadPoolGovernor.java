@@ -25,6 +25,7 @@ import java.util.concurrent.*;
 
 import static com.alipay.sofa.common.thread.SofaThreadPoolConstants.DEFAULT_GOVERNOR_INTERVAL;
 import static com.alipay.sofa.common.thread.SofaThreadPoolConstants.DEFAULT_GOVERNOR_LOGGER_ENABLE;
+import static com.alipay.sofa.common.thread.SofaThreadPoolConstants.DEFAULT_GLOBAL_MONITOR_LOGGER_ENABLE;
 
 /**
  * The governor to manager the {@link ThreadPoolExecutor}s
@@ -56,6 +57,8 @@ public class ThreadPoolGovernor {
     private long                                                        governorPeriod = DEFAULT_GOVERNOR_INTERVAL;
 
     private boolean                                                     governorLoggable = DEFAULT_GOVERNOR_LOGGER_ENABLE;
+
+    private boolean                                                     globalMonitorLoggable = DEFAULT_GLOBAL_MONITOR_LOGGER_ENABLE;
 
     private ScheduledFuture<?> governorScheduledFuture;
 
@@ -153,6 +156,22 @@ public class ThreadPoolGovernor {
      */
     public void setGovernorLoggable(boolean governorLoggable) {
         this.governorLoggable = governorLoggable;
+    }
+
+    /**
+     * The log switch of the all monitor task
+     * @return whether log monitor task
+     */
+    public boolean isGlobalMonitorLoggable() {
+        return globalMonitorLoggable;
+    }
+
+    /**
+     * Update the log switch of the all monitor task
+     * @param globalMonitorLoggable whether log monitor task
+     */
+    public void setGlobalMonitorLoggable(boolean globalMonitorLoggable) {
+        this.globalMonitorLoggable = globalMonitorLoggable;
     }
 
     /**

@@ -45,25 +45,25 @@ public class ThreadPoolMonitorRunner implements Runnable {
     @Override
     public void run() {
         try {
-            if (ThreadPoolGovernor.getInstance().isGovernorLoggable()) {
+            if (ThreadPoolGovernor.getInstance().isGlobalMonitorLoggable()) {
                 int decayedTaskCount = 0;
                 for (Map.Entry<ExecutingRunnable, Long> entry : statistics.getExecutingTasks()
-                        .entrySet()) {
+                    .entrySet()) {
                     decayedTaskCount = calculateDecayedTaskCounts(decayedTaskCount, entry);
                 }
 
                 // threadPoolName, #queue, #executing, #idle, #pool, #decayed
                 ThreadLogger.info("Thread pool '{}' info: [{},{},{},{},{}]", config.getIdentity(),
-                        statistics.getQueueSize(), statistics.getExecutingTasks().size(),
-                        statistics.getPoolSize() - statistics.getExecutingTasks().size(),
-                        statistics.getPoolSize(), decayedTaskCount);
+                    statistics.getQueueSize(), statistics.getExecutingTasks().size(),
+                    statistics.getPoolSize() - statistics.getExecutingTasks().size(),
+                    statistics.getPoolSize(), decayedTaskCount);
                 if (statistics.getTotalTaskCount() != 0) {
                     // just log for thread pool which has task executed
                     // SofaScheduledThreadPoolExecutor don't count the in queue time, it's always 0
                     // threadPoolName, #averageStayInQueueTime, #averageRunningTime, #averageQueueSize
                     ThreadLogger.info("Thread pool '{}' average static info: [{},{}]",
-                            config.getIdentity(), statistics.getAverageStayInQueueTime(),
-                            statistics.getAverageRunningTime());
+                        config.getIdentity(), statistics.getAverageStayInQueueTime(),
+                        statistics.getAverageRunningTime());
                 }
             }
         } catch (Throwable e) {
