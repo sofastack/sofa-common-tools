@@ -17,6 +17,7 @@
 package com.alipay.sofa.common.thread;
 
 import com.alipay.sofa.common.thread.log.ThreadLogger;
+import com.alipay.sofa.common.thread.namespace.NamespaceNamedThreadFactory;
 import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.concurrent.*;
@@ -61,6 +62,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
             .build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
+        if (StringUtil.isNotEmpty(namespace)) {
+            this.setThreadFactory(new NamespaceNamedThreadFactory(threadPoolName, namespace));
+        }
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -97,6 +101,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
             .namespace(namespace).build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
+        if (StringUtil.isNotEmpty(namespace)) {
+            this.setThreadFactory(new NamespaceNamedThreadFactory(threadPoolName, namespace));
+        }
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -166,15 +173,15 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     public synchronized void startSchedule() {
-        ThreadPoolGovernor.getInstance().startSchedule(config);
+        ThreadPoolGovernor.getInstance().startMonitorThreadPool(config.getIdentity());
     }
 
     public synchronized void stopSchedule() {
-        ThreadPoolGovernor.getInstance().stopSchedule(config);
+        ThreadPoolGovernor.getInstance().stopMonitorThreadPool(config.getIdentity());
     }
 
     public synchronized void reschedule() {
-        ThreadPoolGovernor.getInstance().reSchedule(config);
+        ThreadPoolGovernor.getInstance().restartMonitorThreadPool(config.getIdentity());
     }
 
     public void updateThreadPoolName(String threadPoolName) {

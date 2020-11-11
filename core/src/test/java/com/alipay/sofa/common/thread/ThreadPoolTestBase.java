@@ -58,7 +58,7 @@ public class ThreadPoolTestBase {
     @After
     @SuppressWarnings("unchecked")
     public void clearUp() throws Exception {
-        ThreadPoolGovernor.getInstance().stopSchedule();
+        ThreadPoolGovernor.getInstance().stopGovernorSchedule();
 
         Field f = ThreadPoolGovernor.class.getDeclaredField("registry");
         f.setAccessible(true);
