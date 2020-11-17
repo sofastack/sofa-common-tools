@@ -41,10 +41,10 @@ public class ThreadPoolGovernor {
                                                                                         .getCanonicalName();
 
     private final ScheduledExecutorService                governorScheduler =  Executors.newScheduledThreadPool(1,
-                                                                                            new NamedThreadFactory("t.p.g"));
+                                                                                            new NamedThreadFactory("SOFA-Thread-Pool-Governor"));
 
     private final ScheduledExecutorService                monitorScheduler =   Executors.newScheduledThreadPool(
-                              Runtime.getRuntime().availableProcessors() + 1, new NamedThreadFactory("s.t.p.e"));
+                              Runtime.getRuntime().availableProcessors() + 1, new NamedThreadFactory("SOFA-Thread-Pool-Monitor"));
 
     private final Object                                   monitor            = new Object();
 
