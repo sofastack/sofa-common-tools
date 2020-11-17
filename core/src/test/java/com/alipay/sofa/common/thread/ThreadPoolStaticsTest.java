@@ -34,6 +34,7 @@ public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
         SofaThreadPoolExecutor executor = new SofaThreadPoolExecutor(50, 50,
                 10, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000), new ThreadPoolExecutor.AbortPolicy());
+        executor.stopSchedule();
         Assert.assertEquals(-1, executor.getStatistics().getAverageRunningTime());
         Assert.assertEquals(-1, executor.getStatistics().getAverageStayInQueueTime());
         for (int i = 0; i < 100; i++) {
@@ -56,6 +57,8 @@ public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
         Assert.assertEquals(1000, executor.getStatistics().getAverageRunningTime(), 10);
         System.out.println("Average stay in queue time:" + executor.getStatistics().getAverageStayInQueueTime());
         Assert.assertEquals(500, executor.getStatistics().getAverageStayInQueueTime(), 10);
+        executor.getStatistics().resetAverageStatics();
+        Assert.assertEquals(0, executor.getStatistics().getTotalTaskCount());
         executor.shutdown();
         executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
     }
@@ -63,6 +66,7 @@ public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
     @Test
     public void testSofaScheduledThreadPoolExecutor() throws Exception {
         SofaScheduledThreadPoolExecutor executor = new SofaScheduledThreadPoolExecutor(10);
+        executor.stopSchedule();
         Assert.assertEquals(-1, executor.getStatistics().getAverageRunningTime());
         Assert.assertEquals(-1, executor.getStatistics().getAverageStayInQueueTime());
         for (int i = 0; i < 10; i++) {
@@ -80,6 +84,8 @@ public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
         Assert.assertEquals(1000, executor.getStatistics().getAverageRunningTime(), 10);
         System.out.println("Average stay in queue time:" + executor.getStatistics().getAverageStayInQueueTime());
         Assert.assertEquals(0, executor.getStatistics().getAverageStayInQueueTime());
+        executor.getStatistics().resetAverageStatics();
+        Assert.assertEquals(0, executor.getStatistics().getTotalTaskCount());
         executor.shutdown();
         executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
     }

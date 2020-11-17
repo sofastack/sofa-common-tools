@@ -112,7 +112,7 @@ public class ThreadPoolStatistics {
     }
 
     /**
-     * get the average running time during the thread pool started
+     * get the average running time
      * @return average running time
      */
     public long getAverageRunningTime() {
@@ -121,11 +121,20 @@ public class ThreadPoolStatistics {
     }
 
     /**
-     * get the average stay in queue time during the thread pool started
+     * get the average stay in queue time
      * @return average stay in queue time
      */
     public long getAverageStayInQueueTime() {
         return this.totalTaskCount.get() == 0 ? -1 : this.totalStayInQueueTime.get()
                 / this.totalTaskCount.get();
+    }
+
+    /**
+     * reset each statics, it may cause the result inaccurate
+     */
+    public void resetAverageStatics() {
+        this.totalTaskCount.set(0);
+        this.totalRunningTime.set(0);
+        this.totalStayInQueueTime.set(0);
     }
 }
