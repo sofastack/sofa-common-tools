@@ -60,10 +60,11 @@ public class ThreadPoolMonitorRunner implements Runnable {
                 if (statistics.getTotalTaskCount() != 0) {
                     // just log for thread pool which has task executed
                     // SofaScheduledThreadPoolExecutor don't count the in queue time, it's always 0
-                    // threadPoolName, #averageStayInQueueTime, #averageRunningTime, #averageQueueSize
+                    // threadPoolName, #averageStayInQueueTime, #averageRunningTime
                     ThreadLogger.info("Thread pool '{}' average static info: [{},{}]",
                         config.getIdentity(), statistics.getAverageStayInQueueTime(),
                         statistics.getAverageRunningTime());
+                    statistics.resetAverageStatics();
                 }
             }
         } catch (Throwable e) {
