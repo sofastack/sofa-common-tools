@@ -90,8 +90,8 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
     }
 
     @Test
-    public void testSetNamespace() {
-        threadPool.updateNamespace("sofaThreadNamespace");
+    public void testSetSpaceName() {
+        threadPool.updatespaceName("sofaThreadSpace");
         Assert.assertEquals(0, aberrantListAppender.list.size());
         Assert.assertEquals(6, infoListAppender.list.size());
         Assert.assertTrue(isMatch(getInfoViaIndex(3), INFO,

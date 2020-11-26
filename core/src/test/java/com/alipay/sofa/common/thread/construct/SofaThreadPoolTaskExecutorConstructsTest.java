@@ -56,7 +56,7 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         Assert.assertEquals(10, sofaThreadPoolTaskExecutorA.getKeepAliveSeconds());
         Assert.assertEquals("testThreadExecutorA-", sofaThreadPoolTaskExecutorA.getThreadNamePrefix());
         Assert.assertEquals("testThreadPoolNameA", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getThreadPoolName());
-        Assert.assertEquals("testNamespaceA", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getNamespace());
+        Assert.assertEquals("testSpaceA", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getSpaceName());
         Assert.assertEquals(2000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getTaskTimeout());
         Assert.assertEquals(10000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getPeriod());
         Assert.assertTrue(sofaThreadPoolTaskExecutorA.getThreadPoolExecutor().allowsCoreThreadTimeOut());
@@ -74,7 +74,7 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         Assert.assertEquals(20, sofaThreadPoolTaskExecutorB.getKeepAliveSeconds());
         Assert.assertEquals("testThreadExecutorB-", sofaThreadPoolTaskExecutorB.getThreadNamePrefix());
         Assert.assertEquals("testThreadPoolNameB", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getThreadPoolName());
-        Assert.assertEquals("testNamespaceB", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getNamespace());
+        Assert.assertEquals("testSpaceB", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getSpaceName());
         Assert.assertEquals(3000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getTaskTimeout());
         Assert.assertEquals(5000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getPeriod());
         TestTaskDecorator.clearCount();
@@ -94,7 +94,7 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
             sofaThreadPoolTaskExecutor.setKeepAliveSeconds(20);
             sofaThreadPoolTaskExecutor.setThreadNamePrefix("testThreadExecutorB-");
             sofaThreadPoolTaskExecutor.setThreadPoolName("testThreadPoolNameB");
-            sofaThreadPoolTaskExecutor.setNamespace("testNamespaceB");
+            sofaThreadPoolTaskExecutor.setSpaceName("testSpaceB");
             sofaThreadPoolTaskExecutor.setTaskTimeout(3000);
             sofaThreadPoolTaskExecutor.setPeriod(5000);
             sofaThreadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);

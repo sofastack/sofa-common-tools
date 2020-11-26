@@ -37,7 +37,7 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
 
     protected String                          threadPoolName;
 
-    protected String                          namespace;
+    protected String                          spaceName;
 
     protected long                            taskTimeout;
 
@@ -52,7 +52,7 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
         }
 
         SofaScheduledThreadPoolExecutor executor = new SofaScheduledThreadPoolExecutor(
-            getPoolSize(), threadFactory, rejectedExecutionHandler, threadPoolName, namespace,
+            getPoolSize(), threadFactory, rejectedExecutionHandler, threadPoolName, spaceName,
             taskTimeout, period, TimeUnit.MILLISECONDS);
 
         Boolean removeOnCancelPolicy = ClassUtil.getField("removeOnCancelPolicy", this);
@@ -80,14 +80,14 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
         }
     }
 
-    public String getNamespace() {
-        return namespace;
+    public String getSpaceName() {
+        return spaceName;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public void setSpaceName(String spaceName) {
+        this.spaceName = spaceName;
         if (sofaScheduledThreadPoolExecutor != null) {
-            sofaScheduledThreadPoolExecutor.updateNamespace(namespace);
+            sofaScheduledThreadPoolExecutor.updatespaceName(spaceName);
         }
     }
 

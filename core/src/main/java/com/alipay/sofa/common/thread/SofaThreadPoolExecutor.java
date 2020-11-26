@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.thread;
 
 import com.alipay.sofa.common.thread.log.ThreadLogger;
-import com.alipay.sofa.common.thread.namespace.NamespaceNamedThreadFactory;
+import com.alipay.sofa.common.thread.space.SpaceNamedThreadFactory;
 import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.concurrent.*;
@@ -45,7 +45,7 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
      * @param threadFactory same as in {@link ThreadPoolExecutor}
      * @param handler same as in {@link ThreadPoolExecutor}
      * @param threadPoolName name of this thread pool
-     * @param namespace namespace of this tread pool
+     * @param spaceName spaceName of this tread pool
      * @param taskTimeout task execution timeout
      * @param period task checking and logging period
      * @param timeUnit unit of taskTimeout and period
@@ -53,17 +53,17 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory, RejectedExecutionHandler handler,
-                                  String threadPoolName, String namespace, long taskTimeout,
+                                  String threadPoolName, String spaceName, long taskTimeout,
                                   long period, TimeUnit timeUnit) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
         this.config = ThreadPoolConfig.newBuilder()
             .threadPoolName(StringUtil.isEmpty(threadPoolName) ? createName() : threadPoolName)
-            .namespace(namespace).taskTimeout(taskTimeout).period(period).timeUnit(timeUnit)
+            .spaceName(spaceName).taskTimeout(taskTimeout).period(period).timeUnit(timeUnit)
             .build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
-        if (StringUtil.isNotEmpty(namespace)) {
-            this.setThreadFactory(new NamespaceNamedThreadFactory(threadPoolName, namespace));
+        if (StringUtil.isNotEmpty(spaceName)) {
+            this.setThreadFactory(new SpaceNamedThreadFactory(threadPoolName, spaceName));
         }
     }
 
@@ -79,9 +79,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                   ThreadFactory threadFactory, RejectedExecutionHandler handler,
-                                  String threadPoolName, String namespace) {
+                                  String threadPoolName, String spaceName) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler,
-            threadPoolName, namespace, 0, 0, null);
+            threadPoolName, spaceName, 0, 0, null);
     }
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -94,15 +94,15 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
 
     public SofaThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
                                   TimeUnit unit, BlockingQueue<Runnable> workQueue,
-                                  String threadPoolName, String namespace) {
+                                  String threadPoolName, String spaceName) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
         this.config = ThreadPoolConfig.newBuilder()
             .threadPoolName(StringUtil.isEmpty(threadPoolName) ? createName() : threadPoolName)
-            .namespace(namespace).build();
+            .spaceName(spaceName).build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
-        if (StringUtil.isNotEmpty(namespace)) {
-            this.setThreadFactory(new NamespaceNamedThreadFactory(threadPoolName, namespace));
+        if (StringUtil.isNotEmpty(spaceName)) {
+            this.setThreadFactory(new SpaceNamedThreadFactory(threadPoolName, spaceName));
         }
     }
 
@@ -190,9 +190,9 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
     }
 
-    public void updateNamespace(String namespace) {
+    public void updateSpaceName(String spaceName) {
         ThreadPoolGovernor.getInstance().unregisterThreadPoolExecutor(this.getConfig());
-        this.config.setNamespace(namespace);
+        this.config.setSpaceName(spaceName);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
     }
 

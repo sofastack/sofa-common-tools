@@ -53,8 +53,8 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             sofaThreadPoolTaskSchedulerA.getThreadNamePrefix());
         Assert.assertEquals("testThreadPoolNameA",
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getThreadPoolName());
-        Assert.assertEquals("testNamespaceA",
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getNamespace());
+        Assert.assertEquals("testSpaceA",
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getSpaceName());
         Assert.assertEquals(2000,
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getTaskTimeout());
         Assert.assertEquals(10000,
@@ -73,8 +73,8 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             sofaThreadPoolTaskSchedulerB.getThreadNamePrefix());
         Assert.assertEquals("testThreadPoolNameB",
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getThreadPoolName());
-        Assert.assertEquals("testNamespaceB",
-            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getNamespace());
+        Assert.assertEquals("testSpaceB",
+            ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getSpaceName());
         Assert.assertEquals(3000,
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getTaskTimeout());
         Assert.assertEquals(5000,
@@ -93,7 +93,7 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             sofaThreadPoolTaskScheduler.setPoolSize(10);
             sofaThreadPoolTaskScheduler.setThreadNamePrefix("testThreadSchedulerB-");
             sofaThreadPoolTaskScheduler.setThreadPoolName("testThreadPoolNameB");
-            sofaThreadPoolTaskScheduler.setNamespace("testNamespaceB");
+            sofaThreadPoolTaskScheduler.setSpaceName("testSpaceB");
             sofaThreadPoolTaskScheduler.setTaskTimeout(3000);
             sofaThreadPoolTaskScheduler.setPeriod(5000);
             sofaThreadPoolTaskScheduler.setRemoveOnCancelPolicy(true);

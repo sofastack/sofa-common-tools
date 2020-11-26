@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.thread.namespace;
+package com.alipay.sofa.common.thread.space;
 
 import com.alipay.sofa.common.thread.ThreadPoolGovernor;
 
@@ -23,9 +23,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author huzijie
- * @version NamespaceNamedThreadFactory.java, v 0.1 2020年11月10日 8:24 下午 huzijie Exp $
+ * @version spaceNameNamedThreadFactory.java, v 0.1 2020年11月10日 8:24 下午 huzijie Exp $
  */
-public class NamespaceNamedThreadFactory implements ThreadFactory {
+public class SpaceNamedThreadFactory implements ThreadFactory {
 
     private final AtomicInteger threadNumber = new AtomicInteger(1);
 
@@ -35,15 +35,15 @@ public class NamespaceNamedThreadFactory implements ThreadFactory {
 
     private final boolean       isDaemon;
 
-    public NamespaceNamedThreadFactory(String threadPoolName, String namespace) {
-        this(threadPoolName, namespace, false);
+    public SpaceNamedThreadFactory(String threadPoolName, String spaceName) {
+        this(threadPoolName, spaceName, false);
     }
 
-    public NamespaceNamedThreadFactory(String threadPoolName, String namespace, boolean daemon) {
+    public SpaceNamedThreadFactory(String threadPoolName, String spaceName, boolean daemon) {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        namePrefix = namespace + "-" + threadPoolName + "-"
-                     + ThreadPoolGovernor.getInstance().getNamespaceThreadPoolNumber(namespace)
+        namePrefix = spaceName + "-" + threadPoolName + "-"
+                     + ThreadPoolGovernor.getInstance().getSpaceNameThreadPoolNumber(spaceName)
                      + "-thread-";
         isDaemon = daemon;
     }

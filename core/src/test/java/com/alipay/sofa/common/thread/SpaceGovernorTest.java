@@ -24,36 +24,36 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author huzijie
- * @version NamespaceGovernorTest.java, v 0.1 2020年11月11日 3:12 下午 huzijie Exp $
+ * @version spaceGovernorTest.java, v 0.1 2020年11月11日 3:12 下午 huzijie Exp $
  */
-public class NamespaceGovernorTest extends ThreadPoolTestBase {
+public class SpaceGovernorTest extends ThreadPoolTestBase {
 
     @Test
-    public void testUpdateMonitorThreadPoolByNamespace() throws InterruptedException {
+    public void testUpdateMonitorThreadPoolBySpace() throws InterruptedException {
         SofaThreadPoolExecutor threadPoolExecutor1 = new SofaThreadPoolExecutor(10, 10, 10 , TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100), "testPool1","namespaceTest");
+                new LinkedBlockingQueue<>(100), "testPool1","spaceTest");
         SofaThreadPoolExecutor threadPoolExecutor2 = new SofaThreadPoolExecutor(10, 10, 10 , TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100), "testPool2","namespaceTest");
+                new LinkedBlockingQueue<>(100), "testPool2","spaceTest");
         SofaThreadPoolExecutor threadPoolExecutor3 = new SofaThreadPoolExecutor(10, 10, 10 , TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(100), "testPool3");
-        String identity1 = ThreadPoolConfig.buildIdentity("testPool1", "namespaceTest");
-        String identity2 = ThreadPoolConfig.buildIdentity("testPool2", "namespaceTest");
+        String identity1 = ThreadPoolConfig.buildIdentity("testPool1", "spaceTest");
+        String identity2 = ThreadPoolConfig.buildIdentity("testPool2", "spaceTest");
         String identity3 = ThreadPoolConfig.buildIdentity("testPool3", null);
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity1).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity2).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity3).isStarted());
-        ThreadPoolGovernor.getInstance().stopMonitorThreadPoolByNamespace("namespaceTest");
-        Assert.assertTrue(isLastInfoMatch("Thread pool with namespace 'namespaceTest' stopped"));
+        ThreadPoolGovernor.getInstance().stopMonitorThreadPoolBySpaceName("spaceTest");
+        Assert.assertTrue(isLastInfoMatch("Thread pool with spaceName 'spaceTest' stopped"));
         Assert.assertFalse(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity1).isStarted());
         Assert.assertFalse(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity2).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity3).isStarted());
-        ThreadPoolGovernor.getInstance().startMonitorThreadPoolByNamespace("namespaceTest");
-        Assert.assertTrue(isLastInfoMatch("Thread pool with namespace 'namespaceTest' started"));
+        ThreadPoolGovernor.getInstance().startMonitorThreadPoolBySpaceName("spaceTest");
+        Assert.assertTrue(isLastInfoMatch("Thread pool with spaceName 'spaceTest' started"));
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity1).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity2).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity3).isStarted());
-        ThreadPoolGovernor.getInstance().setMonitorThreadPoolByNamespace("namespaceTest", 3000);
-        Assert.assertTrue(isLastInfoMatch("Thread pool with namespace 'namespaceTest' rescheduled with period '3000'"));
+        ThreadPoolGovernor.getInstance().setMonitorThreadPoolBySpaceName("spaceTest", 3000);
+        Assert.assertTrue(isLastInfoMatch("Thread pool with spaceName 'spaceTest' rescheduled with period '3000'"));
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity1).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity2).isStarted());
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity3).isStarted());
@@ -72,13 +72,13 @@ public class NamespaceGovernorTest extends ThreadPoolTestBase {
     }
 
     @Test
-    public void testUpdateMonitorThreadPoolByErrorNamespace() throws InterruptedException {
+    public void testUpdateMonitorThreadPoolByErrorSpace() throws InterruptedException {
         SofaThreadPoolExecutor threadPoolExecutor = new SofaThreadPoolExecutor(10, 10, 10 , TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(100), "testPool","right");
         String identity = ThreadPoolConfig.buildIdentity("testPool", "right");
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity).isStarted());
-        ThreadPoolGovernor.getInstance().stopMonitorThreadPoolByNamespace("wrong");
-        Assert.assertTrue(isLastErrorMatch("Thread pool with namespace 'wrong' is not registered yet"));
+        ThreadPoolGovernor.getInstance().stopMonitorThreadPoolBySpaceName("wrong");
+        Assert.assertTrue(isLastErrorMatch("Thread pool with spaceName 'wrong' is not registered yet"));
         Assert.assertTrue(ThreadPoolGovernor.getInstance().getThreadPoolMonitorWrapper(identity).isStarted());
         threadPoolExecutor.shutdown();
         threadPoolExecutor.awaitTermination(100, TimeUnit.SECONDS);

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.thread.namespace;
+package com.alipay.sofa.common.thread.space;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author huzijie
  * @version ThreadPoolNamespace.java, v 0.1 2020年11月11日 10:43 上午 huzijie Exp $
  */
-public class ThreadPoolNamespace {
+public class ThreadPoolSpace {
 
     private final Set<String> threadPoolIdentities = new HashSet<>();
 

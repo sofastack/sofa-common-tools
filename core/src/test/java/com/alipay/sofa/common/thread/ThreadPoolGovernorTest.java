@@ -53,15 +53,15 @@ public class ThreadPoolGovernorTest extends ThreadPoolTestBase {
     }
 
     @Test
-    public void testSameThreadAndDifferentNamespacePoolName() {
+    public void testSameThreadAndDifferentSpacePoolName() {
         String threadPoolName = "sameName";
-        String namespace1 = "namespace1";
-        String namespace2 = "namespace2";
+        String space1 = "space1";
+        String space2 = "space2";
 
         SofaThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaThreadPoolExecutor(1, 1, 4,
-            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), threadPoolName, namespace1);
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), threadPoolName, space1);
         SofaThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaThreadPoolExecutor(1, 1, 4,
-            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), threadPoolName, namespace2);
+            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10), threadPoolName, space2);
         Assert.assertEquals(5, infoListAppender.list.size());
         Assert.assertTrue(isMatch(getInfoViaIndex(2), INFO, String.format(
             "Thread pool with name '%s' registered", sofaThreadPoolExecutor1.getConfig()

@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.thread;
 
-import com.alipay.sofa.common.thread.namespace.NamespaceNamedThreadFactory;
+import com.alipay.sofa.common.thread.space.SpaceNamedThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,16 +25,16 @@ import java.util.regex.Pattern;
 
 /**
  * @author huzijie
- * @version ThreadNamespaceTest.java, v 0.1 2020年11月11日 11:04 上午 huzijie Exp $
+ * @version SpaceNamedFactoryTest.java, v 0.1 2020年11月11日 11:04 上午 huzijie Exp $
  */
-public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
+public class SpaceNamedFactoryTest extends ThreadPoolTestBase {
 
     @Test
-    public void testNamespaceNamedThreadFactory() throws ExecutionException, InterruptedException {
+    public void testSpaceNamedThreadFactory() throws ExecutionException, InterruptedException {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 10, 10 , TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(100), new NamespaceNamedThreadFactory("testPool","testNamespace"));
+                new LinkedBlockingQueue<>(100), new SpaceNamedThreadFactory("testPool","testSpace"));
         Future future = threadPoolExecutor.submit((Callable<Object>) () -> Thread.currentThread().getName());
-        Assert.assertEquals("testNamespace-testPool-0-thread-1", future.get());
+        Assert.assertEquals("testSpace-testPool-0-thread-1", future.get());
         threadPoolExecutor.shutdown();
         threadPoolExecutor.awaitTermination(100, TimeUnit.SECONDS);
     }
@@ -42,16 +42,16 @@ public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
     @Test
     public void testSofaThreadPoolExecutor() throws ExecutionException, InterruptedException {
         SofaThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(2), "testPool1", "namespace1");
+                new LinkedBlockingQueue<Runnable>(2), "testPool1", "space1");
         SofaThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(2), "testPool2", "namespace1");
+                new LinkedBlockingQueue<Runnable>(2), "testPool2", "space1");
         SofaThreadPoolExecutor sofaThreadPoolExecutor3 = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(2), "testPool3");
         String threadName1 = (String) sofaThreadPoolExecutor1.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         String threadName2 = (String) sofaThreadPoolExecutor2.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         String threadName3 = (String) sofaThreadPoolExecutor3.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
-        Assert.assertEquals("namespace1-testPool1-0-thread-1", threadName1);
-        Assert.assertEquals("namespace1-testPool2-1-thread-1", threadName2);
+        Assert.assertEquals("space1-testPool1-0-thread-1", threadName1);
+        Assert.assertEquals("space1-testPool2-1-thread-1", threadName2);
         Assert.assertTrue("thread name is: " + threadName3, Pattern.matches("pool-(\\d+)-thread-1", threadName3));
         sofaThreadPoolExecutor1.shutdown();
         sofaThreadPoolExecutor2.shutdown();
@@ -63,14 +63,14 @@ public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
 
     @Test
     public void testSofaScheduledThreadPoolExecutor() throws ExecutionException, InterruptedException {
-        SofaScheduledThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaScheduledThreadPoolExecutor(1 ,"testPool1", "namespace2");
-        SofaScheduledThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaScheduledThreadPoolExecutor(1 ,"testPool2", "namespace2");
+        SofaScheduledThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaScheduledThreadPoolExecutor(1 ,"testPool1", "space2");
+        SofaScheduledThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaScheduledThreadPoolExecutor(1 ,"testPool2", "space2");
         SofaScheduledThreadPoolExecutor sofaThreadPoolExecutor3 = new SofaScheduledThreadPoolExecutor(1 ,"testPool3");
         String threadName1 = (String) sofaThreadPoolExecutor1.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         String threadName2 = (String) sofaThreadPoolExecutor2.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         String threadName3 = (String) sofaThreadPoolExecutor3.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
-        Assert.assertEquals("namespace2-testPool1-0-thread-1", threadName1);
-        Assert.assertEquals("namespace2-testPool2-1-thread-1", threadName2);
+        Assert.assertEquals("space2-testPool1-0-thread-1", threadName1);
+        Assert.assertEquals("space2-testPool2-1-thread-1", threadName2);
         Assert.assertTrue(Pattern.matches("pool-(\\d+)-thread-1", threadName3));
         sofaThreadPoolExecutor1.shutdown();
         sofaThreadPoolExecutor2.shutdown();
@@ -83,7 +83,7 @@ public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
     @Test
     public void testOverrideThreadPoolExecutor() throws ExecutionException, InterruptedException {
         SofaThreadPoolExecutor sofaThreadPoolExecutor = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(2), "testPool", "namespace3");
+                new LinkedBlockingQueue<Runnable>(2), "testPool", "space3");
         sofaThreadPoolExecutor.setThreadFactory(new NamedThreadFactory("test"));
         String threadName = (String) sofaThreadPoolExecutor.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         Assert.assertTrue(Pattern.matches("test-(\\d+)-thread-1", threadName));
@@ -92,10 +92,10 @@ public class NamespaceNamedFactoryTest extends ThreadPoolTestBase {
     }
 
     @Test
-    public void testUseNamespaceNamedFactoryWithOutNamespace() throws ExecutionException, InterruptedException {
+    public void testUseSpaceNamedFactoryWithOutSpace() throws ExecutionException, InterruptedException {
         SofaThreadPoolExecutor sofaThreadPoolExecutor1 = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(2));
-        sofaThreadPoolExecutor1.setThreadFactory(new NamespaceNamedThreadFactory("test", "none"));
+        sofaThreadPoolExecutor1.setThreadFactory(new SpaceNamedThreadFactory("test", "none"));
         String threadName1 = (String) sofaThreadPoolExecutor1.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         SofaThreadPoolExecutor sofaThreadPoolExecutor2 = new SofaThreadPoolExecutor(1, 4, 10, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(2), "test", "none");
