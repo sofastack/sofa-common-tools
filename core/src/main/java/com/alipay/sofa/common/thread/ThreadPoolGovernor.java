@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.thread;
 
 import com.alipay.sofa.common.thread.log.ThreadLogger;
-import com.alipay.sofa.common.thread.namespace.ThreadPoolNamespace;
+import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 import com.alipay.sofa.common.utils.StringUtil;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public class ThreadPoolGovernor {
 
     private final ConcurrentHashMap<String, ThreadPoolMonitorWrapper>   registry           = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, ThreadPoolNamespace>        namespaceMap       = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ThreadPoolSpace>        spaceNameMap       = new ConcurrentHashMap<>();
 
     private volatile long                                                        governorPeriod = DEFAULT_GOVERNOR_INTERVAL;
 
@@ -200,9 +200,9 @@ public class ThreadPoolGovernor {
         } else {
             registry.get(identity).startMonitor();
             ThreadLogger.info("Thread pool with name '{}' registered", identity);
-            final String namespace = threadPoolConfig.getNamespace();
-            if (StringUtil.isNotEmpty(namespace)) {
-                namespaceMap.computeIfAbsent(namespace, k -> new ThreadPoolNamespace()).addThreadPool(identity);
+            final String spaceName = threadPoolConfig.getSpaceName();
+            if (StringUtil.isNotEmpty(spaceName)) {
+                spaceNameMap.computeIfAbsent(spaceName, k -> new ThreadPoolSpace()).addThreadPool(identity);
             }
         }
     }
@@ -222,9 +222,9 @@ public class ThreadPoolGovernor {
             threadPoolMonitorWrapper.stopMonitor();
             ThreadLogger.info("Thread pool with name '{}' unregistered", identity);
         }
-        final String namespace = threadPoolConfig.getNamespace();
-        if (StringUtil.isNotEmpty(namespace) && namespaceMap.get(namespace) != null) {
-            namespaceMap.get(namespace).removeThreadPool(identity);
+        final String spaceName = threadPoolConfig.getSpaceName();
+        if (StringUtil.isNotEmpty(spaceName) && spaceNameMap.get(spaceName) != null) {
+            spaceNameMap.get(spaceName).removeThreadPool(identity);
         }
     }
 
@@ -304,66 +304,66 @@ public class ThreadPoolGovernor {
     }
 
     /**
-     * return the namespace thread pool number，it will increase after witch get
-     * return 0 when the namespace has not registered
-     * @param namespace the namespace
-     * @return the namespace thread pool number
+     * return the spaceName thread pool number，it will increase after witch get
+     * return 0 when the spaceName has not registered
+     * @param spaceName the spaceName
+     * @return the spaceName thread pool number
      */
-    public int getNamespaceThreadPoolNumber(String namespace) {
-        ThreadPoolNamespace threadPoolNamespace = namespaceMap.get(namespace);
-        if (threadPoolNamespace == null) {
-            ThreadLogger.error("Thread pool with namespace '{}' is not registered yet, return 0", namespace);
+    public int getSpaceNameThreadPoolNumber(String spaceName) {
+        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        if (threadPoolSpace == null) {
+            ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet, return 0", spaceName);
             return 0;
         } else {
-            return threadPoolNamespace.getThreadPoolNumber();
+            return threadPoolSpace.getThreadPoolNumber();
         }
     }
 
     /**
-     * start monitor all thread pool in the namespace
-     * @param namespace the namespace
+     * start monitor all thread pool in the spaceName
+     * @param spaceName the spaceName
      */
-    public void startMonitorThreadPoolByNamespace(String namespace) {
-        ThreadPoolNamespace threadPoolNamespace = namespaceMap.get(namespace);
-        if (threadPoolNamespace == null || threadPoolNamespace.getThreadPoolIdentities().isEmpty()) {
-            ThreadLogger.error("Thread pool with namespace '{}' is not registered yet", namespace);
+    public void startMonitorThreadPoolBySpaceName(String spaceName) {
+        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
+            ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
         }
-        threadPoolNamespace.getThreadPoolIdentities().forEach(this::startMonitorThreadPool);
-        ThreadLogger.info("Thread pool with namespace '{}' started", namespace);
+        threadPoolSpace.getThreadPoolIdentities().forEach(this::startMonitorThreadPool);
+        ThreadLogger.info("Thread pool with spaceName '{}' started", spaceName);
     }
 
     /**
-     * stop monitor all thread pool in the namespace
-     * @param namespace the namespace
+     * stop monitor all thread pool in the spaceName
+     * @param spaceName the spaceName
      */
-    public void stopMonitorThreadPoolByNamespace(String namespace) {
-        ThreadPoolNamespace threadPoolNamespace = namespaceMap.get(namespace);
-        if (threadPoolNamespace == null || threadPoolNamespace.getThreadPoolIdentities().isEmpty()) {
-            ThreadLogger.error("Thread pool with namespace '{}' is not registered yet", namespace);
+    public void stopMonitorThreadPoolBySpaceName(String spaceName) {
+        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
+            ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
         }
-        threadPoolNamespace.getThreadPoolIdentities().forEach(this::stopMonitorThreadPool);
-        ThreadLogger.info("Thread pool with namespace '{}' stopped", namespace);
+        threadPoolSpace.getThreadPoolIdentities().forEach(this::stopMonitorThreadPool);
+        ThreadLogger.info("Thread pool with spaceName '{}' stopped", spaceName);
     }
 
     /**
-     * update the monitor params and restart all thread pool in the namespace
-     * @param namespace the namespace
+     * update the monitor params and restart all thread pool in the spaceName
+     * @param spaceName the spaceName
      */
-    public void setMonitorThreadPoolByNamespace(String namespace, long period) {
-        ThreadPoolNamespace threadPoolNamespace = namespaceMap.get(namespace);
-        if (threadPoolNamespace == null || threadPoolNamespace.getThreadPoolIdentities().isEmpty()) {
-            ThreadLogger.error("Thread pool with namespace '{}' is not registered yet", namespace);
+    public void setMonitorThreadPoolBySpaceName(String spaceName, long period) {
+        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
+            ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
         }
-        threadPoolNamespace.getThreadPoolIdentities().forEach(identity -> {
+        threadPoolSpace.getThreadPoolIdentities().forEach(identity -> {
             ThreadPoolMonitorWrapper wrapper = getThreadPoolMonitorWrapper(identity);
             if (wrapper != null) {
                 wrapper.getThreadPoolConfig().setPeriod(period);
                 restartMonitorThreadPool(identity);
             }
         });
-        ThreadLogger.info("Thread pool with namespace '{}' rescheduled with period '{}'", namespace, period);
+        ThreadLogger.info("Thread pool with spaceName '{}' rescheduled with period '{}'", spaceName, period);
     }
 }

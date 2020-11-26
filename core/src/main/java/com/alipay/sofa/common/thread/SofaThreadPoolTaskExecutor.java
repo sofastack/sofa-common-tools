@@ -36,7 +36,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 
     protected String                 threadPoolName;
 
-    protected String                 namespace;
+    protected String                 spaceName;
 
     protected long                   taskTimeout;
 
@@ -60,7 +60,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         if (taskDecorator != null) {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, namespace, taskTimeout, period,
+                rejectedExecutionHandler, threadPoolName, spaceName, taskTimeout, period,
                 TimeUnit.MILLISECONDS) {
                 @Override
                 public void execute(Runnable command) {
@@ -70,7 +70,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         } else {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, namespace, taskTimeout, period,
+                rejectedExecutionHandler, threadPoolName, spaceName, taskTimeout, period,
                 TimeUnit.MILLISECONDS);
         }
 
@@ -99,14 +99,14 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         }
     }
 
-    public String getNamespace() {
-        return namespace;
+    public String getSpaceName() {
+        return spaceName;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public void setSpaceName(String spaceName) {
+        this.spaceName = spaceName;
         if (sofaThreadPoolExecutor != null) {
-            sofaThreadPoolExecutor.updateNamespace(namespace);
+            sofaThreadPoolExecutor.updateSpaceName(spaceName);
         }
     }
 

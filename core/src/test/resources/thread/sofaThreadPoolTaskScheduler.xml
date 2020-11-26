@@ -11,7 +11,7 @@
         <property name="poolSize" value="5"/>
         <property name="threadNamePrefix" value="testThreadSchedulerA-"/>
         <property name="threadPoolName" value="testThreadPoolNameA"/>
-        <property name="namespace" value="testNamespaceA"/>
+        <property name="spaceName" value="testSpaceA"/>
         <property name="taskTimeout" value="2000"/>
         <property name="period" value="10000"/>
         <property name="removeOnCancelPolicy" value="true"/>

@@ -19,7 +19,7 @@ package com.alipay.sofa.common.thread.construct;
 import com.alipay.sofa.common.thread.SofaScheduledThreadPoolExecutor;
 import com.alipay.sofa.common.thread.SofaThreadPoolConstants;
 import com.alipay.sofa.common.thread.ThreadPoolTestBase;
-import com.alipay.sofa.common.thread.namespace.NamespaceNamedThreadFactory;
+import com.alipay.sofa.common.thread.space.SpaceNamedThreadFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
 
-    private static final Class<?>           namespaceThreadFactory = NamespaceNamedThreadFactory.class;
+    private static final Class<?>           spaceThreadFactory = SpaceNamedThreadFactory.class;
 
     private static ThreadFactory            threadFactory;
 
@@ -59,16 +59,15 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     @Test
     public void testBasicConstruct() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
-            10, threadFactory, rejectedExecutionHandler, "testThreadPool", "testNamespace", 1, 10,
+            10, threadFactory, rejectedExecutionHandler, "testThreadPool", "testSpace", 1, 10,
             TimeUnit.SECONDS);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
-        Assert.assertEquals(namespaceThreadFactory, threadPoolExecutor.getThreadFactory()
-            .getClass());
+        Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertEquals("testNamespace", threadPoolExecutor.getConfig().getNamespace());
-        Assert.assertEquals("testNamespace-testThreadPool", threadPoolExecutor.getConfig()
+        Assert.assertEquals("testSpace", threadPoolExecutor.getConfig().getSpaceName());
+        Assert.assertEquals("testSpace-testThreadPool", threadPoolExecutor.getConfig()
             .getIdentity());
         Assert.assertEquals(1, threadPoolExecutor.getConfig().getTaskTimeout());
         Assert.assertEquals(10, threadPoolExecutor.getConfig().getPeriod());
@@ -77,7 +76,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutNamespace() {
+    public void testConstructWithoutSpaceName() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, threadFactory, rejectedExecutionHandler, "testThreadPool", 1, 10, TimeUnit.SECONDS);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -85,7 +84,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getIdentity());
         Assert.assertEquals(1, threadPoolExecutor.getConfig().getTaskTimeout());
         Assert.assertEquals(10, threadPoolExecutor.getConfig().getPeriod());
@@ -96,15 +95,14 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     @Test
     public void testConstructWithoutMonitorParams() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
-            10, threadFactory, rejectedExecutionHandler, "testThreadPool", "testNamespace");
+            10, threadFactory, rejectedExecutionHandler, "testThreadPool", "testSpace");
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
-        Assert.assertEquals(namespaceThreadFactory, threadPoolExecutor.getThreadFactory()
-            .getClass());
+        Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertEquals("testNamespace", threadPoolExecutor.getConfig().getNamespace());
-        Assert.assertEquals("testNamespace-testThreadPool", threadPoolExecutor.getConfig()
+        Assert.assertEquals("testSpace", threadPoolExecutor.getConfig().getSpaceName());
+        Assert.assertEquals("testSpace-testThreadPool", threadPoolExecutor.getConfig()
             .getIdentity());
         Assert.assertEquals(SofaThreadPoolConstants.DEFAULT_TASK_TIMEOUT, threadPoolExecutor
             .getConfig().getTaskTimeout());
@@ -116,7 +114,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutNamespaceAndMonitorParams() {
+    public void testConstructWithoutSpaceNameAndMonitorParams() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, threadFactory, rejectedExecutionHandler, "testThreadPool");
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -124,7 +122,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getIdentity());
         Assert.assertEquals(SofaThreadPoolConstants.DEFAULT_TASK_TIMEOUT, threadPoolExecutor
             .getConfig().getTaskTimeout());
@@ -138,15 +136,14 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     @Test
     public void testConstructWithoutThreadFactoryAndRejectedExecutionHandler() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
-            10, "testThreadPool", "testNamespace");
+            10, "testThreadPool", "testSpace");
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
-        Assert.assertEquals(namespaceThreadFactory, threadPoolExecutor.getThreadFactory()
-            .getClass());
+        Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
         Assert.assertEquals(defaultRejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertEquals("testNamespace", threadPoolExecutor.getConfig().getNamespace());
-        Assert.assertEquals("testNamespace-testThreadPool", threadPoolExecutor.getConfig()
+        Assert.assertEquals("testSpace", threadPoolExecutor.getConfig().getSpaceName());
+        Assert.assertEquals("testSpace-testThreadPool", threadPoolExecutor.getConfig()
             .getIdentity());
         Assert.assertEquals(SofaThreadPoolConstants.DEFAULT_TASK_TIMEOUT, threadPoolExecutor
             .getConfig().getTaskTimeout());
@@ -158,7 +155,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutNamespaceAndThreadFactoryAndRejectedExecutionHandler() {
+    public void testConstructWithoutSpaceNameAndThreadFactoryAndRejectedExecutionHandler() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, "testThreadPool");
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -166,7 +163,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertEquals(defaultRejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getIdentity());
         Assert.assertEquals(SofaThreadPoolConstants.DEFAULT_TASK_TIMEOUT, threadPoolExecutor
             .getConfig().getTaskTimeout());
@@ -178,7 +175,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutThreadPoolNameAndNamespaceAndThreadFactoryAndRejectedExecutionHandler() {
+    public void testConstructWithoutThreadPoolNameAndSpaceNameAndThreadFactoryAndRejectedExecutionHandler() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(10);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
         Assert.assertEquals(defaultThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
@@ -187,7 +184,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
@@ -201,7 +198,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutThreadPoolNameAndNamespaceAndRejectedExecutionHandler() {
+    public void testConstructWithoutThreadPoolNameAndSpaceNameAndRejectedExecutionHandler() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, threadFactory);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -211,7 +208,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
@@ -225,7 +222,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutThreadPoolNameAndNamespaceAndThreadFactory() {
+    public void testConstructWithoutThreadPoolNameAndSpaceNameAndThreadFactory() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, rejectedExecutionHandler);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -235,7 +232,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
@@ -249,7 +246,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
     }
 
     @Test
-    public void testConstructWithoutThreadPoolNameAndNamespace() {
+    public void testConstructWithoutThreadPoolNameAndSpaceName() {
         SofaScheduledThreadPoolExecutor threadPoolExecutor = new SofaScheduledThreadPoolExecutor(
             10, threadFactory, rejectedExecutionHandler);
         Assert.assertEquals(10, threadPoolExecutor.getCorePoolSize());
@@ -259,7 +256,7 @@ public class SofaScheduledTreadPoolExecutorConstructsTest extends ThreadPoolTest
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));
-        Assert.assertNull(threadPoolExecutor.getConfig().getNamespace());
+        Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertTrue(Pattern.matches(SofaScheduledThreadPoolExecutor.class.getSimpleName()
                                           + "\\S+", threadPoolExecutor.getConfig()
             .getThreadPoolName()));

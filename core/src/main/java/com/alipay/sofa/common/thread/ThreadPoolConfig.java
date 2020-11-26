@@ -33,7 +33,7 @@ public class ThreadPoolConfig {
 
     private String   threadPoolName;
 
-    private String   namespace;
+    private String   spaceName;
 
     private long     taskTimeout;
 
@@ -51,16 +51,16 @@ public class ThreadPoolConfig {
 
     public ThreadPoolConfig(SofaThreadConfigBuilder builder) {
         this.threadPoolName = builder.threadPoolName;
-        this.namespace = builder.namespace;
+        this.spaceName = builder.spaceName;
         this.taskTimeout = builder.taskTimeout == 0 ? DEFAULT_TASK_TIMEOUT : builder.taskTimeout;
         this.period = builder.period == 0 ? DEFAULT_PERIOD : builder.period;
         this.timeUnit = builder.timeUnit == null ? TimeUnit.MILLISECONDS : builder.timeUnit;
         this.taskTimeoutMilli = this.timeUnit.toMillis(this.taskTimeout);
-        this.identity = buildIdentity(this.threadPoolName, this.namespace);
+        this.identity = buildIdentity(this.threadPoolName, this.spaceName);
     }
 
     /**
-     * The unique identity for the thread pool, generate by the threadPoolName and the namespace
+     * The unique identity for the thread pool, generate by the threadPoolName and the spaceName
      * @return the identity
      */
     public String getIdentity() {
@@ -68,7 +68,7 @@ public class ThreadPoolConfig {
     }
 
     /**
-     * The name of the thread pool，it's unique in one namespace
+     * The name of the thread pool，it's unique in one spaceName
      * @return the threadPoolName
      */
     public String getThreadPoolName() {
@@ -76,11 +76,11 @@ public class ThreadPoolConfig {
     }
 
     /**
-     * The namespace of the thread pool, it's unique
-     * @return the namespace
+     * The spaceName of the thread pool, it's unique
+     * @return the spaceName
      */
-    public String getNamespace() {
-        return namespace;
+    public String getSpaceName() {
+        return spaceName;
     }
 
     /**
@@ -117,12 +117,12 @@ public class ThreadPoolConfig {
 
     public void setThreadPoolName(String threadPoolName) {
         this.threadPoolName = threadPoolName;
-        this.identity = buildIdentity(this.threadPoolName, this.namespace);
+        this.identity = buildIdentity(this.threadPoolName, this.spaceName);
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-        this.identity = buildIdentity(this.threadPoolName, this.namespace);
+    public void setSpaceName(String spaceName) {
+        this.spaceName = spaceName;
+        this.identity = buildIdentity(this.threadPoolName, this.spaceName);
     }
 
     public void setTaskTimeout(long taskTimeout) {
@@ -145,18 +145,18 @@ public class ThreadPoolConfig {
      * The generate method of the identity
      * @return the generated identity
      */
-    public static String buildIdentity(String threadPoolName, String namespace) {
-        if (StringUtil.isEmpty(namespace)) {
+    public static String buildIdentity(String threadPoolName, String spaceName) {
+        if (StringUtil.isEmpty(spaceName)) {
             return threadPoolName;
         }
-        return namespace + "-" + threadPoolName;
+        return spaceName + "-" + threadPoolName;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ThreadPoolConfig{");
         sb.append("threadPoolName='").append(threadPoolName).append('\'');
-        sb.append(", namespace='").append(namespace).append('\'');
+        sb.append(", spaceName='").append(spaceName).append('\'');
         sb.append(", taskTimeout=").append(taskTimeout);
         sb.append(", period=").append(period);
         sb.append(", timeUnit=").append(timeUnit);
@@ -168,7 +168,7 @@ public class ThreadPoolConfig {
 
     public static final class SofaThreadConfigBuilder {
         private String   threadPoolName;
-        private String   namespace;
+        private String   spaceName;
         private long     taskTimeout;
         private long     period;
         private TimeUnit timeUnit;
@@ -181,8 +181,8 @@ public class ThreadPoolConfig {
             return this;
         }
 
-        public SofaThreadConfigBuilder namespace(String namespace) {
-            this.namespace = namespace;
+        public SofaThreadConfigBuilder spaceName(String spaceName) {
+            this.spaceName = spaceName;
             return this;
         }
 
