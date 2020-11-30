@@ -34,7 +34,8 @@ import org.slf4j.Logger;
 public class LoggerSpaceFactory4LogbackBuilderTest extends AbstraceLogTestBase {
 
     LoggerSpaceFactory4LogbackBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
-                                                                            new SpaceId("test"),
+                                                                            new SpaceId(
+                                                                                "com.alipay.sofa.rpc"),
                                                                             new SpaceInfo().putAll(LogEnvUtils
                                                                                 .processGlobalSystemLogProperties()));
 
@@ -86,7 +87,7 @@ public class LoggerSpaceFactory4LogbackBuilderTest extends AbstraceLogTestBase {
             LogEnvUtils.processGlobalSystemLogProperties());
 
         loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(new SpaceId(
-            "test"), spaceInfo);
+            "com.alipay.sofa.rpc"), spaceInfo);
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4LogbackBuilder.build(
             "com.alipay.sofa.rpc", this.getClass().getClassLoader());
         Logger logger = loggerSpaceFactory.getLogger("com.foo.Bar");
