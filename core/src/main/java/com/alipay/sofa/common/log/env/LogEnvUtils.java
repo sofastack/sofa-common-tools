@@ -212,4 +212,10 @@ public final class LogEnvUtils {
         return isSofaCommonLoggingPrefix(key) || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
                || key.equals(LOG_ENCODING_PROP_KEY);
     }
+
+    // Use isSofaCommonLoggingConfig instead
+    @Deprecated
+    public static boolean filterAllLogConfig(String key) {
+        return isSofaCommonLoggingConfig(key);
+    }
 }
