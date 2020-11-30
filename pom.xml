@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa.common</groupId>
     <artifactId>sofa-common-tools-parent</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <modules>
         <module>core</module>
     </modules>
@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.1.7</logback.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <common.tools.version>1.2.1</common.tools.version>
+        <common.tools.version>1.2.2</common.tools.version>
         <log4j2.version>2.13.3</log4j2.version>
         <java.version>1.8</java.version>
     </properties>
