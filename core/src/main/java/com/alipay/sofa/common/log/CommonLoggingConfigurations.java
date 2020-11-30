@@ -18,9 +18,11 @@ package com.alipay.sofa.common.log;
 
 import com.alipay.sofa.common.utils.StringUtil;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
@@ -31,7 +33,7 @@ public class CommonLoggingConfigurations {
     private static Set<String>               loggerConsoleWhiteSet;
 
     // For configurations from outside, especially Spring Boot
-    private final static Map<String, String> externalConfigurations = new HashMap<>();
+    private final static Map<String, String> externalConfigurations = new ConcurrentHashMap<>();
 
     /**
      * Subsequent same invocation will override previous value
@@ -48,6 +50,34 @@ public class CommonLoggingConfigurations {
 
     public static void setLoggerConsoleWhiteSet(Set<String> set) {
         loggerConsoleWhiteSet = set;
+    }
+
+    public static void appendConsoleLoggerName(String loggerName) {
+        if (loggerConsoleWhiteSet == null) {
+            synchronized (CommonLoggingConfigurations.class) {
+                if (loggerConsoleWhiteSet == null) {
+                    loggerConsoleWhiteSet = Collections.synchronizedSet(new HashSet<>());
+                }
+            }
+        }
+
+        loggerConsoleWhiteSet.add(loggerName);
+    }
+
+    public static void addAllConsoleLogger(Set<String> set) {
+        if (loggerConsoleWhiteSet == null) {
+            synchronized (CommonLoggingConfigurations.class) {
+                if (loggerConsoleWhiteSet == null) {
+                    loggerConsoleWhiteSet = Collections.synchronizedSet(new HashSet<>());
+                }
+            }
+        }
+
+        loggerConsoleWhiteSet.addAll(set);
+    }
+
+    public static Set<String> getLoggerConsoleWhiteSet() {
+        return loggerConsoleWhiteSet;
     }
 
     public static boolean shouldAttachConsoleAppender(String loggerName) {
