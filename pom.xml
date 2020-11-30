@@ -21,6 +21,14 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+        <repository>
+            <id>nexus-server@alipay-dev</id>
+            <name>alipay dev Repository</name>
+            <url>http://mvn.dev.alipay.net/artifactory/content/repositories/middleware</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.1.7</logback.version>

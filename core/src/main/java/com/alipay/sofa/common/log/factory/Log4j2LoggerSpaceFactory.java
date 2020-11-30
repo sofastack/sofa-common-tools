@@ -167,6 +167,11 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return getLogger(loggerName);
     }
 
+    @Deprecated
+    public void reInitialize(Map<String, String> environment) {
+        // for compatibility
+    }
+
     @Override
     public Logger getLogger(String name) {
         Logger logger = loggerMap.get(name);

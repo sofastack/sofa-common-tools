@@ -136,6 +136,11 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return logbackLogger;
     }
 
+    @Deprecated
+    public void reInitialize(Map<String, String> environment) {
+        // for compatibility
+    }
+
     private Level toLogbackLevel(AdapterLevel adapterLevel) {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to logback.");
