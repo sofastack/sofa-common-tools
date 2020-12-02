@@ -14,26 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
+package com.alipay.sofa.common.config.source;
+
+import com.alipay.sofa.common.config.AbstractConfigSource;
+import com.alipay.sofa.common.utils.StringUtil;
 
 /**
  * @author zhaowang
- * @version : SystemPropertyConfigSource.java, v 0.1 2020年10月21日 2:39 下午 zhaowang Exp $
+ * @version : SystemEnvConfigSource.java, v 0.1 2020年12月01日 1:42 下午 zhaowang Exp $
  */
-public class SystemPropertyConfigSource extends AbstractConfigSource {
+public class SystemEnvConfigSource extends AbstractConfigSource {
     @Override
     public String doGetConfig(String key) {
-        return System.getProperty(key);
+        return System.getenv(key);
     }
 
-    //数字越小，优先级越高
     @Override
-    public int getOrder() {
-        return 200;
+    public boolean hasKey(String key) {
+        String env = System.getenv(key);
+        return StringUtil.isNotBlank(env);
     }
 
     @Override
     public String getName() {
-        return "SystemProperty";
+        return "SystemEnv";
+    }
+
+    @Override
+    public int getOrder() {
+        return ConfigSourceOrder.SYSTEM_ENV;
     }
 }

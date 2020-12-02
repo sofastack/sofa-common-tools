@@ -32,18 +32,19 @@ public class SofaConfig<T> {
 
     private final String   description;
 
-    private T              value;
-
     /**
-     * change in this config will take effect at runtime
-     * todo add listener
+     * Indicate that if change this configSource will take effect at runtime
      */
     private final boolean  instantly;
 
     public SofaConfig(String key, String[] alias, T defaultValue, boolean instantly,
                       String description) {
         this.key = key;
-        this.alias = alias;
+        if (null == alias) {
+            this.alias = new String[0];
+        } else {
+            this.alias = alias;
+        }
         this.defaultValue = defaultValue;
         this.instantly = instantly;
         this.description = description;
@@ -79,16 +80,6 @@ public class SofaConfig<T> {
 
     public boolean isInstantly() {
         return instantly;
-    }
-
-    public T getOrDefault() {
-        return SofaCommonConfig.getInstance().getOrDefault(this);
-    }
-
-    public static class Value<T> {
-        private T            value;
-        private ConfigSource configSource;
-
     }
 
 }

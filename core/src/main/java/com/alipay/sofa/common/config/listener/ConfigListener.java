@@ -14,22 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
+package com.alipay.sofa.common.config.listener;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
 import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.SofaConfig;
+import com.alipay.sofa.common.utils.Ordered;
+
+import java.util.List;
 
 /**
  * @author zhaowang
- * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
+ * @version : ConfigListener.java, v 0.1 2020年12月01日 11:43 上午 zhaowang Exp $
  */
-public interface CommonConfig {
+public interface ConfigListener extends Ordered {
 
-    <T> T getOrDefault(SofaConfig<T> key);
-
-    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
-
-    void addConfigSource(ConfigSource configSource);
-
-    void addConfigListener(ConfigListener configListener);
+    /**
+     * Do some thing when loaded config
+     * @param key key of config
+     * @param configSource config source which config loads from
+     * @param configSourceList all config sources
+     */
+    void onLoadedConfig(SofaConfig key, ConfigSource configSource,
+                        List<ConfigSource> configSourceList);
 }

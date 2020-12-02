@@ -14,22 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
+package com.alipay.sofa.common.config.source;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.AbstractConfigSource;
+import com.alipay.sofa.common.utils.StringUtil;
 
 /**
  * @author zhaowang
- * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
+ * @version : SystemPropertyConfigSource.java, v 0.1 2020年10月21日 2:39 下午 zhaowang Exp $
  */
-public interface CommonConfig {
+public class SystemPropertyConfigSource extends AbstractConfigSource {
+    @Override
+    public String doGetConfig(String key) {
+        return System.getProperty(key);
+    }
 
-    <T> T getOrDefault(SofaConfig<T> key);
+    @Override
+    public boolean hasKey(String key) {
+        String property = System.getProperty(key);
+        return StringUtil.isNotBlank(property);
+    }
 
-    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
+    //数字越小，优先级越高
+    @Override
+    public int getOrder() {
+        return ConfigSourceOrder.SYSTEM_PROPERTY;
+    }
 
-    void addConfigSource(ConfigSource configSource);
-
-    void addConfigListener(ConfigListener configListener);
+    @Override
+    public String getName() {
+        return "SystemProperty";
+    }
 }

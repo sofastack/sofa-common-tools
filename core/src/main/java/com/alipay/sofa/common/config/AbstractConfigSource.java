@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.config;
 
+import com.alipay.sofa.common.config.source.ConfigSource;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,29 +42,35 @@ public abstract class AbstractConfigSource implements ConfigSource {
 
     }
 
-    protected <T> String getStringConfig(SofaConfig<T> key) {
+    @Override
+    public String getStringConfig(SofaConfig key) {
         String value = doGetConfig(key.getKey());
         if (StringUtil.isNotBlank(value)) {
-            logConfigGet(value, value);
             return value;
         }
 
         for (String alias : key.getAlias()) {
             value = doGetConfig(alias);
             if (StringUtil.isNotBlank(value)) {
-                logConfigGetWarn(alias, value);
                 return value;
             }
         }
         return value;
     }
 
-    protected void logConfigGetWarn(String key, String value) {
-        LOGGER.warn("Get config from {} ,key = {} , value = {}", getName(), key, value);
-    }
-
-    protected void logConfigGet(String key, String value) {
-        LOGGER.info("Get config from {} ,key = {} , value = {}", getName(), key, value);
+    @Override
+    public String getEffectiveKey(SofaConfig sofaConfig) {
+        String key = sofaConfig.getKey();
+        if (hasKey(key)) {
+            return key;
+        }
+        String[] alias = sofaConfig.getAlias();
+        for (String alia : alias) {
+            if (hasKey(alia)) {
+                return alia;
+            }
+        }
+        return "";
     }
 
     @SuppressWarnings("unchecked")
@@ -74,6 +81,7 @@ public abstract class AbstractConfigSource implements ConfigSource {
         if (targetType == null) {
             return (T) value;
         }
+        //todo do not use spring class
         ConversionService conversionServiceToUse = this.conversionService;
         if (conversionServiceToUse == null) {
             // Avoid initialization of shared DefaultConversionService if
@@ -87,4 +95,6 @@ public abstract class AbstractConfigSource implements ConfigSource {
     }
 
     public abstract String doGetConfig(String key);
+
+    public abstract boolean hasKey(String key);
 }

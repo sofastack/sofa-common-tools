@@ -14,18 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
+package com.alipay.sofa.common.config.log;
 
-import com.alipay.sofa.common.utils.Ordered;
+import com.alipay.sofa.common.log.LoggerSpaceManager;
+import com.alipay.sofa.common.utils.StringUtil;
+import org.slf4j.Logger;
 
 /**
  * @author zhaowang
- * @version : ConfigSource.java, v 0.1 2020年10月20日 7:57 下午 zhaowang Exp $
+ * @version : ConfigLoggerFactory.java, v 0.1 2020年12月01日 2:33 下午 zhaowang Exp $
  */
-//todo 自己实现 Ordered
-public interface ConfigSource extends Ordered {
+public class ConfigLoggerFactory {
+    private static final String COMMON_CONFIG_LOG_SPACE = "com.alipay.sofa.common.config";
 
-    <T> T getConfig(SofaConfig<T> key);
+    public static Logger getLogger(String name) {
+        if (StringUtil.isEmpty(name)) {
+            return null;
+        }
 
-    String getName();
+        return LoggerSpaceManager.getLoggerBySpace(name, COMMON_CONFIG_LOG_SPACE);
+    }
+
+    public static Logger getLogger(Class<?> klass) {
+        if (klass == null) {
+            return null;
+        }
+
+        return getLogger(klass.getCanonicalName());
+    }
+
 }

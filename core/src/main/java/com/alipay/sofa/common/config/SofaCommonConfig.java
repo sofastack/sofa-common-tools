@@ -16,67 +16,44 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.utils.OrderComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.LinkedList;
-import java.util.List;
+import com.alipay.sofa.common.config.listener.ConfigListener;
+import com.alipay.sofa.common.config.listener.LogConfigListener;
+import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.source.SystemEnvConfigSource;
+import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
 
 /**
  * @author zhaowang
- * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
+ * @version : SofaCommonConfig.java, v 0.1 2020年12月01日 11:54 上午 zhaowang Exp $
  */
-public class SofaCommonConfig implements CommonConfig {
+public class SofaCommonConfig {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SofaCommonConfig.class);
+    private static final InnerSofaCommonConfig INSTANCE;
 
-
-    private static final SofaCommonConfig INSTANCE;
-
-    static{
-        INSTANCE = new SofaCommonConfig();
+    static {
+        INSTANCE = new InnerSofaCommonConfig();
+        // add ConfigSource
         INSTANCE.addConfigSource(new SystemPropertyConfigSource());
+        INSTANCE.addConfigSource(new SystemEnvConfigSource());
+
+        // add ConfigListener
+        INSTANCE.addConfigListener(new LogConfigListener());
     }
 
-    List<ConfigSource> configSources = new LinkedList<>();
-
-    public static SofaCommonConfig getInstance(){
-        return INSTANCE;
+    public static <T> T getOrDefault(SofaConfig<T> key) {
+        return INSTANCE.getOrDefault(key);
     }
 
-    @Override
-    public <T> T getOrDefault(SofaConfig<T> key) {
-        return getConfig(key,key.getDefaultValue());
+    public static <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault) {
+        return INSTANCE.getOrCustomDefault(key, customDefault);
     }
 
-    @Override
-    public <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault) {
-        return getConfig(key,customDefault);
+    public static void addConfigSource(ConfigSource configSource) {
+        INSTANCE.addConfigSource(configSource);
     }
 
-    public <T> T getConfig(SofaConfig<T> key, T defaultValue) {
-        T result = null;
-        for (ConfigSource configSource : configSources) {
-            result = configSource.getConfig(key);
-            if(result != null){
-                return result;
-            }
-        }
-
-        if(!key.getDefaultValue().equals(defaultValue)){
-            LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",key.toString(),key.getDefaultValue(),defaultValue);
-        }
-        return defaultValue;
+    public static void addConfigListener(ConfigListener configListener) {
+        INSTANCE.addConfigListener(configListener);
     }
-
-
-
-    @Override
-    public void addConfigSource(ConfigSource configSource) {
-        configSources.add(configSource);
-        OrderComparator.sort(configSources);
-    }
-
 
 }

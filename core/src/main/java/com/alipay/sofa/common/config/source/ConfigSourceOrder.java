@@ -14,22 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
-
-import com.alipay.sofa.common.config.listener.ConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
+package com.alipay.sofa.common.config.source;
 
 /**
  * @author zhaowang
- * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
+ * @version : ConfigSourceOrder.java, v 0.1 2020年12月01日 1:50 下午 zhaowang Exp $
  */
-public interface CommonConfig {
+public class ConfigSourceOrder {
 
-    <T> T getOrDefault(SofaConfig<T> key);
-
-    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
-
-    void addConfigSource(ConfigSource configSource);
-
-    void addConfigListener(ConfigListener configListener);
+    public static final int SYSTEM_PROPERTY = 100;
+    public static final int SYSTEM_ENV      = 200;
 }

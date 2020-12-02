@@ -16,20 +16,33 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.log.ConfigLoggerFactory;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
 
 /**
  * @author zhaowang
- * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
+ * @version : ConfigLoggerFactoryTest.java, v 0.1 2020年12月02日 2:50 下午 zhaowang Exp $
  */
-public interface CommonConfig {
+public class ConfigLoggerFactoryTest {
 
-    <T> T getOrDefault(SofaConfig<T> key);
+    @Test
+    public void test() {
+        String name = null;
+        Logger logger = ConfigLoggerFactory.getLogger(name);
+        Assert.assertNull(logger);
+        name = "com";
+        logger = ConfigLoggerFactory.getLogger(name);
+        Assert.assertNotNull(logger);
 
-    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
+        Class klass = null;
+        logger = ConfigLoggerFactory.getLogger(klass);
+        Assert.assertNull(logger);
 
-    void addConfigSource(ConfigSource configSource);
+        klass = ConfigLoggerFactoryTest.class;
+        logger = ConfigLoggerFactory.getLogger(klass);
+        Assert.assertNotNull(logger);
 
-    void addConfigListener(ConfigListener configListener);
+    }
 }
