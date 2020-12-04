@@ -24,7 +24,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +53,7 @@ public class ProfileTest {
         File logFile = new File(userHome + File.separator + appName1 + File.separator
                                 + "common-default.log");
         try {
-            FileUtils.write(logFile, "");
+            FileUtils.write(logFile, "", Charset.defaultCharset());
         } catch (IOException e) {
             // ignore
         }
@@ -56,7 +61,7 @@ public class ProfileTest {
         SpaceId spaceId1 = new SpaceId(RPC_LOG_SPACE);
         spaceId1.withTag("logging.test.path", userHome);
         spaceId1.withTag("appname", appName1);
-        Map<String, String> properties1 = new HashMap<String, String>();
+        Map<String, String> properties1 = new HashMap<>();
         properties1.put("logging.test.path", userHome);
         properties1.put("appname", appName1);
 
@@ -68,7 +73,6 @@ public class ProfileTest {
         Profiler.enter("line2");
         Profiler.release();
         Profiler.enter("line3");
-
         Profiler.release();
 
         try {
@@ -79,13 +83,11 @@ public class ProfileTest {
         Profiler.release();
         if (Profiler.getDuration() > 3000) {
             logger.info(Profiler.dump());
-
         }
-
         Profiler.reset();
 
         Scanner scanner = new Scanner(new BufferedReader(new FileReader(logFile)));
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         while (scanner.hasNext()) {
             list.add(scanner.nextLine());
         }

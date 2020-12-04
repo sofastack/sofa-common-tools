@@ -43,7 +43,7 @@ public class LoggerSpaceManagerUsageTest {
     private static File         logFile2      = new File(userHome + File.separator + appName2
                                                          + File.separator + "common-default.log");
 
-    private SpaceId spaceId1;
+    private SpaceId             spaceId1;
     private Map<String, String> properties1;
 
     private SpaceId             spaceId2;

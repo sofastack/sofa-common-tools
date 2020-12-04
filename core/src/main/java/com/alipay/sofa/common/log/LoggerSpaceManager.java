@@ -22,7 +22,6 @@ import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -88,42 +87,21 @@ public class LoggerSpaceManager {
     public static Logger getLoggerBySpace(String name, SpaceId spaceId,
                                           Map<String, String> properties,
                                           ClassLoader spaceClassloader) {
-        init(spaceId, properties);
+        MultiAppLoggerSpaceManager.init(spaceId, properties, spaceClassloader);
         return MultiAppLoggerSpaceManager.getLoggerBySpace(name, spaceId, spaceClassloader);
     }
 
-    /***
-     * 更新日志级别,屏蔽底层差异
-     * @param loggerName 要更新的日志名字
-     * @param spaceName 日志对应的空间名称
-     * @param adapterLevel 要更新的日志级别
-     * @return 更新级别后的日志,与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
-     */
     public static Logger setLoggerLevel(String loggerName, String spaceName,
                                         AdapterLevel adapterLevel) {
         //init first
         return setLoggerLevel(loggerName, new SpaceId(spaceName), adapterLevel);
     }
 
-    /***
-     * 更新日志级别,屏蔽底层差异
-     * @param loggerName 要更新的日志名字
-     * @param spaceId 日志对应的空间名称
-     * @param adapterLevel 要更新的日志级别
-     * @return 更新级别后的日志,与com.alipay.sofa.common.log.MultiAppLoggerSpaceManager#getLoggerBySpace(java.lang.String, java.lang.String) 返回的同一个日志
-     */
     public static Logger setLoggerLevel(String loggerName, SpaceId spaceId,
                                         AdapterLevel adapterLevel) {
-        //init first
-        init(spaceId, Collections.<String, String> emptyMap());
         return MultiAppLoggerSpaceManager.setLoggerLevel(loggerName, spaceId, adapterLevel);
     }
 
-    /**
-     * 删除 spaceName 对应的 ILoggerFactory
-     * @param spaceName
-     * @return
-     */
     public static ILoggerFactory removeILoggerFactoryBySpaceName(String spaceName) {
         return removeILoggerFactoryBySpaceId(new SpaceId(spaceName));
     }
@@ -135,17 +113,5 @@ public class LoggerSpaceManager {
      */
     public static ILoggerFactory removeILoggerFactoryBySpaceId(SpaceId spaceId) {
         return MultiAppLoggerSpaceManager.removeILoggerFactoryBySpaceId(spaceId);
-    }
-
-    private static void init(SpaceId spaceId, Map<String, String> properties) {
-        if (MultiAppLoggerSpaceManager.isSpaceInitialized(spaceId)) {
-            return;
-        }
-        synchronized (MultiAppLoggerSpaceManager.class) {
-            if (MultiAppLoggerSpaceManager.isSpaceInitialized(spaceId)) {
-                return;
-            }
-//            MultiAppLoggerSpaceManager.doInit(spaceId, properties);
-        }
     }
 }

@@ -48,5 +48,4 @@ public class LogEnvUtilsTest extends AbstraceLogTestBase {
         Assert.assertEquals(Strings.EMPTY, LogEnvUtils.getLogConfEnvSuffix("app3"));
         Assert.assertEquals(Strings.EMPTY, LogEnvUtils.getLogConfEnvSuffix("app4"));
     }
-
 }

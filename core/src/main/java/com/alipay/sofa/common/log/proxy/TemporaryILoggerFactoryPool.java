@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by kevin.luy@alipay.com on 2016/12/5.
  */
+@Deprecated
 public class TemporaryILoggerFactoryPool {
 
     private static final ConcurrentHashMap<SpaceIdWithClassloader, TemporaryILoggerFactory> temporaryILoggerFactoryMap = new ConcurrentHashMap<SpaceIdWithClassloader, TemporaryILoggerFactory>();

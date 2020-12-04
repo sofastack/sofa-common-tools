@@ -42,10 +42,10 @@ import static com.alipay.sofa.common.log.Constants.*;
  * Updated by guanchao.ygc@alibaba-inc.com on 14/04/28.
  */
 public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFactoryBuilder {
-    private SpaceId             spaceId;
+    private SpaceId  spaceId;
     private LogSpace logSpace;
 
-    private String              spaceDirectoryPrefix;
+    private String   spaceDirectoryPrefix;
 
     public AbstractLoggerSpaceFactoryBuilder(SpaceId spaceId, LogSpace space) {
         AssertUtil.notNull(space);
@@ -113,7 +113,8 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                 configFileUrl = spaceClassloader.getResource(logConfigLocation);
             }
         } catch (Exception e) {
-            ReportUtil.reportError("Error when get resources of " + spaceName + " from classpath.", e);
+            ReportUtil.reportError("Error when get resources of " + spaceName + " from classpath.",
+                e);
         }
 
         AssertUtil.state(configFileUrl != null, this + " build error: No " + getLoggingToolName()
@@ -203,7 +204,7 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
             for (int i = LOG_LEVEL.length(); i < loggingLevelKey.length(); ++i) {
                 if (loggingLevelKey.charAt(i) == '.') {
                     String level = logSpace.getProperty(loggingLevelKey.substring(0, i + 1)
-                                                         + LOG_START);
+                                                        + LOG_START);
                     if (!StringUtil.isBlank(level)) {
                         logSpace.setProperty(loggingLevelKey, level);
                     }

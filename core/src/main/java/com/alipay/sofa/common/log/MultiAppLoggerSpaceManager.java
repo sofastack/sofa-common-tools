@@ -45,12 +45,12 @@ import static com.alipay.sofa.common.log.Constants.*;
 public class MultiAppLoggerSpaceManager {
 
     private static final AbstractLoggerSpaceFactory NOP_LOGGER_FACTORY = new AbstractLoggerSpaceFactory(
-                                                                                      "nop") {
-                                                                                      @Override
-                                                                                      public Logger getLogger(String name) {
-                                                                                          return Constants.DEFAULT_LOG;
-                                                                                      }
-                                                                                  };
+                                                                           "nop") {
+                                                                           @Override
+                                                                           public Logger getLogger(String name) {
+                                                                               return Constants.DEFAULT_LOG;
+                                                                           }
+                                                                       };
 
     /**
      * Invoke this method before using if some special configurations for the log space are needed.
@@ -72,13 +72,15 @@ public class MultiAppLoggerSpaceManager {
      */
     public static void init(SpaceId spaceId, Map<String, String> props, ClassLoader spaceClassloader) {
         if (isSpaceInitialized(spaceId)) {
-            ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName() + "\" is already initialized!");
+            ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName()
+                                  + "\" is already initialized!");
             return;
         }
 
         synchronized (MultiAppLoggerSpaceManager.class) {
             if (isSpaceInitialized(spaceId)) {
-                ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName() + "\" is already initialized!");
+                ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName()
+                                      + "\" is already initialized!");
                 return;
             }
             doInit(spaceId, props, spaceClassloader);
@@ -100,7 +102,8 @@ public class MultiAppLoggerSpaceManager {
     static void doInit(SpaceId spaceId, Map<String, String> props, ClassLoader spaceClassloader) {
         LogSpace logSpace = new LogSpace(props, spaceClassloader);
 
-        AbstractLoggerSpaceFactory loggerSpaceFactory = createILoggerFactory(spaceId, logSpace, spaceClassloader);
+        AbstractLoggerSpaceFactory loggerSpaceFactory = createILoggerFactory(spaceId, logSpace,
+            spaceClassloader);
         logSpace.setAbstractLoggerSpaceFactory(loggerSpaceFactory);
 
         SpaceManager.getSpace(spaceId).setLogSpace(logSpace);
@@ -157,7 +160,7 @@ public class MultiAppLoggerSpaceManager {
      */
     public static Logger getLoggerBySpace(String name, SpaceId spaceId, ClassLoader spaceClassloader) {
         AbstractLoggerSpaceFactory abstractLoggerSpaceFactory = getILoggerFactoryBySpaceName(
-                spaceId, spaceClassloader);
+            spaceId, spaceClassloader);
         return abstractLoggerSpaceFactory.getLogger(name);
     }
 
@@ -199,10 +202,15 @@ public class MultiAppLoggerSpaceManager {
         }
 
         LogSpace logSpace = SpaceManager.getSpace(spaceId).getLogSpace();
+
+        if (logSpace == null) {
+            return null;
+        }
+
         AbstractLoggerSpaceFactory oldFactory = logSpace.getAbstractLoggerSpaceFactory();
         logSpace.setAbstractLoggerSpaceFactory(null);
         ReportUtil.reportWarn("Log Space Name[" + spaceId.getSpaceName()
-                + "] is Removed from Current Log Space Manager!");
+                              + "] is Removed from Current Log Space Manager!");
         return oldFactory;
     }
 
@@ -214,7 +222,8 @@ public class MultiAppLoggerSpaceManager {
         return SpaceManager.getSpace(spaceId).getLogSpace() != null;
     }
 
-    private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId, LogSpace logSpace,
+    private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId,
+                                                                   LogSpace logSpace,
                                                                    ClassLoader spaceClassloader) {
         if (SOFA_MIDDLEWARE_LOG_DISABLE) {
             ReportUtil.reportWarn("Sofa-Middleware-Log is disabled!  -D"
@@ -228,51 +237,52 @@ public class MultiAppLoggerSpaceManager {
         try {
             if (LOGBACK_MIDDLEWARE_LOG_DISABLE) {
                 ReportUtil.reportWarn("Logback-Sofa-Middleware-Log is disabled! -D"
-                        + LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
+                                      + LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
             } else {
                 if (LogEnvUtils.isLogbackUsable(spaceClassloader)) {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
-                            + " Logback ]");
+                                           + " Logback ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
-                            spaceId, logSpace);
+                        spaceId, logSpace);
 
                     return loggerSpaceFactory4LogbackBuilder.build(spaceId.getSpaceName(),
-                            spaceClassloader);
+                        spaceClassloader);
                 }
             }
 
             if (LOG4J2_MIDDLEWARE_LOG_DISABLE) {
                 ReportUtil.reportWarn("Log4j2-Sofa-Middleware-Log is disabled!  -D"
-                        + LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
+                                      + LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
             } else {
                 if (LogEnvUtils.isLog4j2Usable(spaceClassloader)) {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
-                            + " Log4j2 ]");
+                                           + " Log4j2 ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
-                            spaceId, logSpace);
+                        spaceId, logSpace);
 
                     return loggerSpaceFactory4Log4j2Builder.build(spaceId.getSpaceName(),
-                            spaceClassloader);
+                        spaceClassloader);
                 }
             }
 
             if (LOG4J_MIDDLEWARE_LOG_DISABLE) {
                 ReportUtil.reportWarn("Log4j-Sofa-Middleware-Log is disabled!  -D"
-                        + LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
+                                      + LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY + "=true");
             } else {
                 if (LogEnvUtils.isLog4jUsable(spaceClassloader)) {
                     ReportUtil.reportDebug("Actual binding is of type [ " + spaceId.toString()
-                            + " Log4j ]");
+                                           + " Log4j ]");
                     LoggerSpaceFactoryBuilder loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(
-                            spaceId, logSpace);
+                        spaceId, logSpace);
 
                     return loggerSpaceFactory4Log4jBuilder.build(spaceId.getSpaceName(),
-                            spaceClassloader);
+                        spaceClassloader);
                 }
             }
             ReportUtil.reportWarn("No log util is usable, Default app logger will be used.");
         } catch (Throwable e) {
-            ReportUtil.reportError("Build ILoggerFactory error! Default app logger will be used.", e);
+            ReportUtil.reportError("Build ILoggerFactory error! Default app logger will be used.",
+                e);
         }
 
         return NOP_LOGGER_FACTORY;
