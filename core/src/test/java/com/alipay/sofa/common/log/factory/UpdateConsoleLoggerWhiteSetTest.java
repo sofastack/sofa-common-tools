@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
 import org.junit.Assert;
 import org.junit.Test;

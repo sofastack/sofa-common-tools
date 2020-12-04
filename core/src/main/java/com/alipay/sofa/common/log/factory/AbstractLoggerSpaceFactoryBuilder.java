@@ -18,13 +18,12 @@ package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.LogSpace;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.utils.AssertUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,18 +42,16 @@ import static com.alipay.sofa.common.log.Constants.*;
  * Updated by guanchao.ygc@alibaba-inc.com on 14/04/28.
  */
 public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFactoryBuilder {
-    private static final Logger logger = LoggerFactory
-                                           .getLogger(AbstractLoggerSpaceFactoryBuilder.class);
     private SpaceId             spaceId;
-    private SpaceInfo           spaceInfo;
+    private LogSpace logSpace;
 
     private String              spaceDirectoryPrefix;
 
-    public AbstractLoggerSpaceFactoryBuilder(SpaceId spaceId, SpaceInfo space) {
+    public AbstractLoggerSpaceFactoryBuilder(SpaceId spaceId, LogSpace space) {
         AssertUtil.notNull(space);
         AssertUtil.notNull(spaceId);
         this.spaceId = spaceId;
-        this.spaceInfo = space;
+        this.logSpace = space;
         spaceDirectoryPrefix = spaceId.getSpaceName().replace('.', '/') + "/" + LOG_DIRECTORY + "/"
                                + getLoggingToolName() + "/";
     }
@@ -80,20 +77,14 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                 }
             }
         } catch (IOException e) {
-            logger.warn("Error when get resources of {} from classpath", path, e);
+            ReportUtil.reportWarn("Fail to get resource of " + path + " from classpath", e);
             return null;
         }
         return rtn;
     }
 
     protected URL getSpaceLogConfigFileURL(ClassLoader spaceClassloader, String spaceName) {
-        /*
-         * customize log config file like logging.path.config.{spaceId}. it can be
-         * configured via VM option or spring boot config file. Notice that when
-         * configured via VM option and use log4j2, the configure file path must
-         * end with log4j2/log-conf-custom.xml.
-         */
-        String loggingConfig = spaceInfo.getProperty(String.format(Constants.LOGGING_CONFIG_PATH,
+        String loggingConfig = logSpace.getProperty(String.format(Constants.LOGGING_CONFIG_PATH,
             spaceId.getSpaceName()));
         if (StringUtil.isNotEmpty(loggingConfig)) {
             return spaceClassloader.getResource(loggingConfig);
@@ -122,7 +113,7 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                 configFileUrl = spaceClassloader.getResource(logConfigLocation);
             }
         } catch (Exception e) {
-            logger.warn("Error when get resources of {} from classpath", spaceName, e);
+            ReportUtil.reportError("Error when get resources of " + spaceName + " from classpath.", e);
         }
 
         AssertUtil.state(configFileUrl != null, this + " build error: No " + getLoggingToolName()
@@ -181,9 +172,7 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                 }
 
                 ConfigFile configFile = new ConfigFile(priority, logConfigUrl);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Find url {}, priority is {}", logConfigUrl, priority);
-                }
+                ReportUtil.reportDebug("Find URL " + logConfigUrl + ", priority is " + priority);
                 configFiles.add(configFile);
             }
 
@@ -198,25 +187,25 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
          * 1.space's logger path
          */
         String loggingPathKey = LOG_PATH_PREFIX + spaceName;
-        String defaultLoggingPath = spaceInfo.getProperty(LOG_PATH);
-        if (spaceInfo.getProperty(loggingPathKey) == null) {
-            spaceInfo.setProperty(IS_DEFAULT_LOG_PATH, Boolean.TRUE.toString());
-            spaceInfo.setProperty(loggingPathKey, defaultLoggingPath);
+        String defaultLoggingPath = logSpace.getProperty(LOG_PATH);
+        if (logSpace.getProperty(loggingPathKey) == null) {
+            logSpace.setProperty(IS_DEFAULT_LOG_PATH, Boolean.TRUE.toString());
+            logSpace.setProperty(loggingPathKey, defaultLoggingPath);
         }
 
         /*
          * 2.space's logger level
          */
         String loggingLevelKey = LOG_LEVEL_PREFIX + spaceName;
-        if (spaceInfo.getProperty(loggingLevelKey) == null) {
-            spaceInfo.setProperty(IS_DEFAULT_LOG_LEVEL, Boolean.TRUE.toString());
-            spaceInfo.setProperty(loggingLevelKey, DEFAULT_MIDDLEWARE_SPACE_LOG_LEVEL);
+        if (logSpace.getProperty(loggingLevelKey) == null) {
+            logSpace.setProperty(IS_DEFAULT_LOG_LEVEL, Boolean.TRUE.toString());
+            logSpace.setProperty(loggingLevelKey, DEFAULT_MIDDLEWARE_SPACE_LOG_LEVEL);
             for (int i = LOG_LEVEL.length(); i < loggingLevelKey.length(); ++i) {
                 if (loggingLevelKey.charAt(i) == '.') {
-                    String level = spaceInfo.getProperty(loggingLevelKey.substring(0, i + 1)
+                    String level = logSpace.getProperty(loggingLevelKey.substring(0, i + 1)
                                                          + LOG_START);
                     if (!StringUtil.isBlank(level)) {
-                        spaceInfo.setProperty(loggingLevelKey, level);
+                        logSpace.setProperty(loggingLevelKey, level);
                     }
                 }
             }
@@ -235,10 +224,10 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
     }
 
     protected Properties getProperties() {
-        return spaceInfo.properties();
+        return logSpace.properties();
     }
 
-    private class ConfigFile {
+    private static class ConfigFile {
         final int priority;
         final URL url;
 

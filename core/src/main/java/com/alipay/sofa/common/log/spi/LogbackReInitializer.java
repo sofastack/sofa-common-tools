@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.spi;
 
 import ch.qos.logback.classic.LoggerContext;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 
 import java.net.URL;
 import java.util.Properties;

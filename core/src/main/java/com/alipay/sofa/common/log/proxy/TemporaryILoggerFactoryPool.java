@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.proxy;
 
 import com.alipay.sofa.common.log.LoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

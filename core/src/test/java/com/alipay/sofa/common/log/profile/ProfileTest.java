@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.profile;
 
 import com.alipay.sofa.common.log.LoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.profile.diagnostic.Profiler;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;

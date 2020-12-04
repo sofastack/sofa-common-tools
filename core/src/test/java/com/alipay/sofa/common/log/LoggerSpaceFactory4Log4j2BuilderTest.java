@@ -21,6 +21,7 @@ import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4j2Builder;
+import com.alipay.sofa.common.space.SpaceId;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

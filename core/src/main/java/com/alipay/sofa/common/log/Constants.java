@@ -55,14 +55,26 @@ public interface Constants {
     String LOG_ENCODING_PROP_KEY                                 = "file.encoding";
     // disable space log
     String SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY                  = "sofa.middleware.log.disable";
+
+    boolean SOFA_MIDDLEWARE_LOG_DISABLE = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY));
+
     // disable log4j bridge to commons logging
     String LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "log4j.commons.logging.middleware.log.disable";
     // disable log4j space factory
     String LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY                 = "log4j.middleware.log.disable";
+
+    boolean LOG4J_MIDDLEWARE_LOG_DISABLE = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY));
+
     // disable log4j2 space factory
     String LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY                = "log4j2.middleware.log.disable";
+
+    boolean LOG4J2_MIDDLEWARE_LOG_DISABLE = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(LOG4J2_MIDDLEWARE_LOG_DISABLE_PROP_KEY));
+
     // disable logback space factory
     String LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY               = "logback.middleware.log.disable";
+
+    boolean LOGBACK_MIDDLEWARE_LOG_DISABLE = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(LOGBACK_MIDDLEWARE_LOG_DISABLE_PROP_KEY));
+
     // UTF-8 encoding
     String UTF8_STR                                              = "UTF-8";
     // default log path

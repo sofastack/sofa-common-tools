@@ -28,7 +28,7 @@ import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.OptionHelper;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;

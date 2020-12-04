@@ -37,7 +37,7 @@ public class LogLog {
     private static final String             ERR_PREFIX      = "Sofa-Middleware-Log:ERROR ";
     private static final String             WARN_PREFIX     = "Sofa-Middleware-Log:WARN ";
 
-    private static final Map<String, Level> LEVELS          = new HashMap<String, Level>();
+    private static final Map<String, Level> LEVELS          = new HashMap<>();
 
     private volatile static Level           consoleLogLevel = Level.WARN;
 
@@ -70,6 +70,15 @@ public class LogLog {
     public static void warn(String msg) {
         if (isWarn()) {
             System.err.println(WARN_PREFIX + msg);
+        }
+    }
+
+    public static void warn(String msg, Throwable e) {
+        if (isWarn()) {
+            System.err.println(WARN_PREFIX + msg);
+            if (e != null) {
+                e.printStackTrace();
+            }
         }
     }
 
