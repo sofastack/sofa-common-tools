@@ -25,8 +25,8 @@ import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
  * Created on 2020/12/4
  */
 public class Space {
-    private LogSpace        logSpace;
-    private ThreadPoolSpace threadPoolSpace;
+    private LogSpace            logSpace;
+    private ThreadPoolSpace     threadPoolSpace;
     private LogCode2Description logCode2Description;
 
     public LogSpace getLogSpace() {

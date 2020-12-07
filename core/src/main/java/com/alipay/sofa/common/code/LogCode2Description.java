@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.common.code;
 
 import com.alipay.sofa.common.space.SpaceId;
@@ -20,13 +36,11 @@ public class LogCode2Description {
     }
 
     public static String convert(SpaceId spaceId, String code) {
-        LogCode2Description logCode2Description;
+        LogCode2Description logCode2Description = null;
         if (isCodeSpaceInitialized(spaceId)) {
             logCode2Description = SpaceManager.getSpace(spaceId).getLogCode2Description();
         } else {
-            synchronized (SpaceManager.getSpace(spaceId)) {
-                logCode2Description = create(spaceId);
-            }
+            logCode2Description = create(spaceId);
         }
 
         return logCode2Description.convert(code);
@@ -38,13 +52,15 @@ public class LogCode2Description {
 
     public static LogCode2Description create(SpaceId spaceId) {
         if (isCodeSpaceInitialized(spaceId)) {
-            ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName() + "\" is already initialized!");
+            ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
+                                  + "\" is already initialized!");
             return SpaceManager.getSpace(spaceId).getLogCode2Description();
         }
 
         synchronized (SpaceManager.getSpace(spaceId)) {
             if (isCodeSpaceInitialized(spaceId)) {
-                ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName() + "\" is already initialized!");
+                ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
+                                      + "\" is already initialized!");
                 return SpaceManager.getSpace(spaceId).getLogCode2Description();
             }
             LogCode2Description logCode2Description = doCreate(spaceId);
@@ -77,12 +93,10 @@ public class LogCode2Description {
         }
     }
 
-    private SpaceId spaceId;
-    private String logFormat;
+    private String     logFormat;
     private Properties properties;
 
     private LogCode2Description(SpaceId spaceId) {
-        this.spaceId = spaceId;
         logFormat = spaceId.getSpaceName() + "-%s: %s";
         String prefix = spaceId.getSpaceName().replace(".", "/") + "/log-codes";
         String encoding = Locale.getDefault().toString();
@@ -96,8 +110,13 @@ public class LogCode2Description {
 
         try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties = new Properties();
-            InputStreamReader reader = new InputStreamReader(in);
-            properties.load(reader);
+
+            if (in == null) {
+                ReportUtil.reportError(String.format("Code file for CodeSpace \"%s\" doesn't exist!", spaceId.getSpaceName()));
+            } else {
+                InputStreamReader reader = new InputStreamReader(in);
+                properties.load(reader);
+            }
         } catch (Throwable e) {
             ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
         }
