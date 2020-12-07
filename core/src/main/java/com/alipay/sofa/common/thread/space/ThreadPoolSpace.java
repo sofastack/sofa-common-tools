@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread.space;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ThreadPoolSpace {
 
-    private final Set<String> threadPoolIdentities = new HashSet<>();
+    private final Set<String> threadPoolIdentities = Collections.synchronizedSet(new HashSet<>());
 
     private final AtomicInteger threadPoolNumber = new AtomicInteger(0);
 

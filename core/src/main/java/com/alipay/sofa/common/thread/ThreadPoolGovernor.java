@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread;
 
+import com.alipay.sofa.common.space.SpaceManager;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 import com.alipay.sofa.common.utils.StringUtil;
@@ -51,8 +52,6 @@ public class ThreadPoolGovernor {
     private final GovernorInfoDumper                       governorInfoDumper = new GovernorInfoDumper();
 
     private final ConcurrentHashMap<String, ThreadPoolMonitorWrapper>   registry           = new ConcurrentHashMap<>();
-
-    private final ConcurrentHashMap<String, ThreadPoolSpace>        spaceNameMap       = new ConcurrentHashMap<>();
 
     private volatile long                                                        governorPeriod = DEFAULT_GOVERNOR_INTERVAL;
 
@@ -202,7 +201,8 @@ public class ThreadPoolGovernor {
             ThreadLogger.info("Thread pool with name '{}' registered", identity);
             final String spaceName = threadPoolConfig.getSpaceName();
             if (StringUtil.isNotEmpty(spaceName)) {
-                spaceNameMap.computeIfAbsent(spaceName, k -> new ThreadPoolSpace()).addThreadPool(identity);
+                SpaceManager.getSpace(spaceName).initTreadPoolSpace();
+                SpaceManager.getSpace(spaceName).getThreadPoolSpace().addThreadPool(identity);
             }
         }
     }
@@ -223,8 +223,8 @@ public class ThreadPoolGovernor {
             ThreadLogger.info("Thread pool with name '{}' unregistered", identity);
         }
         final String spaceName = threadPoolConfig.getSpaceName();
-        if (StringUtil.isNotEmpty(spaceName) && spaceNameMap.get(spaceName) != null) {
-            spaceNameMap.get(spaceName).removeThreadPool(identity);
+        if (StringUtil.isNotEmpty(spaceName) && SpaceManager.getSpace(spaceName).getThreadPoolSpace() != null) {
+            SpaceManager.getSpace(spaceName).getThreadPoolSpace().removeThreadPool(identity);
         }
     }
 
@@ -310,7 +310,7 @@ public class ThreadPoolGovernor {
      * @return the spaceName thread pool number
      */
     public int getSpaceNameThreadPoolNumber(String spaceName) {
-        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        ThreadPoolSpace threadPoolSpace = SpaceManager.getSpace(spaceName).getThreadPoolSpace();
         if (threadPoolSpace == null) {
             ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet, return 0", spaceName);
             return 0;
@@ -324,7 +324,7 @@ public class ThreadPoolGovernor {
      * @param spaceName the spaceName
      */
     public void startMonitorThreadPoolBySpaceName(String spaceName) {
-        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        ThreadPoolSpace threadPoolSpace = SpaceManager.getSpace(spaceName).getThreadPoolSpace();
         if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
             ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
@@ -338,7 +338,7 @@ public class ThreadPoolGovernor {
      * @param spaceName the spaceName
      */
     public void stopMonitorThreadPoolBySpaceName(String spaceName) {
-        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        ThreadPoolSpace threadPoolSpace = SpaceManager.getSpace(spaceName).getThreadPoolSpace();
         if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
             ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
@@ -352,7 +352,7 @@ public class ThreadPoolGovernor {
      * @param spaceName the spaceName
      */
     public void setMonitorThreadPoolBySpaceName(String spaceName, long period) {
-        ThreadPoolSpace threadPoolSpace = spaceNameMap.get(spaceName);
+        ThreadPoolSpace threadPoolSpace = SpaceManager.getSpace(spaceName).getThreadPoolSpace();
         if (threadPoolSpace == null || threadPoolSpace.getThreadPoolIdentities().isEmpty()) {
             ThreadLogger.error("Thread pool with spaceName '{}' is not registered yet", spaceName);
             return;
