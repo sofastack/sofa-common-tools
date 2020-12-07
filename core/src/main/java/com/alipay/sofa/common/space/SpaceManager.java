@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.common.space;
 
-import com.alipay.sofa.common.log.LogSpace;
-import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 import com.alipay.sofa.common.utils.ReportUtil;
 
 import java.util.concurrent.ConcurrentHashMap;

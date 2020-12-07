@@ -72,8 +72,9 @@ public class CommonLoggingConfigurations {
                 }
             }
         }
-
-        loggerConsoleWhiteSet.addAll(set);
+        if (set != null) {
+            loggerConsoleWhiteSet.addAll(set);
+        }
     }
 
     public static Set<String> getLoggerConsoleWhiteSet() {
