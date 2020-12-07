@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.space;
 
+import com.alipay.sofa.common.code.LogCode2Description;
 import com.alipay.sofa.common.log.LogSpace;
 import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 
@@ -26,6 +27,7 @@ import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 public class Space {
     private LogSpace        logSpace;
     private ThreadPoolSpace threadPoolSpace;
+    private LogCode2Description logCode2Description;
 
     public LogSpace getLogSpace() {
         return logSpace;
@@ -41,5 +43,13 @@ public class Space {
 
     public void setThreadPoolSpace(ThreadPoolSpace threadPoolSpace) {
         this.threadPoolSpace = threadPoolSpace;
+    }
+
+    public LogCode2Description getLogCode2Description() {
+        return logCode2Description;
+    }
+
+    public void setLogCode2Description(LogCode2Description logCode2Description) {
+        this.logCode2Description = logCode2Description;
     }
 }

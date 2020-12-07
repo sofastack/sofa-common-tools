@@ -66,4 +66,8 @@ public class ReportUtil {
     public static void reportError(String msg, Throwable throwable) {
         LogLog.error(msg, throwable);
     }
+
+    public static void reportError(String msg) {
+        LogLog.error(msg, null);
+    }
 }

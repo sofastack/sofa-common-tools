@@ -77,7 +77,7 @@ public class MultiAppLoggerSpaceManager {
             return;
         }
 
-        synchronized (MultiAppLoggerSpaceManager.class) {
+        synchronized (SpaceManager.getSpace(spaceId)) {
             if (isSpaceInitialized(spaceId)) {
                 ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName()
                                       + "\" is already initialized!");

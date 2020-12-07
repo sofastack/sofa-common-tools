@@ -19,6 +19,7 @@ package com.alipay.sofa.common.space;
 import com.alipay.sofa.common.utils.AssertUtil;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Unified Space Id in sofa-common-tools to identify:
@@ -31,6 +32,7 @@ import java.util.*;
  * @since 2017/07/03
  */
 public class SpaceId {
+    private static Map<String, SpaceId> GLOBAL_SPACE_ID_CACHE = new ConcurrentHashMap<>();
 
     private final Map<String, String> tags = new HashMap<>();
 
@@ -42,7 +44,7 @@ public class SpaceId {
     }
 
     public static SpaceId withSpaceName(String spaceName) {
-        return new SpaceId(spaceName);
+        return GLOBAL_SPACE_ID_CACHE.computeIfAbsent(spaceName, SpaceId::new);
     }
 
     public SpaceId withTag(String key, String value) {
