@@ -39,7 +39,13 @@ public class Space {
         return threadPoolSpace;
     }
 
-    public void setThreadPoolSpace(ThreadPoolSpace threadPoolSpace) {
-        this.threadPoolSpace = threadPoolSpace;
+    public void initTreadPoolSpace() {
+        if (threadPoolSpace == null) {
+            synchronized (this) {
+                if (threadPoolSpace == null) {
+                    this.threadPoolSpace = new ThreadPoolSpace();
+                }
+            }
+        }
     }
 }
