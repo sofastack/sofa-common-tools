@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.common.log.spi;
 
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import java.net.URL;

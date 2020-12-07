@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.log;
 
+import com.alipay.sofa.common.space.SpaceId;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 

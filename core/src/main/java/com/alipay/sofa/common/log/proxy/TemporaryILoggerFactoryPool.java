@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.proxy;
 
 import com.alipay.sofa.common.log.LoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by kevin.luy@alipay.com on 2016/12/5.
  */
+@Deprecated
 public class TemporaryILoggerFactoryPool {
 
     private static final ConcurrentHashMap<SpaceIdWithClassloader, TemporaryILoggerFactory> temporaryILoggerFactoryMap = new ConcurrentHashMap<SpaceIdWithClassloader, TemporaryILoggerFactory>();

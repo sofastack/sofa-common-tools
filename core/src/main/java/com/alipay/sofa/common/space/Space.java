@@ -14,11 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.log.factory;
+package com.alipay.sofa.common.space;
+
+import com.alipay.sofa.common.log.LogSpace;
+import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 
 /**
- * Created by kevin.luy@alipay.com on 16/9/14.
+ * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
+ * Created on 2020/12/4
  */
-public interface LoggerSpaceFactoryBuilder {
-    AbstractLoggerSpaceFactory build(String spaceName, ClassLoader spaceClassloader);
+public class Space {
+    private LogSpace        logSpace;
+    private ThreadPoolSpace threadPoolSpace;
+
+    public LogSpace getLogSpace() {
+        return logSpace;
+    }
+
+    public void setLogSpace(LogSpace logSpace) {
+        this.logSpace = logSpace;
+    }
+
+    public ThreadPoolSpace getThreadPoolSpace() {
+        return threadPoolSpace;
+    }
+
+    public void setThreadPoolSpace(ThreadPoolSpace threadPoolSpace) {
+        this.threadPoolSpace = threadPoolSpace;
+    }
 }

@@ -18,7 +18,7 @@ package com.alipay.sofa.common.log.proxy;
 
 import com.alipay.sofa.common.utils.AssertUtil;
 import com.alipay.sofa.common.log.MultiAppLoggerSpaceManager;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import org.slf4j.Logger;
 
@@ -26,6 +26,7 @@ import org.slf4j.Logger;
  * space
  * Created by kevin.luy@alipay.com on 2016/12/1.
  */
+@Deprecated
 public class TemporaryILoggerFactory extends AbstractLoggerSpaceFactory {
 
     private final String      space;

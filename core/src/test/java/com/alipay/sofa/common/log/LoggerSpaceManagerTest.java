@@ -20,6 +20,7 @@ import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 
@@ -40,6 +41,11 @@ import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_LOG_DISABLE_P
  */
 public class LoggerSpaceManagerTest extends AbstraceLogTestBase {
 
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty(SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
+    }
+
     @Before
     @Override
     public void before() throws Exception {
@@ -54,7 +60,6 @@ public class LoggerSpaceManagerTest extends AbstraceLogTestBase {
 
     @Test
     public void TestDisableLoggerSpaceFactory() {
-        System.setProperty(SOFA_MIDDLEWARE_LOG_DISABLE_PROP_KEY, "true");
         Logger logger = LoggerSpaceManager.getLoggerBySpace("com.foo.Bar", "com.alipay.sofa.rpc");
         Logger logger2 = LoggerSpaceManager.getLoggerBySpace("com.foo.Bar", "com.alipay.sofa.rpc");
         Assert.assertSame(logger, logger2);

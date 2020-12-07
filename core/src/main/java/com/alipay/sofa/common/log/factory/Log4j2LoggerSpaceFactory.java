@@ -18,7 +18,7 @@ package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.Level;

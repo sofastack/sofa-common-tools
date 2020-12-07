@@ -14,27 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.log;
+package com.alipay.sofa.common.space;
 
 import com.alipay.sofa.common.utils.AssertUtil;
 
 import java.util.*;
 
 /**
- * 带有扩展属性的Space唯一Id
+ * Unified Space Id in sofa-common-tools to identify:
+ * 1. LoggerFactory
+ * 2. ThreadPoolSpace
+ * 3. LogCode2Description
  *
+ * SpaceId contains properties for the space it points.
  * @author xuanbei
  * @since 2017/07/03
  */
 public class SpaceId {
 
-    private final Map<String, String> tags = new HashMap<String, String>();
+    private final Map<String, String> tags = new HashMap<>();
 
     private final String              spaceName;
 
     public SpaceId(String spaceName) {
         AssertUtil.notNull(spaceName);
         this.spaceName = spaceName;
+    }
+
+    public static SpaceId withSpaceName(String spaceName) {
+        return new SpaceId(spaceName);
     }
 
     public SpaceId withTag(String key, String value) {
@@ -55,15 +63,14 @@ public class SpaceId {
 
         SpaceId spaceId = (SpaceId) o;
 
-        if (tags != null ? !tags.equals(spaceId.tags) : spaceId.tags != null)
+        if (!tags.equals(spaceId.tags))
             return false;
-        return spaceName != null ? spaceName.equals(spaceId.spaceName) : spaceId.spaceName == null;
-
+        return Objects.equals(spaceName, spaceId.spaceName);
     }
 
     @Override
     public int hashCode() {
-        int result = tags != null ? tags.hashCode() : 0;
+        int result = tags.hashCode();
         result = 31 * result + (spaceName != null ? spaceName.hashCode() : 0);
         return result;
     }
@@ -71,7 +78,7 @@ public class SpaceId {
     @Override
     public String toString() {
 
-        if (tags == null || tags.size() == 0) {
+        if (tags.size() == 0) {
             return spaceName;
         }
 
