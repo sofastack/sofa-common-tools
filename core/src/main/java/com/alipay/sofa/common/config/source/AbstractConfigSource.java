@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config;
+package com.alipay.sofa.common.config.source;
 
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.ConfigKey;
+import com.alipay.sofa.common.config.ConfigSource;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +37,14 @@ public abstract class AbstractConfigSource implements ConfigSource {
     private ConversionService  conversionService;
 
     @Override
-    public <T> T getConfig(SofaConfig<T> key) {
+    public <T> T getConfig(ConfigKey<T> key) {
         String value = getStringConfig(key);
         return (T) changeValueType(value, key.getDefaultValue().getClass());
 
     }
 
     @Override
-    public String getStringConfig(SofaConfig key) {
+    public String getStringConfig(ConfigKey key) {
         String value = doGetConfig(key.getKey());
         if (StringUtil.isNotBlank(value)) {
             return value;
@@ -59,12 +60,12 @@ public abstract class AbstractConfigSource implements ConfigSource {
     }
 
     @Override
-    public String getEffectiveKey(SofaConfig sofaConfig) {
-        String key = sofaConfig.getKey();
+    public String getEffectiveKey(ConfigKey configKey) {
+        String key = configKey.getKey();
         if (hasKey(key)) {
             return key;
         }
-        String[] alias = sofaConfig.getAlias();
+        String[] alias = configKey.getAlias();
         for (String alia : alias) {
             if (hasKey(alia)) {
                 return alia;

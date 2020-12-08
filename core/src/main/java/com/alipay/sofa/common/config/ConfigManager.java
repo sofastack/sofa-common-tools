@@ -14,22 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config.source;
-
-import com.alipay.sofa.common.config.SofaConfig;
-import com.alipay.sofa.common.utils.Ordered;
+package com.alipay.sofa.common.config;
 
 /**
  * @author zhaowang
- * @version : ConfigSource.java, v 0.1 2020年10月20日 7:57 下午 zhaowang Exp $
+ * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
  */
-public interface ConfigSource extends Ordered {
+public interface ConfigManager {
 
-    <T> T getConfig(SofaConfig<T> key);
+    <T> T getOrDefault(ConfigKey<T> key);
 
-    String getName();
+    <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault);
 
-    String getStringConfig(SofaConfig key);
+    void addConfigSource(ConfigSource configSource);
 
-    String getEffectiveKey(SofaConfig sofaConfig);
+    void addConfigListener(ManagementListener configListener);
 }

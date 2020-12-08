@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
+import com.alipay.sofa.common.config.listener.AbstractConfigListener;
 import com.alipay.sofa.common.config.listener.LogConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.source.AbstractConfigSource;
 import com.alipay.sofa.common.utils.Ordered;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.junit.Assert;
@@ -27,7 +27,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.alipay.sofa.common.configs.CommonToolsConfig.COMMON_THREAD_LOG_PERIOD;
+import static com.alipay.sofa.common.CommonToolConfigKeys.COMMON_THREAD_LOG_PERIOD;
 
 /**
  * @author zhaowang
@@ -38,15 +38,15 @@ public class CommonConfigTest {
     @Test
     public void commonConfigTest() {
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getKey(), "1000");
-        Long config = SofaCommonConfig.getOrDefault(COMMON_THREAD_LOG_PERIOD);
+        Long config = SofaConfigs.getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(1000L, config.longValue());
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getKey(), "");
-        config = SofaCommonConfig.getOrDefault(COMMON_THREAD_LOG_PERIOD);
+        config = SofaConfigs.getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(10L, config.longValue());
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getAlias()[0], "8");
-        config = SofaCommonConfig.getOrDefault(COMMON_THREAD_LOG_PERIOD);
+        config = SofaConfigs.getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(8L, config.longValue());
 
     }
@@ -55,8 +55,8 @@ public class CommonConfigTest {
     public void TestEnvConfigSource() {
         Map<String, String> envs = System.getenv();
         for (Map.Entry<String, String> entry : envs.entrySet()) {
-            SofaConfig<String> key = buildKey(entry.getKey());
-            String value = SofaCommonConfig.getOrDefault(key);
+            ConfigKey<String> key = buildKey(entry.getKey());
+            String value = SofaConfigs.getOrDefault(key);
             Assert.assertTrue(StringUtil.isNotBlank(value));
         }
     }
@@ -66,26 +66,26 @@ public class CommonConfigTest {
         Map<String, String> envs = System.getenv();
         Map.Entry<String, String> next = envs.entrySet().iterator().next();
         String key = next.getKey();
-        SofaConfig<String> sofaConfig = buildKey(key);
-        Assert.assertTrue(StringUtil.isNotBlank(SofaCommonConfig.getOrDefault(sofaConfig)));
+        ConfigKey<String> configKey = buildKey(key);
+        Assert.assertTrue(StringUtil.isNotBlank(SofaConfigs.getOrDefault(configKey)));
 
         String replaceValue = "ABCD";
-        Assert.assertNotEquals(replaceValue, SofaCommonConfig.getOrDefault(sofaConfig));
+        Assert.assertNotEquals(replaceValue, SofaConfigs.getOrDefault(configKey));
         System.setProperty(key, replaceValue);
-        Assert.assertEquals(replaceValue, SofaCommonConfig.getOrDefault(sofaConfig));
+        Assert.assertEquals(replaceValue, SofaConfigs.getOrDefault(configKey));
 
         System.clearProperty(key);
 
-        Assert.assertTrue(StringUtil.isNotBlank(SofaCommonConfig.getOrDefault(sofaConfig)));
+        Assert.assertTrue(StringUtil.isNotBlank(SofaConfigs.getOrDefault(configKey)));
     }
 
-    public SofaConfig<String> buildKey(String key) {
-        return new SofaConfig<>(key, null, "", false, "");
+    public ConfigKey<String> buildKey(String key) {
+        return new ConfigKey<>(key, null, "", false, "");
     }
 
     @Test
     public void testConfigSourceOrder() {
-        InnerSofaCommonConfig config = new InnerSofaCommonConfig();
+        DefaultConfigManger config = new DefaultConfigManger();
 
         config.addConfigSource(new OrderConfigSource(1));
         config.addConfigSource(new OrderConfigSource(2));
@@ -108,7 +108,7 @@ public class CommonConfigTest {
 
     @Test
     public void testListenerSourceOrder() {
-        InnerSofaCommonConfig config = new InnerSofaCommonConfig();
+        DefaultConfigManger config = new DefaultConfigManger();
 
         config.addConfigListener(new OrderConfigListener(1));
         config.addConfigListener(new OrderConfigListener(2));
@@ -119,10 +119,10 @@ public class CommonConfigTest {
         config.addConfigListener(new OrderConfigListener(-2));
         config.addConfigListener(new OrderConfigListener(-4));
 
-        List<ConfigListener> listeners = config.getConfigListeners();
+        List<ManagementListener> listeners = config.getConfigListeners();
 
         int higher = Ordered.HIGHEST_PRECEDENCE;
-        for (ConfigListener listener : listeners) {
+        for (ManagementListener listener : listeners) {
             int order = listener.getOrder();
             Assert.assertTrue(order >= higher);
             higher = order;
@@ -131,7 +131,7 @@ public class CommonConfigTest {
 
     @Test
     public void testLogListenerOrder() {
-        InnerSofaCommonConfig config = new InnerSofaCommonConfig();
+        DefaultConfigManger config = new DefaultConfigManger();
 
         config.addConfigListener(new OrderConfigListener(1));
         config.addConfigListener(new OrderConfigListener(2));
@@ -143,8 +143,8 @@ public class CommonConfigTest {
         config.addConfigListener(new OrderConfigListener(-2));
         config.addConfigListener(new OrderConfigListener(-4));
 
-        List<ConfigListener> configListeners = config.getConfigListeners();
-        ConfigListener listener = configListeners.get(configListeners.size() - 1);
+        List<ManagementListener> configListeners = config.getConfigListeners();
+        ManagementListener listener = configListeners.get(configListeners.size() - 1);
         Assert.assertEquals(Ordered.LOWEST_PRECEDENCE, listener.getOrder());
 
     }
@@ -178,7 +178,7 @@ public class CommonConfigTest {
         }
     }
 
-    static class OrderConfigListener implements ConfigListener {
+    static class OrderConfigListener extends AbstractConfigListener {
 
         private int order;
 
@@ -187,7 +187,7 @@ public class CommonConfigTest {
         }
 
         @Override
-        public void onLoadedConfig(SofaConfig key, ConfigSource configSource,
+        public void onConfigLoaded(ConfigKey key, ConfigSource configSource,
                                    List<ConfigSource> configSourceList) {
 
         }

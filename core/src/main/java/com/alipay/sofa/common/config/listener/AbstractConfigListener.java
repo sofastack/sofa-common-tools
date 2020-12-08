@@ -16,24 +16,26 @@
  */
 package com.alipay.sofa.common.config.listener;
 
-import com.alipay.sofa.common.config.source.ConfigSource;
-import com.alipay.sofa.common.config.SofaConfig;
-import com.alipay.sofa.common.utils.Ordered;
+import com.alipay.sofa.common.config.ConfigKey;
+import com.alipay.sofa.common.config.ConfigSource;
+import com.alipay.sofa.common.config.ManagementListener;
 
 import java.util.List;
 
 /**
+ * AbstractConfigListener provides empty implements of ConfigListener.
  * @author zhaowang
- * @version : ConfigListener.java, v 0.1 2020年12月01日 11:43 上午 zhaowang Exp $
+ * @version : AbstractConfigListener.java, v 0.1 2020年12月07日 9:21 下午 zhaowang Exp $
  */
-public interface ConfigListener extends Ordered {
+public abstract class AbstractConfigListener implements ManagementListener {
+    @Override
+    public void beforeConfigLoad(ConfigKey configKey, List<ConfigSource> configSources) {
 
-    /**
-     * Do some thing when loaded config
-     * @param key key of config
-     * @param configSource config source which config loads from
-     * @param configSourceList all config sources
-     */
-    void onLoadedConfig(SofaConfig key, ConfigSource configSource,
-                        List<ConfigSource> configSourceList);
+    }
+
+    @Override
+    public void onConfigLoaded(ConfigKey key, ConfigSource configSource,
+                               List<ConfigSource> configSourceList) {
+
+    }
 }

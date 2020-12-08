@@ -14,33 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.config.source;
+package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.utils.StringUtil;
+import com.alipay.sofa.common.utils.Ordered;
+
+import java.util.List;
 
 /**
  * @author zhaowang
- * @version : SystemEnvConfigSource.java, v 0.1 2020年12月01日 1:42 下午 zhaowang Exp $
+ * @version : ConfigListener.java, v 0.1 2020年12月01日 11:43 上午 zhaowang Exp $
  */
-public class SystemEnvConfigSource extends AbstractConfigSource {
-    @Override
-    public String doGetConfig(String key) {
-        return System.getenv(key);
-    }
+public interface ManagementListener extends Ordered {
 
-    @Override
-    public boolean hasKey(String key) {
-        String env = System.getenv(key);
-        return StringUtil.isNotBlank(env);
-    }
+    /**
+     * Do some thing before loading config
+     * @param configKey
+     * @param configSources
+     */
+    void beforeConfigLoad(ConfigKey configKey, List<ConfigSource> configSources);
 
-    @Override
-    public String getName() {
-        return "SystemEnv";
-    }
-
-    @Override
-    public int getOrder() {
-        return ConfigSourceOrder.SYSTEM_ENV;
-    }
+    /**
+     * Do some thing when loaded config
+     * @param key key of config
+     * @param configSource config source which config loads from
+     * @param configSourceList all config sources
+     */
+    void onConfigLoaded(ConfigKey key, ConfigSource configSource,
+                        List<ConfigSource> configSourceList);
 }

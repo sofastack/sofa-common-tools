@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
 import com.alipay.sofa.common.utils.OrderComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,31 +27,30 @@ import java.util.List;
  * @author zhaowang
  * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
  */
-public class InnerSofaCommonConfig implements CommonConfig {
+public class DefaultConfigManger implements ConfigManager{
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(InnerSofaCommonConfig.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManger.class);
 
-    List<ConfigSource> configSources = new LinkedList<>();
-    List<ConfigListener> configListeners = new LinkedList<>();
+    private final List<ConfigSource> configSources = new LinkedList<>();
+    private final List<ManagementListener> configListeners = new LinkedList<>();
 
     @Override
-    public <T> T getOrDefault(SofaConfig<T> key) {
+    public <T> T getOrDefault(ConfigKey<T> key) {
         return getConfig(key,key.getDefaultValue());
     }
 
     @Override
-    public <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault) {
+    public <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault) {
         return getConfig(key,customDefault);
     }
 
-    public <T> T getConfig(SofaConfig<T> key, T defaultValue) {
+    public <T> T getConfig(ConfigKey<T> key, T defaultValue) {
         T result = null;
+        beforeConfigLoading(key);
         for (ConfigSource configSource : configSources) {
             result = configSource.getConfig(key);
             if(result != null){
-                for (ConfigListener configListener : configListeners) {
-                    configListener.onLoadedConfig(key,configSource,configSources);
-                }
+                onConfigLoaded(key,configSource);
                 return result;
             }
         }
@@ -66,6 +63,20 @@ public class InnerSofaCommonConfig implements CommonConfig {
     }
 
 
+
+    private <T> void beforeConfigLoading(ConfigKey<T> key) {
+        for (ManagementListener configListener : configListeners) {
+            configListener.beforeConfigLoad(key,configSources);
+        }
+    }
+
+    private <T> void onConfigLoaded(ConfigKey<T> key, ConfigSource configSource) {
+        for (ManagementListener configListener : configListeners) {
+            configListener.onConfigLoaded(key,configSource,configSources);
+        }
+    }
+
+
     @Override
     public void addConfigSource(ConfigSource configSource) {
         configSources.add(configSource);
@@ -73,7 +84,7 @@ public class InnerSofaCommonConfig implements CommonConfig {
     }
 
     @Override
-    public void addConfigListener(ConfigListener configListener) {
+    public void addConfigListener(ManagementListener configListener) {
         configListeners.add(configListener);
         OrderComparator.sort(configListeners);
     }
@@ -84,7 +95,7 @@ public class InnerSofaCommonConfig implements CommonConfig {
     }
 
     //visible for test
-    List<ConfigListener> getConfigListeners() {
+    List<ManagementListener> getConfigListeners() {
         return configListeners;
     }
 }

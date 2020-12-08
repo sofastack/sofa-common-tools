@@ -16,30 +16,30 @@
  */
 package com.alipay.sofa.common.config.listener;
 
-import com.alipay.sofa.common.config.SofaConfig;
-import com.alipay.sofa.common.config.log.ConfigLoggerFactory;
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.config.ConfigKey;
+import com.alipay.sofa.common.config.ConfigSource;
 import com.alipay.sofa.common.utils.Ordered;
 import org.slf4j.Logger;
 
 import java.util.List;
 
+import static com.alipay.sofa.common.config.log.ConfigLoggerFactory.CONFIG_COMMON_DIGEST_LOGGER;
+
 /**
  * @author zhaowang
  * @version : ConfigLogListener.java, v 0.1 2020年12月01日 2:06 下午 zhaowang Exp $
  */
-public class LogConfigListener implements ConfigListener {
+public class LogConfigListener extends AbstractConfigListener {
 
-    private static final Logger LOGGER = ConfigLoggerFactory.getLogger(LogConfigListener.class);
+    private static final Logger LOGGER = CONFIG_COMMON_DIGEST_LOGGER;
 
     @Override
-    public void onLoadedConfig(SofaConfig sofaconfig, ConfigSource configSource,
+    public void onConfigLoaded(ConfigKey configKey, ConfigSource configSource,
                                List<ConfigSource> configSourceList) {
-        // print "Load {sofaconfig} from {configSourceName}，value is "{value}" .
-        String keyStr = sofaconfig.getKey();
+        String keyStr = configKey.getKey();
         String configName = configSource.getName();
-        String value = configSource.getStringConfig(sofaconfig);
-        String effectKey = configSource.getEffectiveKey(sofaconfig);
+        String value = configSource.getStringConfig(configKey);
+        String effectKey = configSource.getEffectiveKey(configKey);
         LOGGER.info("Load {} from {} ,effect key is {}, value is \"{}\"", keyStr, configName,
             effectKey, value);
     }

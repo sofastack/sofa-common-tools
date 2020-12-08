@@ -18,6 +18,7 @@ package com.alipay.sofa.common.config.log;
 
 import com.alipay.sofa.common.log.LoggerSpaceManager;
 import com.alipay.sofa.common.utils.StringUtil;
+import com.alipay.sofa.common.utils.ThreadLoggerFactory;
 import org.slf4j.Logger;
 
 /**
@@ -25,7 +26,11 @@ import org.slf4j.Logger;
  * @version : ConfigLoggerFactory.java, v 0.1 2020年12月01日 2:33 下午 zhaowang Exp $
  */
 public class ConfigLoggerFactory {
-    private static final String COMMON_CONFIG_LOG_SPACE = "com.alipay.sofa.common.config";
+
+    public static final Logger  CONFIG_COMMON_DIGEST_LOGGER = ThreadLoggerFactory
+                                                                .getLogger("com.alipay.sofa.common.config.digest");
+
+    private static final String COMMON_CONFIG_LOG_SPACE     = "com.alipay.sofa.common.config";
 
     public static Logger getLogger(String name) {
         if (StringUtil.isEmpty(name)) {

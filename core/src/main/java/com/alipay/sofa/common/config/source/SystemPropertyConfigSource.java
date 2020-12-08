@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.common.config.source;
 
-import com.alipay.sofa.common.config.AbstractConfigSource;
 import com.alipay.sofa.common.utils.StringUtil;
 
 /**

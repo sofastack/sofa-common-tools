@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
 import com.alipay.sofa.common.config.listener.LogConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
 import com.alipay.sofa.common.config.source.SystemEnvConfigSource;
 import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
 
@@ -26,12 +24,12 @@ import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
  * @author zhaowang
  * @version : SofaCommonConfig.java, v 0.1 2020年12月01日 11:54 上午 zhaowang Exp $
  */
-public class SofaCommonConfig {
+public class SofaConfigs {
 
-    private static final InnerSofaCommonConfig INSTANCE;
+    private static final DefaultConfigManger INSTANCE;
 
     static {
-        INSTANCE = new InnerSofaCommonConfig();
+        INSTANCE = new DefaultConfigManger();
         // add ConfigSource
         INSTANCE.addConfigSource(new SystemPropertyConfigSource());
         INSTANCE.addConfigSource(new SystemEnvConfigSource());
@@ -40,11 +38,11 @@ public class SofaCommonConfig {
         INSTANCE.addConfigListener(new LogConfigListener());
     }
 
-    public static <T> T getOrDefault(SofaConfig<T> key) {
+    public static <T> T getOrDefault(ConfigKey<T> key) {
         return INSTANCE.getOrDefault(key);
     }
 
-    public static <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault) {
+    public static <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault) {
         return INSTANCE.getOrCustomDefault(key, customDefault);
     }
 
@@ -52,7 +50,7 @@ public class SofaCommonConfig {
         INSTANCE.addConfigSource(configSource);
     }
 
-    public static void addConfigListener(ConfigListener configListener) {
+    public static void addConfigListener(ManagementListener configListener) {
         INSTANCE.addConfigListener(configListener);
     }
 

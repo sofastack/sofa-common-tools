@@ -16,11 +16,15 @@
  */
 package com.alipay.sofa.common.config;
 
+import java.util.Arrays;
+
 /**
  * @author zhaowang
  * @version : SofaConfig.java, v 0.1 2020年10月20日 8:01 下午 zhaowang Exp $
+ *
+ * 通过String key 拿到 ConfigKey。
  */
-public class SofaConfig<T> {
+public class ConfigKey<T> {
 
     private final String   key;
     /**
@@ -34,11 +38,13 @@ public class SofaConfig<T> {
 
     /**
      * Indicate that if change this configSource will take effect at runtime
+     *
+     * todo 改个名字
      */
-    private final boolean  instantly;
+    private final boolean  modifiable;
 
-    public SofaConfig(String key, String[] alias, T defaultValue, boolean instantly,
-                      String description) {
+    public ConfigKey(String key, String[] alias, T defaultValue, boolean modifiable,
+                     String description) {
         this.key = key;
         if (null == alias) {
             this.alias = new String[0];
@@ -46,16 +52,16 @@ public class SofaConfig<T> {
             this.alias = alias;
         }
         this.defaultValue = defaultValue;
-        this.instantly = instantly;
+        this.modifiable = modifiable;
         this.description = description;
     }
 
-    public static <T> SofaConfig<T> build(String key, T defaultValue, boolean instantly, String description) {
-        return new SofaConfig<>(key, null , defaultValue, instantly, description);
+    public static <T> ConfigKey<T> build(String key, T defaultValue, boolean modifiable, String description) {
+        return new ConfigKey<>(key, null , defaultValue, modifiable, description);
     }
 
-    public static <T> SofaConfig<T> build(String key, T defaultValue, boolean instantly, String description,String[] alias) {
-        return new SofaConfig<>(key, alias, defaultValue, instantly, description);
+    public static <T> ConfigKey<T> build(String key, T defaultValue, boolean modifiable, String description, String[] alias) {
+        return new ConfigKey<>(key, alias, defaultValue, modifiable, description);
     }
 
     public String getKey() {
@@ -63,7 +69,7 @@ public class SofaConfig<T> {
     }
 
     public String[] getAlias() {
-        return alias;
+        return Arrays.copyOf(alias, alias.length);
     }
 
     public T getDefaultValue() {
@@ -78,8 +84,7 @@ public class SofaConfig<T> {
         return (Class<T>) defaultValue.getClass();
     }
 
-    public boolean isInstantly() {
-        return instantly;
+    public boolean isModifiable() {
+        return modifiable;
     }
-
 }

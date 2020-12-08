@@ -16,20 +16,27 @@
  */
 package com.alipay.sofa.common.config;
 
-import com.alipay.sofa.common.config.listener.ConfigListener;
-import com.alipay.sofa.common.config.source.ConfigSource;
+import com.alipay.sofa.common.utils.Ordered;
 
 /**
  * @author zhaowang
- * @version : CommonConfig.java, v 0.1 2020年10月20日 7:55 下午 zhaowang Exp $
+ * @version : ConfigSource.java, v 0.1 2020年10月20日 7:57 下午 zhaowang Exp $
+ *
+ * TODO Starter 里面把 Spring 里面的值复制进来
  */
-public interface CommonConfig {
+public interface ConfigSource extends Ordered {
 
-    <T> T getOrDefault(SofaConfig<T> key);
+    // TODO 补注释
+    <T> T getConfig(ConfigKey<T> key);
 
-    <T> T getOrCustomDefault(SofaConfig<T> key, T customDefault);
+    String getName();
 
-    void addConfigSource(ConfigSource configSource);
+    String getStringConfig(ConfigKey key);
 
-    void addConfigListener(ConfigListener configListener);
+    String getEffectiveKey(ConfigKey configKey);
+
+    //todo 增加 Callback
+    // 不加 Callback 了，当更新key-value的时候，现在没有办法映射到 ConfigKey 上.
+    // 如果要加Callback 就要维护一个 key -> ConfigKey 的映射关系。
+
 }
