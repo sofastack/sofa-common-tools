@@ -21,5 +21,4 @@ package com.alipay.sofa.common.log.factory;
  */
 public interface LoggerSpaceFactoryBuilder {
     AbstractLoggerSpaceFactory build(String spaceName, ClassLoader spaceClassloader);
-
 }

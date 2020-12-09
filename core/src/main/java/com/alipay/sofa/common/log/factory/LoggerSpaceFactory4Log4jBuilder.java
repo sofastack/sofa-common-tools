@@ -16,7 +16,8 @@
  */
 package com.alipay.sofa.common.log.factory;
 
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.log.LogSpace;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import org.apache.log4j.Hierarchy;
@@ -42,6 +43,10 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
 
     public LoggerSpaceFactory4Log4jBuilder(SpaceId spaceId, SpaceInfo spaceInfo) {
         super(spaceId, spaceInfo);
+    }
+
+    public LoggerSpaceFactory4Log4jBuilder(SpaceId spaceId, LogSpace logSpace) {
+        super(spaceId, logSpace);
     }
 
     @Override

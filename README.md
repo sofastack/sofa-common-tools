@@ -1,6 +1,6 @@
 # sofa-common-tools
 
-![](https://travis-ci.com/sofastack/sofa-common-tools.svg?branch=master) 
+![build](https://github.com/sofastack/sofa-common-tools/workflows/build/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-common-tools/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-common-tools?branch=master) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 [![maven](https://img.shields.io/github/release/alipay/sofa-common-tools.svg)](https://github.com/sofastack/sofa-common-tools/releases)
@@ -17,7 +17,7 @@ The audience of this library is middleware and SDK developer.
 
 In daily developing, Java logging usually consists of choosing a log facade (e.g., JCL and SLF4j) and log implementation (e.g., Log4j2 and logback).
 Say you are developing an application that uses a JAR which utilizes log4j2 for logging.
-In such scenario, you cannot choose log implementation other than log4j2.
+In such scenario, you cannot choose log implementation other than log4j2 (log implementation conflicts if you choose Logback).
 Some solutions available:
 1. The jar uses log facade instead log implementation but application developers still have to provide log configuration
 2. The jar initialize loggers and appenders programmatically (This works well in Multi-ClassLoader environment where middleware/SDK developers handle many repeated work)
@@ -26,7 +26,7 @@ Some solutions available:
 None of the above solutions is perfect, `sofa-common-tools` provides a Midas touch: middleware/SDK developers print logs using *only* facade and hand the right to select whichever log implementation to application developer.
 At the mean time, middleware/SDK developers provide log configurations per log implementation.
 `sofa-common-tools` detects automatically the log implementation and initializes appenders and loggers for middleware/SDK.
-To differentiate SDKs/middlewares, each jar has to have its own log space identifiable via `SpaceID` in `sofa-common-tools`. 
+To differentiate SDKs/middlewares, each jar has its own log context and log space identifiable via `SpaceID` in `sofa-common-tools`. 
 
 Some notes:
 - `sofa-common-tools` only supports SLF4j facade currently

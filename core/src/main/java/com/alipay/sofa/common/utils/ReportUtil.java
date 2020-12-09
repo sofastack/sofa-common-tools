@@ -28,7 +28,7 @@ import com.alipay.sofa.common.log.LogLog;
 public class ReportUtil {
     /**
      * print Debug message
-     * @param msg
+     * @param msg message
      */
     public static void reportDebug(String msg) {
         LogLog.debug(msg);
@@ -36,7 +36,7 @@ public class ReportUtil {
 
     /**
      * keep compatible
-     * @param msg
+     * @param msg message
      */
     @Deprecated
     public static void report(String msg) {
@@ -45,7 +45,7 @@ public class ReportUtil {
 
     /**
      * print Info message
-     * @param msg
+     * @param msg message
      */
     public static void reportInfo(String msg) {
         LogLog.info(msg);
@@ -53,13 +53,21 @@ public class ReportUtil {
 
     /**
      * print Warn message
-     * @param msg
+     * @param msg message
      */
     public static void reportWarn(String msg) {
         LogLog.warn(msg);
     }
 
+    public static void reportWarn(String msg, Throwable e) {
+        LogLog.warn(msg, e);
+    }
+
     public static void reportError(String msg, Throwable throwable) {
         LogLog.error(msg, throwable);
+    }
+
+    public static void reportError(String msg) {
+        LogLog.error(msg, null);
     }
 }

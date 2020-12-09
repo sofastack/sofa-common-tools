@@ -19,6 +19,7 @@ package com.alipay.sofa.common.thread;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.utils.TimeWaitRunner;
 
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -48,12 +49,23 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
 
     private void logStackTrace() {
         if (threadPoolExecutor != null) {
-            String threadPoolName = threadPoolExecutor.getThreadPoolName();
-            String allStackTrace = threadPoolExecutor.getAllStackTrace();
+            String threadPoolName = threadPoolExecutor.getConfig().getThreadPoolName();
+            String allStackTrace = getAllStackTrace(threadPoolExecutor);
             ThreadLogger.error(
                 "Queue of thread pool {} is full with all stack trace: \n    {}\n\n",
                 threadPoolName, allStackTrace);
         }
+    }
+
+    private String getAllStackTrace(SofaThreadPoolExecutor threadPoolExecutor) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<ExecutingRunnable, Long> entry : threadPoolExecutor.getStatistics()
+            .getExecutingTasks().entrySet()) {
+            for (StackTraceElement e : entry.getKey().thread.getStackTrace()) {
+                sb.append("    ").append(e).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     public RejectedExecutionHandler getDelegate() {
@@ -71,5 +83,4 @@ public class TimeWaitRejectedExecutionHandler implements RejectedExecutionHandle
     public void setThreadPoolExecutor(SofaThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
     }
-
 }

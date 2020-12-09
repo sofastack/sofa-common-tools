@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.spi;
 
 import ch.qos.logback.classic.LoggerContext;
-import com.alipay.sofa.common.log.SpaceId;
+import com.alipay.sofa.common.space.SpaceId;
 
 import java.net.URL;
 import java.util.Properties;
@@ -26,6 +26,7 @@ import java.util.Properties;
  * @author qilong.zql
  * @since 1.0.15
  */
+@Deprecated
 public interface LogbackReInitializer {
     void reInitialize(SpaceId spaceId, LoggerContext loggerContext, Properties properties,
                       URL confFile);
