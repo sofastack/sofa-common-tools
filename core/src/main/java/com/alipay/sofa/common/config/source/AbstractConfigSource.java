@@ -18,23 +18,15 @@ package com.alipay.sofa.common.config.source;
 
 import com.alipay.sofa.common.config.ConfigKey;
 import com.alipay.sofa.common.config.ConfigSource;
+import com.alipay.sofa.common.config.Converter;
+import com.alipay.sofa.common.config.converter.GlobalConverterHolder;
 import com.alipay.sofa.common.utils.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.util.ClassUtils;
 
 /**
  * @author zhaowang
  * @version : AbstractConfigSource.java, v 0.1 2020年10月21日 2:38 下午 zhaowang Exp $
  */
 public abstract class AbstractConfigSource implements ConfigSource {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfigSource.class);
-
-    //todo 暂时没用
-    private ConversionService  conversionService;
 
     @Override
     public <T> T getConfig(ConfigKey<T> key) {
@@ -82,17 +74,12 @@ public abstract class AbstractConfigSource implements ConfigSource {
         if (targetType == null) {
             return (T) value;
         }
-        //todo do not use spring class
-        ConversionService conversionServiceToUse = this.conversionService;
-        if (conversionServiceToUse == null) {
-            // Avoid initialization of shared DefaultConversionService if
-            // no standard type conversion is needed in the first place...
-            if (ClassUtils.isAssignableValue(targetType, value)) {
-                return (T) value;
-            }
-            conversionServiceToUse = DefaultConversionService.getSharedInstance();
+
+        Converter converter = GlobalConverterHolder.getGlobalConverter();
+        if (converter == null) {
+            converter = GlobalConverterHolder.DEFAULT_CONVERTER;
         }
-        return conversionServiceToUse.convert(value, targetType);
+        return converter.convert(value, targetType);
     }
 
     public abstract String doGetConfig(String key);
