@@ -14,32 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.space;
-
-import com.alipay.sofa.common.log.LogSpace;
-import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
+package com.alipay.sofa.common.log;
 
 /**
- * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
- * Created on 2020/12/4
+ * 带有扩展属性的Space唯一Id
+ *
+ * @author xuanbei
+ * @since 2017/07/03
  */
-public class Space {
-    private LogSpace        logSpace;
-    private ThreadPoolSpace threadPoolSpace;
-
-    public LogSpace getLogSpace() {
-        return logSpace;
-    }
-
-    public void setLogSpace(LogSpace logSpace) {
-        this.logSpace = logSpace;
-    }
-
-    public ThreadPoolSpace getThreadPoolSpace() {
-        return threadPoolSpace;
-    }
-
-    public void setThreadPoolSpace(ThreadPoolSpace threadPoolSpace) {
-        this.threadPoolSpace = threadPoolSpace;
+public class SpaceId extends com.alipay.sofa.common.space.SpaceId {
+    public SpaceId(String spaceName) {
+        super(spaceName);
     }
 }
