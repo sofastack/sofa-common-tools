@@ -14,35 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.common.thread.space;
+package com.alipay.sofa.common.space;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.alipay.sofa.common.log.LogSpace;
+import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 
 /**
- * @author huzijie
- * @version ThreadPoolNamespace.java, v 0.1 2020年11月11日 10:43 上午 huzijie Exp $
+ * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
+ * Created on 2020/12/4
  */
-public class ThreadPoolSpace {
+public class Space {
+    private LogSpace        logSpace;
+    private ThreadPoolSpace threadPoolSpace;
 
-    private final Set<String> threadPoolIdentities = new HashSet<>();
-
-    private final AtomicInteger threadPoolNumber = new AtomicInteger(0);
-
-    public void addThreadPool(String identify) {
-        this.threadPoolIdentities.add(identify);
+    public LogSpace getLogSpace() {
+        return logSpace;
     }
 
-    public void removeThreadPool(String identify) {
-        this.threadPoolIdentities.remove(identify);
+    public void setLogSpace(LogSpace logSpace) {
+        this.logSpace = logSpace;
     }
 
-    public Set<String> getThreadPoolIdentities() {
-        return threadPoolIdentities;
+    public ThreadPoolSpace getThreadPoolSpace() {
+        return threadPoolSpace;
     }
 
-    public int getThreadPoolNumber() {
-        return threadPoolNumber.getAndIncrement();
+    public void setThreadPoolSpace(ThreadPoolSpace threadPoolSpace) {
+        this.threadPoolSpace = threadPoolSpace;
     }
 }
