@@ -30,7 +30,7 @@ public class ConfigLoggerFactory {
     public static final Logger  CONFIG_COMMON_DIGEST_LOGGER = ThreadLoggerFactory
                                                                 .getLogger("com.alipay.sofa.common.config.digest");
 
-    private static final String COMMON_CONFIG_LOG_SPACE     = "com.alipay.sofa.common.config";
+    private static final String COMMON_CONFIG_LOG_SPACE     = "sofa-common-tools";
 
     public static Logger getLogger(String name) {
         if (StringUtil.isEmpty(name)) {
