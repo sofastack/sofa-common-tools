@@ -17,20 +17,23 @@
 package com.alipay.sofa.common.code;
 
 import com.alipay.sofa.common.space.SpaceId;
-import com.alipay.sofa.common.space.SpaceManager;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
  * Created on 2020/12/7
  */
 public class LogCode2Description {
+    private static final Map<SpaceId, LogCode2Description> LOG_CODE_2_DESCRIPTION_MAP = new ConcurrentHashMap<>();
+
     public static String convert(String spaceName, String code) {
         return convert(SpaceId.withSpaceName(spaceName), code);
     }
@@ -38,7 +41,7 @@ public class LogCode2Description {
     public static String convert(SpaceId spaceId, String code) {
         LogCode2Description logCode2Description = null;
         if (isCodeSpaceInitialized(spaceId)) {
-            logCode2Description = SpaceManager.getSpace(spaceId).getLogCode2Description();
+            logCode2Description = LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
         } else {
             logCode2Description = create(spaceId);
         }
@@ -54,14 +57,14 @@ public class LogCode2Description {
         if (isCodeSpaceInitialized(spaceId)) {
             ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
                                   + "\" is already initialized!");
-            return SpaceManager.getSpace(spaceId).getLogCode2Description();
+            return LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
         }
 
-        synchronized (SpaceManager.getSpace(spaceId)) {
+        synchronized (spaceId) {
             if (isCodeSpaceInitialized(spaceId)) {
                 ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
                                       + "\" is already initialized!");
-                return SpaceManager.getSpace(spaceId).getLogCode2Description();
+                return LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
             }
             LogCode2Description logCode2Description = doCreate(spaceId);
             ReportUtil.reportInfo("Code Space: \"" + spaceId.getSpaceName() + "\" init ok");
@@ -71,12 +74,12 @@ public class LogCode2Description {
 
     private static LogCode2Description doCreate(SpaceId spaceId) {
         LogCode2Description logCode2Description = new LogCode2Description(spaceId);
-        SpaceManager.getSpace(spaceId).setLogCode2Description(logCode2Description);
+        LOG_CODE_2_DESCRIPTION_MAP.put(spaceId, logCode2Description);
         return logCode2Description;
     }
 
     private static boolean isCodeSpaceInitialized(SpaceId spaceId) {
-        return SpaceManager.getSpace(spaceId).getLogCode2Description() != null;
+        return LOG_CODE_2_DESCRIPTION_MAP.containsKey(spaceId);
     }
 
     public static void removeCodeSpace(String spaceName) {
@@ -88,9 +91,7 @@ public class LogCode2Description {
             return;
         }
 
-        synchronized (SpaceManager.getSpace(spaceId)) {
-            SpaceManager.getSpace(spaceId).setLogCode2Description(null);
-        }
+        LOG_CODE_2_DESCRIPTION_MAP.remove(spaceId);
     }
 
     private String     logFormat;

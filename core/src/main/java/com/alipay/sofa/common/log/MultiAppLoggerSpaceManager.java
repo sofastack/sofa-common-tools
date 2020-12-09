@@ -24,13 +24,13 @@ import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4jBuilder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4LogbackBuilder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactoryBuilder;
 import com.alipay.sofa.common.space.SpaceId;
-import com.alipay.sofa.common.space.SpaceManager;
 import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import com.alipay.sofa.common.utils.ReportUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.alipay.sofa.common.log.Constants.*;
 
@@ -51,6 +51,8 @@ public class MultiAppLoggerSpaceManager {
                                                                                return Constants.DEFAULT_LOG;
                                                                            }
                                                                        };
+
+    private static final Map<SpaceId, LogSpace> LOG_FACTORY_MAP = new ConcurrentHashMap<>();
 
     /**
      * Invoke this method before using if some special configurations for the log space are needed.
@@ -77,7 +79,7 @@ public class MultiAppLoggerSpaceManager {
             return;
         }
 
-        synchronized (SpaceManager.getSpace(spaceId)) {
+        synchronized (spaceId) {
             if (isSpaceInitialized(spaceId)) {
                 ReportUtil.reportWarn("Logger space: \"" + spaceId.getSpaceName()
                                       + "\" is already initialized!");
@@ -94,6 +96,7 @@ public class MultiAppLoggerSpaceManager {
 
     /**
      * This method execute the actual initializing steps.
+     * Before invoking this method, make sure necessary synchronization mechanism is followed.
      *
      * @param spaceId space identification
      * @param props properties used to populate log context
@@ -106,7 +109,7 @@ public class MultiAppLoggerSpaceManager {
             spaceClassloader);
         logSpace.setAbstractLoggerSpaceFactory(loggerSpaceFactory);
 
-        SpaceManager.getSpace(spaceId).setLogSpace(logSpace);
+        LOG_FACTORY_MAP.put(spaceId, logSpace);
     }
 
     /**
@@ -171,7 +174,7 @@ public class MultiAppLoggerSpaceManager {
             init(spaceId, null, spaceClassloader);
         }
 
-        return SpaceManager.getSpace(spaceId).getLogSpace().getAbstractLoggerSpaceFactory();
+        return LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory();
     }
 
     public static Logger setLoggerLevel(String loggerName, String spaceName,
@@ -201,7 +204,7 @@ public class MultiAppLoggerSpaceManager {
             return null;
         }
 
-        LogSpace logSpace = SpaceManager.getSpace(spaceId).getLogSpace();
+        LogSpace logSpace = LOG_FACTORY_MAP.get(spaceId);
 
         if (logSpace == null) {
             return null;
@@ -219,7 +222,7 @@ public class MultiAppLoggerSpaceManager {
     }
 
     public static boolean isSpaceInitialized(SpaceId spaceId) {
-        return SpaceManager.getSpace(spaceId).getLogSpace() != null;
+        return LOG_FACTORY_MAP.containsKey(spaceId);
     }
 
     private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId,
