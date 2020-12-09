@@ -98,7 +98,7 @@ public class LogCode2Description {
     private Properties properties;
 
     private LogCode2Description(SpaceId spaceId) {
-        logFormat = spaceId.getSpaceName() + "-%s: %s";
+        logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
         String prefix = spaceId.getSpaceName().replace(".", "/") + "/log-codes";
         String encoding = Locale.getDefault().toString();
         if (StringUtil.isEmpty(encoding)) {
