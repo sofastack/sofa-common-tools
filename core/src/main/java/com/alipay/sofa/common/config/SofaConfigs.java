@@ -54,4 +54,7 @@ public class SofaConfigs {
         INSTANCE.addConfigListener(configListener);
     }
 
+    public static DefaultConfigManger getInstance() {
+        return INSTANCE;
+    }
 }

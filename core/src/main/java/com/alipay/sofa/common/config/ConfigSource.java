@@ -22,21 +22,34 @@ import com.alipay.sofa.common.utils.Ordered;
  * @author zhaowang
  * @version : ConfigSource.java, v 0.1 2020年10月20日 7:57 下午 zhaowang Exp $
  *
- * TODO Starter 里面把 Spring 里面的值复制进来
  */
 public interface ConfigSource extends Ordered {
 
-    // TODO 补注释
+    /**
+     * Get config by configKey. If no value exists, return null or empty string
+     * @param key ConfigKey
+     * @param <T>
+     * @return value of key
+     */
     <T> T getConfig(ConfigKey<T> key);
 
+    /**
+     * @return The name of ConfigSource
+     */
     String getName();
 
+    /**
+     * Get the string value of key
+     * @param key ConfigKey
+     * @return string value of key
+     */
     String getStringConfig(ConfigKey key);
 
+    /**
+     * The actual effective key to get the value.
+     * @param configKey ConfigKey
+     * @return
+     */
     String getEffectiveKey(ConfigKey configKey);
-
-    //todo 增加 Callback
-    // 不加 Callback 了，当更新key-value的时候，现在没有办法映射到 ConfigKey 上.
-    // 如果要加Callback 就要维护一个 key -> ConfigKey 的映射关系。
 
 }

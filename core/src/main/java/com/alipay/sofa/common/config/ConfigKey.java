@@ -21,7 +21,7 @@ import java.util.Arrays;
 /**
  * @author zhaowang
  * @version : SofaConfig.java, v 0.1 2020年10月20日 8:01 下午 zhaowang Exp $
- *
+ * <p>
  * 通过String key 拿到 ConfigKey。
  */
 public class ConfigKey<T> {
@@ -38,13 +38,15 @@ public class ConfigKey<T> {
 
     /**
      * Indicate that if change this configSource will take effect at runtime
-     *
-     * todo 改个名字
      */
     private final boolean  modifiable;
 
     public ConfigKey(String key, String[] alias, T defaultValue, boolean modifiable,
                      String description) {
+        preCheckNotNull("key", key);
+        preCheckNotNull("defaultValue", defaultValue);
+        preCheckNotNull("description", description);
+
         this.key = key;
         if (null == alias) {
             this.alias = new String[0];
@@ -57,11 +59,18 @@ public class ConfigKey<T> {
     }
 
     public static <T> ConfigKey<T> build(String key, T defaultValue, boolean modifiable, String description) {
-        return new ConfigKey<>(key, null , defaultValue, modifiable, description);
+        return new ConfigKey<>(key, null, defaultValue, modifiable, description);
     }
 
     public static <T> ConfigKey<T> build(String key, T defaultValue, boolean modifiable, String description, String[] alias) {
         return new ConfigKey<>(key, alias, defaultValue, modifiable, description);
+    }
+
+    private void preCheckNotNull(String key, Object value) {
+        if (value == null) {
+            throw new NullPointerException("\"" + key
+                                           + "\" of ConfigKey cannot be null,please check it");
+        }
     }
 
     public String getKey() {

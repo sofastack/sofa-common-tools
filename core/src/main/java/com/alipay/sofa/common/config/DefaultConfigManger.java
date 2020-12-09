@@ -55,24 +55,27 @@ public class DefaultConfigManger implements ConfigManager{
             }
         }
 
-        // todo 迁移到 listener 中
-        if(!key.getDefaultValue().equals(defaultValue)){
-            LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",key.toString(),key.getDefaultValue(),defaultValue);
-        }
+
+        onLoadDefaultValue(key,defaultValue);
         return defaultValue;
     }
 
+    private <T> void onLoadDefaultValue(ConfigKey<T> key, Object defaultValue) {
+        for (ManagementListener configListener : configListeners) {
+            configListener.onLoadDefaultValue(key,defaultValue);
+        }
+    }
 
 
     private <T> void beforeConfigLoading(ConfigKey<T> key) {
         for (ManagementListener configListener : configListeners) {
-            configListener.beforeConfigLoad(key,configSources);
+            configListener.beforeConfigLoading(key,configSources);
         }
     }
 
     private <T> void onConfigLoaded(ConfigKey<T> key, ConfigSource configSource) {
         for (ManagementListener configListener : configListeners) {
-            configListener.onConfigLoaded(key,configSource,configSources);
+            configListener.afterConfigLoaded(key,configSource,configSources);
         }
     }
 

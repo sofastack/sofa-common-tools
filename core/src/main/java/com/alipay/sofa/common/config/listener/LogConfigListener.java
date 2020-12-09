@@ -34,14 +34,26 @@ public class LogConfigListener extends AbstractConfigListener {
     private static final Logger LOGGER = CONFIG_COMMON_DIGEST_LOGGER;
 
     @Override
-    public void onConfigLoaded(ConfigKey configKey, ConfigSource configSource,
-                               List<ConfigSource> configSourceList) {
+    public void afterConfigLoaded(ConfigKey configKey, ConfigSource configSource,
+                                  List<ConfigSource> configSourceList) {
         String keyStr = configKey.getKey();
         String configName = configSource.getName();
         String value = configSource.getStringConfig(configKey);
         String effectKey = configSource.getEffectiveKey(configKey);
         LOGGER.info("Load {} from {} ,effect key is {}, value is \"{}\"", keyStr, configName,
             effectKey, value);
+    }
+
+    @Override
+    public void onLoadDefaultValue(ConfigKey key, Object defaultValue) {
+        if (key.getDefaultValue().equals(defaultValue)) {
+            LOGGER.info("Load {} according defaultValue ,default value is \"{}\"", key.getKey(),
+                defaultValue);
+        } else {
+            LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",
+                key.toString(), key.getDefaultValue(), defaultValue);
+
+        }
     }
 
     @Override

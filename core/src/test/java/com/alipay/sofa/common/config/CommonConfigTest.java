@@ -43,12 +43,16 @@ public class CommonConfigTest {
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getKey(), "");
         config = SofaConfigs.getOrDefault(COMMON_THREAD_LOG_PERIOD);
-        Assert.assertEquals(10L, config.longValue());
+        Assert.assertEquals((long) COMMON_THREAD_LOG_PERIOD.getDefaultValue(), config.longValue());
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getAlias()[0], "8");
         config = SofaConfigs.getOrDefault(COMMON_THREAD_LOG_PERIOD);
         Assert.assertEquals(8L, config.longValue());
 
+        System.setProperty(COMMON_THREAD_LOG_PERIOD.getAlias()[0], "");
+        config = SofaConfigs.getOrCustomDefault(COMMON_THREAD_LOG_PERIOD,
+            COMMON_THREAD_LOG_PERIOD.getDefaultValue() + 1);
+        Assert.assertEquals(COMMON_THREAD_LOG_PERIOD.getDefaultValue() + 1, config.longValue());
     }
 
     @Test
@@ -85,16 +89,16 @@ public class CommonConfigTest {
 
     @Test
     public void testConfigSourceOrder() {
-        DefaultConfigManger config = new DefaultConfigManger();
+        DefaultConfigManger config = SofaConfigs.getInstance();
 
-        config.addConfigSource(new OrderConfigSource(1));
-        config.addConfigSource(new OrderConfigSource(2));
-        config.addConfigSource(new OrderConfigSource(5));
-        config.addConfigSource(new OrderConfigSource(4));
-        config.addConfigSource(new OrderConfigSource(3));
-        config.addConfigSource(new OrderConfigSource(-3));
-        config.addConfigSource(new OrderConfigSource(-2));
-        config.addConfigSource(new OrderConfigSource(-4));
+        SofaConfigs.addConfigSource(new OrderConfigSource(1));
+        SofaConfigs.addConfigSource(new OrderConfigSource(2));
+        SofaConfigs.addConfigSource(new OrderConfigSource(5));
+        SofaConfigs.addConfigSource(new OrderConfigSource(4));
+        SofaConfigs.addConfigSource(new OrderConfigSource(3));
+        SofaConfigs.addConfigSource(new OrderConfigSource(-3));
+        SofaConfigs.addConfigSource(new OrderConfigSource(-2));
+        SofaConfigs.addConfigSource(new OrderConfigSource(-4));
 
         List<ConfigSource> configSources = config.getConfigSources();
 
@@ -108,16 +112,16 @@ public class CommonConfigTest {
 
     @Test
     public void testListenerSourceOrder() {
-        DefaultConfigManger config = new DefaultConfigManger();
+        DefaultConfigManger config = SofaConfigs.getInstance();
 
-        config.addConfigListener(new OrderConfigListener(1));
-        config.addConfigListener(new OrderConfigListener(2));
-        config.addConfigListener(new OrderConfigListener(5));
-        config.addConfigListener(new OrderConfigListener(4));
-        config.addConfigListener(new OrderConfigListener(3));
-        config.addConfigListener(new OrderConfigListener(-3));
-        config.addConfigListener(new OrderConfigListener(-2));
-        config.addConfigListener(new OrderConfigListener(-4));
+        SofaConfigs.addConfigListener(new OrderConfigListener(1));
+        SofaConfigs.addConfigListener(new OrderConfigListener(2));
+        SofaConfigs.addConfigListener(new OrderConfigListener(5));
+        SofaConfigs.addConfigListener(new OrderConfigListener(4));
+        SofaConfigs.addConfigListener(new OrderConfigListener(3));
+        SofaConfigs.addConfigListener(new OrderConfigListener(-3));
+        SofaConfigs.addConfigListener(new OrderConfigListener(-2));
+        SofaConfigs.addConfigListener(new OrderConfigListener(-4));
 
         List<ManagementListener> listeners = config.getConfigListeners();
 
@@ -184,12 +188,6 @@ public class CommonConfigTest {
 
         public OrderConfigListener(int order) {
             this.order = order;
-        }
-
-        @Override
-        public void onConfigLoaded(ConfigKey key, ConfigSource configSource,
-                                   List<ConfigSource> configSourceList) {
-
         }
 
         @Override

@@ -29,13 +29,16 @@ import java.util.List;
  */
 public abstract class AbstractConfigListener implements ManagementListener {
     @Override
-    public void beforeConfigLoad(ConfigKey configKey, List<ConfigSource> configSources) {
+    public void beforeConfigLoading(ConfigKey configKey, List<ConfigSource> configSources) {
 
     }
 
     @Override
-    public void onConfigLoaded(ConfigKey key, ConfigSource configSource,
-                               List<ConfigSource> configSourceList) {
+    public void afterConfigLoaded(ConfigKey key, ConfigSource configSource,
+                                  List<ConfigSource> configSourceList) {
+    }
 
+    @Override
+    public void onLoadDefaultValue(ConfigKey key, Object defaultValue) {
     }
 }

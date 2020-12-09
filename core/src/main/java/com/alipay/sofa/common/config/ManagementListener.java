@@ -31,14 +31,21 @@ public interface ManagementListener extends Ordered {
      * @param configKey
      * @param configSources
      */
-    void beforeConfigLoad(ConfigKey configKey, List<ConfigSource> configSources);
+    void beforeConfigLoading(ConfigKey configKey, List<ConfigSource> configSources);
 
     /**
-     * Do some thing when loaded config
+     * Do something when loaded config
      * @param key key of config
      * @param configSource config source which config loads from
      * @param configSourceList all config sources
      */
-    void onConfigLoaded(ConfigKey key, ConfigSource configSource,
-                        List<ConfigSource> configSourceList);
+    void afterConfigLoaded(ConfigKey key, ConfigSource configSource,
+                           List<ConfigSource> configSourceList);
+
+    /**
+     * Do something when loaded defaultValue
+     * @param key
+     * @param defaultValue
+     */
+    void onLoadDefaultValue(ConfigKey key, Object defaultValue);
 }
