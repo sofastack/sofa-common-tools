@@ -20,6 +20,7 @@ package com.alipay.sofa.common.log.spi;
  * @author qilong.zql
  * @since 1.0.16
  */
+@Deprecated
 public interface ReInitializeChecker {
     boolean isReInitialize();
 }

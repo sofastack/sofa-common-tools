@@ -20,25 +20,27 @@ import com.alipay.sofa.common.utils.ClassUtil;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
+ * Sofa thread pool based on {@link ThreadPoolTaskExecutor}
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
+ * @author huzijie
  * Created on 2020/3/23
  */
 public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
-    public static final String       SIMPLE_CLASS_NAME    = SofaThreadPoolTaskExecutor.class
-                                                              .getSimpleName();
-    protected static long            DEFAULT_TASK_TIMEOUT = 30000;
-    protected static long            DEFAULT_PERIOD       = 5000;
-    protected static TimeUnit        DEFAULT_TIME_UNIT    = TimeUnit.MILLISECONDS;
 
+    public static final String       SIMPLE_CLASS_NAME = SofaThreadPoolTaskExecutor.class
+                                                           .getSimpleName();
     protected SofaThreadPoolExecutor sofaThreadPoolExecutor;
+
     protected String                 threadPoolName;
+
+    protected String                 spaceName;
+
+    protected long                   taskTimeout;
+
+    protected long                   period;
 
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
@@ -58,8 +60,8 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         if (taskDecorator != null) {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
-                DEFAULT_TIME_UNIT) {
+                rejectedExecutionHandler, threadPoolName, spaceName, taskTimeout, period,
+                TimeUnit.MILLISECONDS) {
                 @Override
                 public void execute(Runnable command) {
                     super.execute(taskDecorator.decorate(command));
@@ -68,8 +70,8 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         } else {
             executor = new SofaThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(),
                 getKeepAliveSeconds(), TimeUnit.SECONDS, queue, threadFactory,
-                rejectedExecutionHandler, threadPoolName, DEFAULT_TASK_TIMEOUT, DEFAULT_PERIOD,
-                DEFAULT_TIME_UNIT);
+                rejectedExecutionHandler, threadPoolName, spaceName, taskTimeout, period,
+                TimeUnit.MILLISECONDS);
         }
 
         Boolean allowCoreThreadTimeOut = ClassUtil.getField("allowCoreThreadTimeOut", this);
@@ -93,27 +95,53 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
     public void setThreadPoolName(String threadPoolName) {
         this.threadPoolName = threadPoolName;
         if (sofaThreadPoolExecutor != null) {
-            sofaThreadPoolExecutor.setThreadPoolName(threadPoolName);
+            sofaThreadPoolExecutor.updateThreadPoolName(threadPoolName);
         }
     }
 
-    public void setTaskTimeout(long taskTimeout) {
-        sofaThreadPoolExecutor.setTaskTimeout(taskTimeout);
+    public String getSpaceName() {
+        return spaceName;
+    }
+
+    public void setSpaceName(String spaceName) {
+        this.spaceName = spaceName;
+        if (sofaThreadPoolExecutor != null) {
+            sofaThreadPoolExecutor.updateSpaceName(spaceName);
+        }
     }
 
     public long getTaskTimeout() {
-        return sofaThreadPoolExecutor.getTaskTimeout();
+        if (sofaThreadPoolExecutor == null) {
+            return 0;
+        }
+        return sofaThreadPoolExecutor.getConfig().getTaskTimeout();
     }
 
-    public void setPeriod(long period) {
-        sofaThreadPoolExecutor.setPeriod(period);
+    public void setTaskTimeout(long taskTimeout) {
+        this.taskTimeout = taskTimeout;
+        if (sofaThreadPoolExecutor != null) {
+            sofaThreadPoolExecutor.updateTaskTimeout(taskTimeout);
+        }
     }
 
     public long getPeriod() {
-        return sofaThreadPoolExecutor.getPeriod();
+        if (sofaThreadPoolExecutor == null) {
+            return 0;
+        }
+        return sofaThreadPoolExecutor.getConfig().getPeriod();
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+        if (sofaThreadPoolExecutor != null) {
+            sofaThreadPoolExecutor.updatePeriod(period);
+        }
     }
 
     public TimeUnit getTimeUnit() {
-        return sofaThreadPoolExecutor.getTimeUnit();
+        if (sofaThreadPoolExecutor == null) {
+            return TimeUnit.MILLISECONDS;
+        }
+        return sofaThreadPoolExecutor.getConfig().getTimeUnit();
     }
 }

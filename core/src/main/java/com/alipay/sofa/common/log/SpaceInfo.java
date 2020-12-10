@@ -16,43 +16,22 @@
  */
 package com.alipay.sofa.common.log;
 
-import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
-
 import java.util.Map;
-import java.util.Properties;
 
 /**
+ * Use LogSpace instead
+ *
  * Created by kevin.luy@alipay.com on 2016/12/1.
  */
-public class SpaceInfo {
-
-    private AbstractLoggerSpaceFactory abstractLoggerSpaceFactory;
-    private Properties                 properties = new Properties();
-
-    public AbstractLoggerSpaceFactory getAbstractLoggerSpaceFactory() {
-        return abstractLoggerSpaceFactory;
-    }
-
-    public void setAbstractLoggerSpaceFactory(AbstractLoggerSpaceFactory abstractLoggerSpaceFactory) {
-        this.abstractLoggerSpaceFactory = abstractLoggerSpaceFactory;
-    }
-
-    public Properties properties() {
-        return properties;
-    }
-
+@Deprecated
+public class SpaceInfo extends LogSpace {
     public SpaceInfo putAll(Map properties) {
-        this.properties.putAll(properties);
+        super.putAll(properties);
         return this;
     }
 
     public SpaceInfo setProperty(String key, String value) {
-        properties.setProperty(key, value);
+        super.setProperty(key, value);
         return this;
     }
-
-    public String getProperty(String key) {
-        return properties.getProperty(key);
-    }
-
 }

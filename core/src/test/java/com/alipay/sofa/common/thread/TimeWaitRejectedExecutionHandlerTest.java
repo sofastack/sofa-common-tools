@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author <a href=mailto:orezsilence@163.com>zhangchengxi</a>
  */
-public class TimeWaitRejectedExecutionHandlerTest {
+public class TimeWaitRejectedExecutionHandlerTest extends ThreadPoolTestBase {
 
     @Test
-    public void test(){
+    public void test() throws InterruptedException {
 
         SofaThreadPoolExecutor executor = new SofaThreadPoolExecutor(1,1,1, TimeUnit.HOURS,new LinkedBlockingDeque<>(1));
         TimeWaitRejectedExecutionHandler handler = new TimeWaitRejectedExecutionHandler(executor, 2, TimeUnit.SECONDS);
@@ -57,10 +57,8 @@ public class TimeWaitRejectedExecutionHandlerTest {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            executor.shutdownNow();
         }
-
-
+        executor.shutdownNow();
+        executor.awaitTermination(100, TimeUnit.SECONDS);
     }
 }
