@@ -58,11 +58,14 @@ public class CommonConfigTest {
     @Test
     public void TestEnvConfigSource() {
         Map<String, String> envs = System.getenv();
+        StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : envs.entrySet()) {
             ConfigKey<String> key = buildKey(entry.getKey());
             String value = SofaConfigs.getOrDefault(key);
-            Assert.assertTrue(StringUtil.isNotBlank(value));
+            Assert.assertNotNull(value);
+            sb.append(value);
         }
+        Assert.assertTrue(StringUtil.isNotBlank(sb.toString()));
     }
 
     @Test
