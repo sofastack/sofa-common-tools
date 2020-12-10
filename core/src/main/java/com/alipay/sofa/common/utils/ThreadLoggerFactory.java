@@ -24,7 +24,7 @@ import org.slf4j.Logger;
  * Created on 2020/3/19
  */
 public class ThreadLoggerFactory {
-    private static final String COMMON_THREAD_LOG_SPACE = "com.alipay.sofa.thread";
+    private static final String COMMON_THREAD_LOG_SPACE = "sofa-thread";
 
     public static Logger getLogger(String name) {
         if (StringUtil.isEmpty(name)) {
