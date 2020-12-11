@@ -116,7 +116,8 @@ public class LoggerSpaceManager {
     }
 
     @Deprecated
-    public static Logger setLoggerLevel(String loggerName, com.alipay.sofa.common.log.SpaceId spaceId,
+    public static Logger setLoggerLevel(String loggerName,
+                                        com.alipay.sofa.common.log.SpaceId spaceId,
                                         AdapterLevel adapterLevel) {
         return MultiAppLoggerSpaceManager.setLoggerLevel(loggerName, spaceId, adapterLevel);
     }
