@@ -22,6 +22,7 @@ package com.alipay.sofa.common.log;
  * @author xuanbei
  * @since 2017/07/03
  */
+@Deprecated
 public class SpaceId extends com.alipay.sofa.common.space.SpaceId {
     public SpaceId(String spaceName) {
         super(spaceName);
