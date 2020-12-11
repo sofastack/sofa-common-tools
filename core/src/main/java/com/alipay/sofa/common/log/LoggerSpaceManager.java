@@ -73,6 +73,12 @@ public class LoggerSpaceManager {
         return getLoggerBySpace(name, spaceId, properties, callerClassLoader);
     }
 
+    @Deprecated
+    public static Logger getLoggerBySpace(String name, com.alipay.sofa.common.log.SpaceId spaceId,
+                                          Map<String, String> properties) {
+        return getLoggerBySpace(name, (SpaceId) spaceId, properties);
+    }
+
     /**
      * Get logger from specified spaceName
      * The return logger is obtained from corresponding LoggerFactory which is configured by its own log configs
@@ -91,6 +97,13 @@ public class LoggerSpaceManager {
         return MultiAppLoggerSpaceManager.getLoggerBySpace(name, spaceId, spaceClassloader);
     }
 
+    @Deprecated
+    public static Logger getLoggerBySpace(String name, com.alipay.sofa.common.log.SpaceId spaceId,
+                                          Map<String, String> properties,
+                                          ClassLoader spaceClassloader) {
+        return getLoggerBySpace(name, (SpaceId) spaceId, properties, spaceClassloader);
+    }
+
     public static Logger setLoggerLevel(String loggerName, String spaceName,
                                         AdapterLevel adapterLevel) {
         //init first
@@ -98,6 +111,13 @@ public class LoggerSpaceManager {
     }
 
     public static Logger setLoggerLevel(String loggerName, SpaceId spaceId,
+                                        AdapterLevel adapterLevel) {
+        return MultiAppLoggerSpaceManager.setLoggerLevel(loggerName, spaceId, adapterLevel);
+    }
+
+    @Deprecated
+    public static Logger setLoggerLevel(String loggerName,
+                                        com.alipay.sofa.common.log.SpaceId spaceId,
                                         AdapterLevel adapterLevel) {
         return MultiAppLoggerSpaceManager.setLoggerLevel(loggerName, spaceId, adapterLevel);
     }
@@ -112,6 +132,11 @@ public class LoggerSpaceManager {
      * @return deleted ILoggerFactory
      */
     public static ILoggerFactory removeILoggerFactoryBySpaceId(SpaceId spaceId) {
+        return MultiAppLoggerSpaceManager.removeILoggerFactoryBySpaceId(spaceId);
+    }
+
+    @Deprecated
+    public static ILoggerFactory removeILoggerFactoryBySpaceId(com.alipay.sofa.common.log.SpaceId spaceId) {
         return MultiAppLoggerSpaceManager.removeILoggerFactoryBySpaceId(spaceId);
     }
 }
