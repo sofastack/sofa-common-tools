@@ -93,7 +93,9 @@ public class LoggerSpaceManager {
     public static Logger getLoggerBySpace(String name, SpaceId spaceId,
                                           Map<String, String> properties,
                                           ClassLoader spaceClassloader) {
-        MultiAppLoggerSpaceManager.init(spaceId, properties, spaceClassloader);
+        if (!MultiAppLoggerSpaceManager.isSpaceInitialized(spaceId)) {
+            MultiAppLoggerSpaceManager.init(spaceId, properties, spaceClassloader);
+        }
         return MultiAppLoggerSpaceManager.getLoggerBySpace(name, spaceId, spaceClassloader);
     }
 
