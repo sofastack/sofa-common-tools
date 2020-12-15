@@ -127,7 +127,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
                     }
                     return Result.NEUTRAL;
                 }
@@ -138,7 +137,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
                     }
                     return Result.NEUTRAL;
                 }
@@ -149,7 +147,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
                     }
                     return Result.NEUTRAL;
                 }

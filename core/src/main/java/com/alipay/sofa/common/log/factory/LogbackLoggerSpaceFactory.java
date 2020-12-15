@@ -82,7 +82,6 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                         && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
                     }
                     return FilterReply.NEUTRAL;
                 }
