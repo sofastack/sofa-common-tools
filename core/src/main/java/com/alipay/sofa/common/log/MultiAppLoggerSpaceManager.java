@@ -313,9 +313,9 @@ public class MultiAppLoggerSpaceManager {
                         spaceClassloader);
                 }
             }
-            ReportUtil.reportWarn("No log util is usable, Default app logger will be used.");
+            ReportUtil.reportWarn("[" + spaceId.toString() + "] No log util is usable, Default app logger will be used.");
         } catch (Throwable e) {
-            ReportUtil.reportError("Build ILoggerFactory error! Default app logger will be used.",
+            ReportUtil.reportError("[" + spaceId.toString() + "] Build ILoggerFactory error! Default app logger will be used.",
                 e);
         }
 
