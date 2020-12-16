@@ -121,36 +121,38 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
             loggerContext.addFilter(new AbstractFilter() {
-                @Override
-                public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Message msg,
-                                     Throwable t) {
+                private void process(org.apache.logging.log4j.core.Logger logger, Level level) {
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
+                        int intLevel = Level.DEBUG.intLevel();
+                        if (logger.getLevel() != null) {
+                            intLevel = logger.getLevel().intLevel();
+                        }
+                        if (intLevel > consoleLevel.intLevel()) {
+                            logger.setLevel(level);
+                        }
                     }
+                }
+
+                @Override
+                public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Message msg,
+                                     Throwable t) {
+                    process(logger, level);
                     return Result.NEUTRAL;
                 }
 
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Object msg,
                                      Throwable t) {
-                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
-                            && !logger.getAppenders().containsKey(CONSOLE)) {
-                        logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
-                    }
+                    process(logger, level);
                     return Result.NEUTRAL;
                 }
 
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, String msg,
                                      Object... params) {
-                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
-                            && !logger.getAppenders().containsKey(CONSOLE)) {
-                        logger.addAppender(consoleAppender);
-                        logger.setLevel(consoleLevel);
-                    }
+                    process(logger, level);
                     return Result.NEUTRAL;
                 }
             });
