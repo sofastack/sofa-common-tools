@@ -129,7 +129,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                         if (logger.getLevel() != null) {
                             intLevel = logger.getLevel().intLevel();
                         }
-                        if (intLevel > level.intLevel()) {
+                        if (intLevel > consoleLevel.intLevel()) {
                             logger.setLevel(level);
                         }
                     }
