@@ -232,7 +232,7 @@ public class MultiAppLoggerSpaceManager {
         }
 
         AbstractLoggerSpaceFactory oldFactory = logSpace.getAbstractLoggerSpaceFactory();
-        logSpace.setAbstractLoggerSpaceFactory(null);
+        LOG_FACTORY_MAP.remove(spaceId);
         ReportUtil.reportWarn("Log Space Name[" + spaceId.getSpaceName()
                               + "] is Removed from Current Log Space Manager!");
         return oldFactory;
