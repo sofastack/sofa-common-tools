@@ -83,7 +83,7 @@ public class CommonLoggingConfigurations {
 
     public static boolean shouldAttachConsoleAppender(String loggerName) {
         if (loggerConsoleWhiteSet == null) {
-            return true;
+            return false;
         }
         return loggerConsoleWhiteSet.contains(loggerName);
     }
