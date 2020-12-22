@@ -21,7 +21,7 @@
     <appender name="SOFA-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>${logging.level.com.alipay.sofa.thread}</level>
+            <level>${logging.level.sofa-thread}</level>
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
@@ -36,7 +36,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.alipay.sofa.thread" level="${logging.level.com.alipay.sofa.thread}" additivity="false">
+    <logger name="com.alipay.sofa.thread" level="${logging.level.sofa-thread}" additivity="false">
         <appender-ref ref="SOFA-APPENDER"/>
     </logger>
 
@@ -44,7 +44,7 @@
         <appender-ref ref="WARN-APPENDER"/>
     </logger>
 
-    <root level="${logging.level.com.alipay.sofa.thread}">
+    <root level="${logging.level.sofa-thread}">
         <appender-ref ref="SOFA-APPENDER"/>
         <appender-ref ref="WARN-APPENDER"/>
     </root>

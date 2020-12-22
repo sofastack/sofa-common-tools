@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="OFF">
     <Properties>
-        <Property name="CONFIG_LOG_LEVEL">${sys:logging.level.com.alipay.sofa.common.config}</Property>
+        <Property name="CONFIG_LOG_LEVEL">${sys:logging.level.sofa-common-tools}</Property>
         <Property name="CONFIG_LOG_PATH">${sys:logging.path}</Property>
         <Property name="CONFIG_FILE_ENCODING">${sys:file.encoding}</Property>
     </Properties>
