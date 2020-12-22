@@ -17,7 +17,7 @@
         <param name="file" value="${logging.path}/sofa-config/common-default.log"/>
         <param name="append" value="true"/>
         <param name="encoding" value="${file.encoding}"/>
-        <param name="threshold" value="${logging.level.com.alipay.sofa.common.config}"/>
+        <param name="threshold" value="${logging.level.sofa-common-tools}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %-5t - %m%n"/>
         </layout>
@@ -29,7 +29,7 @@
     </logger>
 
     <root>
-        <level value="${logging.level.com.alipay.sofa.common.config}"/>
+        <level value="${logging.level.sofa-common-tools}"/>
         <appender-ref ref="COMMON-DEFAULT-APPENDER"/>
     </root>
 </log4j:configuration>

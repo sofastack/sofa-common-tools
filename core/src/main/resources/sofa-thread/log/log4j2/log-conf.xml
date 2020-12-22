@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="OFF">
     <Properties>
-        <Property name="THREAD_LOG_LEVEL">${sys:logging.level.com.alipay.sofa.thread}</Property>
+        <Property name="THREAD_LOG_LEVEL">${sys:logging.level.sofa-thread}</Property>
         <Property name="THREAD_LOG_PATH">${sys:logging.path}</Property>
         <Property name="THREAD_FILE_ENCODING">${sys:file.encoding}</Property>
     </Properties>
