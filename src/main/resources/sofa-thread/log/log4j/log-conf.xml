@@ -16,14 +16,14 @@
         <param name="file" value="${logging.path}/sofa-thread/thread-digest.log"/>
         <param name="append" value="true"/>
         <param name="encoding" value="${file.encoding}"/>
-        <param name="threshold" value="${logging.level.com.alipay.sofa.thread}"/>
+        <param name="threshold" value="${logging.level.sofa-thread}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %-5t - %m%n"/>
         </layout>
     </appender>
 
     <logger name="com.alipay.sofa.thread" additivity="false">
-        <level value="${logging.level.com.alipay.sofa.thread}"/>
+        <level value="${logging.level.sofa-thread}"/>
         <appender-ref ref="SOFA-APPENDER"/>
     </logger>
 
@@ -33,7 +33,7 @@
     </logger>
 
     <root>
-        <level value="${logging.level.com.alipay.sofa.thread}"/>
+        <level value="${logging.level.sofa-thread}"/>
         <appender-ref ref="SOFA-APPENDER"/>
         <appender-ref ref="WARN-APPENDER"/>
     </root>
