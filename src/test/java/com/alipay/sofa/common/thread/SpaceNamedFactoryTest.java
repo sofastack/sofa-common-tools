@@ -52,7 +52,7 @@ public class SpaceNamedFactoryTest extends ThreadPoolTestBase {
         String threadName3 = (String) sofaThreadPoolExecutor3.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         Assert.assertEquals("space1-testPool1-0-thread-1", threadName1);
         Assert.assertEquals("space1-testPool2-1-thread-1", threadName2);
-        Assert.assertTrue("thread name is: " + threadName3, Pattern.matches("pool-(\\d+)-thread-1", threadName3));
+        Assert.assertTrue("thread name is: " + threadName3, Pattern.matches("testPool3-(\\d+)-thread-1", threadName3));
         sofaThreadPoolExecutor1.shutdown();
         sofaThreadPoolExecutor2.shutdown();
         sofaThreadPoolExecutor3.shutdown();
@@ -71,7 +71,7 @@ public class SpaceNamedFactoryTest extends ThreadPoolTestBase {
         String threadName3 = (String) sofaThreadPoolExecutor3.submit((Callable<Object>) () -> Thread.currentThread().getName()).get();
         Assert.assertEquals("space2-testPool1-0-thread-1", threadName1);
         Assert.assertEquals("space2-testPool2-1-thread-1", threadName2);
-        Assert.assertTrue(Pattern.matches("pool-(\\d+)-thread-1", threadName3));
+        Assert.assertTrue(Pattern.matches("testPool3-(\\d+)-thread-1", threadName3));
         sofaThreadPoolExecutor1.shutdown();
         sofaThreadPoolExecutor2.shutdown();
         sofaThreadPoolExecutor3.shutdown();

@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread.construct;
 
+import com.alipay.sofa.common.thread.NamedThreadFactory;
 import com.alipay.sofa.common.thread.SofaThreadPoolConstants;
 import com.alipay.sofa.common.thread.SofaThreadPoolExecutor;
 import com.alipay.sofa.common.thread.ThreadPoolTestBase;
@@ -68,7 +69,7 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(50, threadPoolExecutor.getMaximumPoolSize());
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
-        Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
+        Assert.assertEquals(threadFactory, threadPoolExecutor.getThreadFactory());
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
@@ -111,7 +112,7 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(50, threadPoolExecutor.getMaximumPoolSize());
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
-        Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
+        Assert.assertEquals(threadFactory, threadPoolExecutor.getThreadFactory());
         Assert.assertEquals(rejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
@@ -182,7 +183,7 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(50, threadPoolExecutor.getMaximumPoolSize());
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
-        Assert.assertEquals(defaultThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
+        Assert.assertEquals(NamedThreadFactory.class, threadPoolExecutor.getThreadFactory().getClass());
         Assert.assertEquals(defaultRejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
