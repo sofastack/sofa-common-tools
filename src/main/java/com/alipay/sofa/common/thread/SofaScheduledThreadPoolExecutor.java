@@ -60,9 +60,6 @@ public class SofaScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
             .build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
-        if (StringUtil.isNotEmpty(spaceName)) {
-            this.setThreadFactory(new SpaceNamedThreadFactory(threadPoolName, spaceName));
-        }
     }
 
     public SofaScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory,
@@ -90,8 +87,12 @@ public class SofaScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
             .spaceName(spaceName).build();
         this.statistics = new ThreadPoolStatistics(this);
         ThreadPoolGovernor.getInstance().registerThreadPoolExecutor(this, config, statistics);
-        if (StringUtil.isNotEmpty(spaceName)) {
-            this.setThreadFactory(new SpaceNamedThreadFactory(threadPoolName, spaceName));
+        if (StringUtil.isNotEmpty(threadPoolName)) {
+            if (StringUtil.isNotEmpty(spaceName)) {
+                this.setThreadFactory(new SpaceNamedThreadFactory(threadPoolName, spaceName));
+            } else {
+                this.setThreadFactory(new NamedThreadFactory(threadPoolName));
+            }
         }
     }
 
