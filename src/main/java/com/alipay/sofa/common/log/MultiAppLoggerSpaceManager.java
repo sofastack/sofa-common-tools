@@ -29,6 +29,7 @@ import com.alipay.sofa.common.utils.ReportUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -254,6 +255,11 @@ public class MultiAppLoggerSpaceManager {
     @Deprecated
     public static boolean isSpaceInitialized(com.alipay.sofa.common.log.SpaceId spaceId) {
         return LOG_FACTORY_MAP.containsKey(spaceId);
+    }
+
+    @Deprecated
+    public static Map getSpacesMap() {
+        return Collections.emptyMap();
     }
 
     private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId,
