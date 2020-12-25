@@ -183,7 +183,8 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(50, threadPoolExecutor.getMaximumPoolSize());
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
-        Assert.assertEquals(NamedThreadFactory.class, threadPoolExecutor.getThreadFactory().getClass());
+        Assert.assertEquals(NamedThreadFactory.class, threadPoolExecutor.getThreadFactory()
+            .getClass());
         Assert.assertEquals(defaultRejectedExecutionHandler,
             threadPoolExecutor.getRejectedExecutionHandler());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
