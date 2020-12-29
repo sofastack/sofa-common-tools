@@ -64,6 +64,13 @@ public interface Constants {
 
     // disable log4j bridge to commons logging
     String  LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE_PROP_KEY = "log4j.commons.logging.middleware.log.disable";
+
+    boolean LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE          = Boolean.TRUE
+                                                                      .toString()
+                                                                      .equalsIgnoreCase(
+                                                                          System
+                                                                              .getProperty(LOG4J_COMMONS_LOGGING_MIDDLEWARE_LOG_DISABLE_PROP_KEY));
+
     // disable log4j space factory
     String  LOG4J_MIDDLEWARE_LOG_DISABLE_PROP_KEY                 = "log4j.middleware.log.disable";
 
