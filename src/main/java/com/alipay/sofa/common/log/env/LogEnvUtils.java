@@ -57,7 +57,7 @@ public final class LogEnvUtils {
     public static boolean isLog4jUsable(ClassLoader spaceClassloader) {
         AssertUtil.notNull(spaceClassloader);
         try {
-            return (spaceClassloader.loadClass("org.slf4j.impl.Log4jLoggerFactory") != null);
+            return (spaceClassloader.loadClass("org.apache.log4j.Logger") != null);
         } catch (ClassNotFoundException e) {
             // logger.debug("log4j dependency is not existed.");
             return false;
