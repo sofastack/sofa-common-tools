@@ -220,4 +220,39 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
     private String createName() {
         return SIMPLE_CLASS_NAME + String.format("%08x", POOL_COUNTER.getAndIncrement());
     }
+
+    @Deprecated
+    public String getThreadPoolName() {
+        return this.config.getThreadPoolName();
+    }
+
+    @Deprecated
+    public void setThreadPoolName(String threadPoolName) {
+        updateThreadPoolName(threadPoolName);
+    }
+
+    @Deprecated
+    public void setPeriod(long period) {
+        updatePeriod(period);
+    }
+
+    @Deprecated
+    public long getTaskTimeout() {
+        return this.config.getTaskTimeout();
+    }
+
+    @Deprecated
+    public void setTaskTimeout(long taskTimeout) {
+        updateTaskTimeout(taskTimeout);
+    }
+
+    @Deprecated
+    public TimeUnit getTimeUnit() {
+        return this.config.getTimeUnit();
+    }
+
+    @Deprecated
+    public long getPeriod() {
+        return this.config.getPeriod();
+    }
 }
