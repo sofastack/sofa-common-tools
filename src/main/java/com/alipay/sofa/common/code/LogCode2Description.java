@@ -95,7 +95,7 @@ public class LogCode2Description {
     }
 
     private String     logFormat;
-    private Properties properties;
+    private Map<String, String> codeMap;
 
     private LogCode2Description(SpaceId spaceId) {
         logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
@@ -110,7 +110,7 @@ public class LogCode2Description {
         }
 
         try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName)) {
-            properties = new Properties();
+            Properties properties = new Properties();
 
             if (in == null) {
                 ReportUtil.reportError(String.format("Code file for CodeSpace \"%s\" doesn't exist!", spaceId.getSpaceName()));
@@ -118,13 +118,16 @@ public class LogCode2Description {
                 InputStreamReader reader = new InputStreamReader(in);
                 properties.load(reader);
             }
+            for (Map.Entry<?, ?> entry: properties.entrySet()) {
+                codeMap.put((String) entry.getKey(), (String) entry.getValue());
+            }
         } catch (Throwable e) {
             ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
         }
     }
 
     public String convert(String code) {
-        Object description = properties.get(code);
+        Object description = codeMap.get(code);
         if (description == null) {
             description = "Unknown Code";
         }
