@@ -96,7 +96,7 @@ public class LogCode2Description {
     }
 
     private String     logFormat;
-    private Map<String, String> codeMap = new HashMap<>();
+    private Map<String, String> codeMap = new ConcurrentHashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
         logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
@@ -120,7 +120,8 @@ public class LogCode2Description {
                 properties.load(reader);
             }
             for (Map.Entry<?, ?> entry: properties.entrySet()) {
-                codeMap.put((String) entry.getKey(), (String) entry.getValue());
+                String key = (String) entry.getKey();
+                codeMap.put(key, String.format(logFormat, key, entry.getValue()));
             }
         } catch (Throwable e) {
             ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
@@ -128,11 +129,12 @@ public class LogCode2Description {
     }
 
     public String convert(String code) {
-        Object description = codeMap.get(code);
+        String description = codeMap.get(code);
         if (description == null) {
-            description = "Unknown Code";
+            description = String.format(logFormat, code, "Unknown code");
+            codeMap.put(code, description);
+            return description;
         }
-
-        return String.format(logFormat, code, description);
+        return description;
     }
 }
