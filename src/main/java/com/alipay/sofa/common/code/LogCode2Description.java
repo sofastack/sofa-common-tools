@@ -22,6 +22,7 @@ import com.alipay.sofa.common.utils.StringUtil;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -95,7 +96,7 @@ public class LogCode2Description {
     }
 
     private String     logFormat;
-    private Map<String, String> codeMap;
+    private Map<String, String> codeMap = new HashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
         logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
