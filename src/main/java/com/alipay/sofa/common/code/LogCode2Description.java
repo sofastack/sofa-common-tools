@@ -131,7 +131,7 @@ public class LogCode2Description {
     public String convert(String code) {
         String description = codeMap.get(code);
         if (description == null) {
-            description = String.format(logFormat, code, "Unknown code");
+            description = String.format(logFormat, code, "Unknown Code");
             codeMap.put(code, description);
             return description;
         }
