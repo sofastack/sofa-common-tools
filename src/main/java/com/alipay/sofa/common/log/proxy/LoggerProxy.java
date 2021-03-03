@@ -23,7 +23,6 @@ import org.slf4j.Marker;
 /**
  * Created by kevin.luy@alipay.com on 2016/12/1.
  */
-@Deprecated
 public class LoggerProxy implements Logger {
 
     private TemporaryILoggerFactory.LoggerSelector loggerSelector;
