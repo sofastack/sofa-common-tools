@@ -67,7 +67,11 @@ public class LazyLogFactoryInitializingTest {
         props.put("date.pattern." + SPACE_NAME, "yyyy-MM-dd");
         MultiAppLoggerSpaceManager.init(SPACE_NAME, props);
 
-        Files.write(Paths.get("./logs/lazy/monitor.log"), "".getBytes(StandardCharsets.UTF_8));
+        try {
+            Files.write(Paths.get("./logs/lazy/monitor.log"), "".getBytes(StandardCharsets.UTF_8));
+        } catch (Throwable e) {
+            // just ignore
+        }
         logger.info("test1");
         logger.info("test2");
         logger.info("test3");
