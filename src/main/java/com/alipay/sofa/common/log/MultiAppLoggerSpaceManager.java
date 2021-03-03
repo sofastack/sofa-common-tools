@@ -24,6 +24,7 @@ import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4j2Builder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4jBuilder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4LogbackBuilder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactoryBuilder;
+import com.alipay.sofa.common.log.proxy.TemporaryILoggerFactoryPool;
 import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import com.alipay.sofa.common.utils.ReportUtil;
@@ -111,12 +112,7 @@ public class MultiAppLoggerSpaceManager {
      */
     static void doInit(SpaceId spaceId, Map<String, String> props, ClassLoader spaceClassloader) {
         LogSpace logSpace = new LogSpace(props, spaceClassloader);
-
-        AbstractLoggerSpaceFactory loggerSpaceFactory = createILoggerFactory(spaceId, logSpace,
-            spaceClassloader);
-        logSpace.setAbstractLoggerSpaceFactory(loggerSpaceFactory);
-
-        LOG_FACTORY_MAP.put(spaceId, logSpace);
+        LOG_FACTORY_MAP.putIfAbsent(spaceId, logSpace);
     }
 
     /**
@@ -187,11 +183,24 @@ public class MultiAppLoggerSpaceManager {
     private static AbstractLoggerSpaceFactory getILoggerFactoryBySpaceName(SpaceId spaceId,
                                                                            ClassLoader spaceClassloader) {
         if (!isSpaceInitialized(spaceId)) {
-            // If get logger without initializing, log space will be initialized with empty config map
-            init(spaceId, null, spaceClassloader);
+            return TemporaryILoggerFactoryPool.get(spaceId, spaceClassloader);
         }
 
-        return LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory();
+        AbstractLoggerSpaceFactory factory = NOP_LOGGER_FACTORY;
+        LogSpace space = LOG_FACTORY_MAP.get(spaceId);
+        if (!isSpaceILoggerFactoryExisted(spaceId)) {
+            synchronized (space) {
+                if (!isSpaceILoggerFactoryExisted(spaceId)) {
+                    factory = createILoggerFactory(spaceId, space, spaceClassloader);
+                    space.setAbstractLoggerSpaceFactory(factory);
+                }
+            }
+        } else {
+            factory = LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory();
+        }
+
+
+        return factory;
     }
 
     public static Logger setLoggerLevel(String loggerName, String spaceName,
@@ -256,6 +265,11 @@ public class MultiAppLoggerSpaceManager {
     @Deprecated
     public static boolean isSpaceInitialized(com.alipay.sofa.common.log.SpaceId spaceId) {
         return LOG_FACTORY_MAP.containsKey(spaceId);
+    }
+
+    private static boolean isSpaceILoggerFactoryExisted(SpaceId spaceId) {
+        return isSpaceInitialized(spaceId)
+                && LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory() != null;
     }
 
     @Deprecated

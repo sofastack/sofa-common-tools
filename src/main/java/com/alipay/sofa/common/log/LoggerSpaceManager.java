@@ -22,6 +22,8 @@ import com.alipay.sofa.common.utils.ClassLoaderUtil;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -41,7 +43,7 @@ public class LoggerSpaceManager {
      * @return logger of org.slf4j.Logger type
      */
     public static Logger getLoggerBySpace(String name, String spaceName) {
-        return MultiAppLoggerSpaceManager.getLoggerBySpace(name, spaceName);
+        return getLoggerBySpace(name, new SpaceId(spaceName), Collections.emptyMap());
     }
 
     /**

@@ -26,7 +26,6 @@ import org.slf4j.Logger;
  * space
  * Created by kevin.luy@alipay.com on 2016/12/1.
  */
-@Deprecated
 public class TemporaryILoggerFactory extends AbstractLoggerSpaceFactory {
 
     private final String      space;

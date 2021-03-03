@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF">
+    <Appenders>
+        <RollingFile name="LAZY-INIT-APPENDER"
+                     fileName="${logging.path.lazy.init}/lazy/monitor.log" append="true"
+                     filePattern="${logging.path.lazy.init}/lazy/monitor.log.%d{${date.pattern.lazy.init}}">
+            <ThresholdFilter level="${logging.level.lazy.init}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="UTF-8">
+                <pattern>%d [%t] %-5p %c{2} - %m%n %throwable</pattern>
+            </PatternLayout>
+            <Policies>
+                <!-- 按天分日志文件:重要的是 filePattern 配置到按照天 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="LAZY-INIT" level="${logging.level.lazy.init}" additivity="false">
+            <AppenderRef ref="LAZY-INIT-APPENDER"/>
+        </Logger>
+    </Loggers>
+</Configuration>
