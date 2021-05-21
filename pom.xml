@@ -24,7 +24,7 @@
         <logback.version>1.1.7</logback.version>
         <slf4j.version>1.7.21</slf4j.version>
         <log4j2.version>2.13.3</log4j2.version>
-        <commons.io.version>2.6</commons.io.version>
+        <commons.io.version>2.7</commons.io.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <spring.boot.version>1.5.16.RELEASE</spring.boot.version>
         <junit.version>4.13.1</junit.version>
