@@ -17,11 +17,13 @@
 package com.alipay.sofa.common.log.env;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
-import com.alipay.sofa.common.utils.*;
+import com.alipay.sofa.common.utils.AssertUtil;
+import com.alipay.sofa.common.utils.ClassUtil;
+import com.alipay.sofa.common.utils.ProcessIdUtil;
+import com.alipay.sofa.common.utils.ReportUtil;
+import com.alipay.sofa.common.utils.StringUtil;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
