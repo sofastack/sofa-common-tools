@@ -19,6 +19,7 @@ package com.alipay.sofa.common.log.env;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.utils.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -114,7 +115,8 @@ public final class LogEnvUtils {
         }
 
         // Thirdly, process configurations from JVM System Properties
-        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+        Map<Object, Object> sysProperties = Collections.unmodifiableMap(System.getProperties());
+        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
             if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
                 continue;
             }
