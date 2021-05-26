@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -106,9 +107,14 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
         }
-        Map<Object, Object> sysProperties = Collections.unmodifiableMap(System.getProperties());
-        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
-            config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
+        final Properties systemProperties = System.getProperties();
+        final Set<String> sysKeys = systemProperties.stringPropertyNames();
+        for (String key : sysKeys) {
+            String value = systemProperties.getProperty(key);
+            if (key == null || value == null) {
+                continue;
+            }
+            config.getProperties().put(key, value);
         }
         context.start(config);
         return context;

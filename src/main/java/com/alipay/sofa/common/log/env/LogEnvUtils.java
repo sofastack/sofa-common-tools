@@ -21,7 +21,10 @@ import com.alipay.sofa.common.utils.*;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static com.alipay.sofa.common.log.Constants.*;
 
@@ -115,14 +118,16 @@ public final class LogEnvUtils {
         }
 
         // Thirdly, process configurations from JVM System Properties
-        Map<Object, Object> sysProperties = Collections.unmodifiableMap(System.getProperties());
-        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
-            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
+        final Properties systemProperties = System.getProperties();
+        final Set<String> sysKeys = systemProperties.stringPropertyNames();
+        for (String key : sysKeys) {
+            String value = systemProperties.getProperty(key);
+            if (key == null || value == null) {
                 continue;
             }
-            String lowerCaseKey = ((String) entry.getKey()).toLowerCase();
+            String lowerCaseKey = key.toLowerCase();
             if (isSofaCommonLoggingPrefix(lowerCaseKey)) {
-                properties.put(lowerCaseKey, (String) entry.getValue());
+                properties.put(lowerCaseKey, value);
             }
         }
 
