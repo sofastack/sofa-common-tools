@@ -18,8 +18,8 @@ package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
