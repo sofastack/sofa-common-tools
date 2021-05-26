@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,7 +106,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
         }
-        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+        Map<Object, Object> sysProperties = Collections.unmodifiableMap(System.getProperties());
+        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
             config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
         }
         context.start(config);
