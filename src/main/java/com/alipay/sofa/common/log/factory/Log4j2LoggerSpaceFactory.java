@@ -18,8 +18,8 @@ package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -105,8 +106,14 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
         }
-        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-            config.getProperties().put((String) entry.getKey(), (String) entry.getValue());
+        final Properties systemProperties = System.getProperties();
+        final Set<String> sysKeys = systemProperties.stringPropertyNames();
+        for (String key : sysKeys) {
+            String value = systemProperties.getProperty(key);
+            if (key == null || value == null) {
+                continue;
+            }
+            config.getProperties().put(key, value);
         }
         context.start(config);
         return context;
