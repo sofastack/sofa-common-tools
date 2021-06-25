@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.common.thread;
 
+import java.util.Objects;
+
 /**
  * The wrapper to the {@link Runnable} to save it's execute {@link Thread}
  * @author huzijie
@@ -44,7 +46,7 @@ class ExecutingRunnable implements Runnable {
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        return Objects.hash(originRunnable, thread);
     }
 
     @Override
