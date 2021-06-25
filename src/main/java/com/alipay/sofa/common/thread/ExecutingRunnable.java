@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.common.thread;
 
+import java.util.Objects;
+
 /**
  * The wrapper to the {@link Runnable} to save it's execute {@link Thread}
  * @author huzijie
@@ -35,6 +37,8 @@ class ExecutingRunnable implements Runnable {
 
     private volatile boolean printed;
 
+    private Integer          hashCode;
+
     public ExecutingRunnable(Runnable originRunnable) {
         if (originRunnable == null) {
             throw new NullPointerException();
@@ -42,9 +46,16 @@ class ExecutingRunnable implements Runnable {
         this.originRunnable = originRunnable;
     }
 
+    // ExecutingRunnable won't be executed by more than one thread
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        if (hashCode == null) {
+            // Save hashcode for later retrieval
+            // ExecutingRunnable is saved in a map, we may fail to remove if this changes
+            hashCode = Objects.hash(originRunnable, thread);
+        }
+
+        return hashCode;
     }
 
     @Override

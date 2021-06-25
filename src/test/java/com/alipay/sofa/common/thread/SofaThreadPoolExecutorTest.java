@@ -46,6 +46,14 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     }
 
     @Test
+    public void testThreadNameChanged() throws InterruptedException {
+        int old = threadPool.getStatistics().getExecutingTasks().size();
+        threadPool.execute(() -> Thread.currentThread().setName("test-name"));
+        Thread.sleep(1000);
+        Assert.assertEquals(old, threadPool.getStatistics().getExecutingTasks().size());
+    }
+
+    @Test
     public void testDecayedTask() throws Exception {
         Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO, String.format(
             "Thread pool '\\S+' started with period: %s %s", threadPool.getConfig().getPeriod(),
