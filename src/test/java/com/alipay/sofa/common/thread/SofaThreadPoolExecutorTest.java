@@ -22,6 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,6 +45,14 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             threadPool.shutdown();
             threadPool.awaitTermination(1000, TimeUnit.SECONDS);
         }
+    }
+
+    @Test
+    public void testThreadNameChanged() throws InterruptedException {
+        int old = threadPool.getStatistics().getExecutingTasks().size();
+        Future<?> future = threadPool.submit(() -> Thread.currentThread().setName("test-name"));
+        Thread.sleep(1000);
+        Assert.assertEquals(old, threadPool.getStatistics().getExecutingTasks().size());
     }
 
     @Test
