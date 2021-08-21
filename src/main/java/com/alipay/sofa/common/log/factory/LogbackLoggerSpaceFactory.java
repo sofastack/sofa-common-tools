@@ -19,6 +19,7 @@ package com.alipay.sofa.common.log.factory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.classic.util.ContextInitializer;
@@ -28,14 +29,17 @@ import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.OptionHelper;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
-import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qilong.zql
@@ -47,9 +51,11 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private LoggerContext                        loggerContext;
     private Properties                           properties;
 
-    // Console appender on this logger context
-    private final ConsoleAppender<ILoggingEvent> consoleAppender;
-    private final Level                          consoleLevel;
+    /**
+     * key: spanId, value: consoleAppender
+     * each loggger have their own consoleAppender if had configured
+     **/
+    private ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -57,8 +63,6 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.spaceId = spaceId;
         this.loggerContext = loggerContext;
         this.properties = properties;
-        consoleAppender = createConsoleAppender(loggerContext, properties);
-        consoleLevel = getConsoleLevel(spaceId.getSpaceName(), properties);
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             loggerContext.putProperty((String) entry.getKey(), (String) entry.getValue());
@@ -79,6 +83,8 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
+                    ConsoleAppender<ILoggingEvent> consoleAppender = getOrCreateConsoleAppender();
+                    Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                         && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
@@ -93,19 +99,27 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
     }
 
-    private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext loggerContext, Properties properties) {
-        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        String logPattern = properties.getProperty(
-                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
-                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
-        encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
-        encoder.setContext(loggerContext);
-        encoder.start();
-        appender.setEncoder(encoder);
-        appender.setName("CONSOLE");
-        appender.start();
-        return appender;
+    private ConsoleAppender<ILoggingEvent> getOrCreateConsoleAppender() {
+        return consoleAppenders.computeIfAbsent(spaceId.getSpaceName(), k -> {
+                ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+                PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+                String logPattern = properties.getProperty(
+                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
+                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
+                //create appender filter
+                Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
+                ThresholdFilter filter = new ThresholdFilter();
+                filter.setLevel(consoleLevel.toString());
+
+                encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
+                encoder.setContext(loggerContext);
+                encoder.start();
+                appender.setEncoder(encoder);
+                appender.setName(CONSOLE);
+                appender.start();
+                appender.addFilter(filter);
+                return appender;
+            });
     }
 
     public SpaceId getSpaceId() {
@@ -116,7 +130,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return properties;
     }
 
-    private Level getConsoleLevel(String spaceId, Properties properties) {
+    private Level getConsoleLevel(String spaceId) {
         String defaultLevel = properties.getProperty(
             Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "INFO");
         String level = properties.getProperty(

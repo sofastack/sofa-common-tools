@@ -28,6 +28,8 @@ import java.util.Map;
  */
 public abstract class AbstractLoggerSpaceFactory implements ILoggerFactory {
 
+    protected static final String CONSOLE = "CONSOLE";
+
     private String source;
 
     /***

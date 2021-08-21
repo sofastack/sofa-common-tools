@@ -25,11 +25,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.slf4j.Log4jLogger;
@@ -49,16 +51,18 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.0.15
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
-    private static final String CONSOLE = "CONSOLE";
 
     private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
-    private SpaceId                       spaceId;
-    private Properties                    properties;
-    private LoggerContext                 loggerContext;
-    private URL                           confFile;
+    private SpaceId spaceId;
+    private Properties properties;
+    private LoggerContext loggerContext;
+    private URL confFile;
 
-    private final ConsoleAppender consoleAppender;
-    private final Level consoleLevel;
+    /**
+     *key: spanId, value: consoleAppender
+     * each loggger have their own consoleAppender if had configured
+     **/
+    private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
 
     /**
      * @param source logback,log4j2,log4j,temp,nop
@@ -69,10 +73,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         this.spaceId = spaceId;
         this.properties = properties;
         this.confFile = confFile;
-
-        consoleAppender = createConsoleAppender();
-        consoleLevel = getConsoleLevel();
-
         this.loggerContext = initialize();
         attachConsoleAppender();
     }
@@ -129,9 +129,11 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
             loggerContext.addFilter(new AbstractFilter() {
                 private void process(org.apache.logging.log4j.core.Logger logger, Level level) {
+                    ConsoleAppender appender = getOrCreateConsoleAppender();
+                    Level consoleLevel = getConsoleLevel();
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
-                        logger.addAppender(consoleAppender);
+                        logger.addAppender(appender);
                         int intLevel = Level.DEBUG.intLevel();
                         if (logger.getLevel() != null) {
                             intLevel = logger.getLevel().intLevel();
@@ -191,16 +193,21 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return loggerMap.get(name);
     }
 
-    private ConsoleAppender createConsoleAppender() {
-        String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
-                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
-
-        PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
-        ConsoleAppender.Builder builder = ConsoleAppender.newBuilder();
-        builder.withLayout(patternLayout).withName(CONSOLE);
-        ConsoleAppender appender = builder.build();
-        appender.start();
-        return appender;
+    private ConsoleAppender getOrCreateConsoleAppender(){
+        return consoleAppenders.computeIfAbsent(spaceId.getSpaceName(), k -> {
+                String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
+                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
+                Level level = getConsoleLevel();
+                PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
+                Filter filter = ThresholdFilter.createFilter(level, Filter.Result.NEUTRAL, Filter.Result.NEUTRAL);
+                ConsoleAppender.Builder builder = ConsoleAppender.newBuilder()
+                        .setLayout(patternLayout)
+                        .setName(CONSOLE)
+                        .setFilter(filter);
+                ConsoleAppender appender = builder.build();
+                appender.start();
+                return appender;
+            });
     }
 
     private Level getConsoleLevel() {
@@ -235,4 +242,5 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                                                 + " is unknown when adapter to log4j2.");
         }
     }
+
 }
