@@ -20,9 +20,14 @@ import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -110,21 +115,26 @@ public class LogCode2Description {
             fileName = prefix + ".properties";
         }
 
-        try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName)) {
-            Properties properties = new Properties();
+        List<URL> configUrls = getResources(this.getClass().getClassLoader(), fileName);
+        if (configUrls != null) {
+            for (URL configUrl : configUrls) {
+                try (InputStream in = configUrl.openStream()) {
+                    Properties properties = new Properties();
 
-            if (in == null) {
-                ReportUtil.reportError(String.format("Code file for CodeSpace \"%s\" doesn't exist!", spaceId.getSpaceName()));
-            } else {
-                InputStreamReader reader = new InputStreamReader(in);
-                properties.load(reader);
+                    if (in == null) {
+                        ReportUtil.reportError(String.format("Code file for CodeSpace \"%s\" doesn't exist!", spaceId.getSpaceName()));
+                    } else {
+                        InputStreamReader reader = new InputStreamReader(in);
+                        properties.load(reader);
+                    }
+                    for (Map.Entry<?, ?> entry: properties.entrySet()) {
+                        String key = (String) entry.getKey();
+                        codeMap.put(key, String.format(logFormat, key, entry.getValue()));
+                    }
+                } catch (Throwable e) {
+                    ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
+                }
             }
-            for (Map.Entry<?, ?> entry: properties.entrySet()) {
-                String key = (String) entry.getKey();
-                codeMap.put(key, String.format(logFormat, key, entry.getValue()));
-            }
-        } catch (Throwable e) {
-            ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
         }
     }
 
@@ -136,5 +146,21 @@ public class LogCode2Description {
             return description;
         }
         return description;
+    }
+
+    private List<URL> getResources(ClassLoader classLoader, String path) {
+        List<URL> rtn = new ArrayList<>();
+        try {
+            Enumeration<URL> allUrls = classLoader.getResources(path);
+            if (allUrls != null) {
+                while (allUrls.hasMoreElements()) {
+                    rtn.add(allUrls.nextElement());
+                }
+            }
+        } catch (IOException e) {
+            ReportUtil.reportWarn("Fail to get resource of " + path + " from classpath", e);
+            return null;
+        }
+        return rtn;
     }
 }
