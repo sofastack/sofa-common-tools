@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -139,14 +138,13 @@ public class LogCode2Description {
     }
 
     public String convert(String code) {
-        String description = codeMap.get(code);
-        if (description == null) {
-            description = String.format(logFormat, code, "Unknown Code");
-            codeMap.put(code, description);
-            return description;
-        }
-        return description;
+        return codeMap.computeIfAbsent(code, k -> String.format(logFormat, k, "Unknown Code"));
     }
+
+    public String convert(String code, Object... args) {
+        return String.format(convert(code), args);
+    }
+
 
     private List<URL> getResources(ClassLoader classLoader, String path) {
         List<URL> rtn = new ArrayList<>();
