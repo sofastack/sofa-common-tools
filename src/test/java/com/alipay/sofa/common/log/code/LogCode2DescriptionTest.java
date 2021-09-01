@@ -46,6 +46,8 @@ public class LogCode2DescriptionTest {
             logCode2Description.convert("01-00001"));
         Assert.assertEquals("SOFA-TEST-11-11111: Unknown Code",
             logCode2Description.convert("11-11111"));
+        Assert.assertEquals("SOFA-TEST-02-00000: ABC with argument 123",
+                logCode2Description.convert("02-00000", "ABC", 123));
     }
 
     @Test
