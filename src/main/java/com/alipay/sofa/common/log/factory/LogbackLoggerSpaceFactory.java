@@ -53,7 +53,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
     /**
      * key: spanId, value: consoleAppender
-     * each loggger have their own consoleAppender if had configured
+     * each logger have their own consoleAppender if had configured
      **/
     private ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
 
@@ -84,14 +84,9 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
                     ConsoleAppender<ILoggingEvent> consoleAppender = getOrCreateConsoleAppender();
-                    Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                         && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
-                        // effective level won't be null
-                        if (logger.getEffectiveLevel().isGreaterOrEqual(consoleLevel)) {
-                            logger.setLevel(consoleLevel);
-                        }
                     }
                     return FilterReply.NEUTRAL;
                 }

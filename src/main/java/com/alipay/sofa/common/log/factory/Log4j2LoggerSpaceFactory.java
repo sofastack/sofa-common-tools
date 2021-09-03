@@ -53,14 +53,14 @@ import java.util.concurrent.ConcurrentMap;
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
     private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
-    private SpaceId spaceId;
-    private Properties properties;
-    private LoggerContext loggerContext;
-    private URL confFile;
+    private SpaceId                       spaceId;
+    private Properties                    properties;
+    private LoggerContext                 loggerContext;
+    private URL                           confFile;
 
     /**
      *key: spanId, value: consoleAppender
-     * each loggger have their own consoleAppender if had configured
+     * each logger have their own consoleAppender if had configured
      **/
     private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
 
@@ -128,40 +128,32 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
             loggerContext.addFilter(new AbstractFilter() {
-                private void process(org.apache.logging.log4j.core.Logger logger, Level level) {
+                private void process(org.apache.logging.log4j.core.Logger logger) {
                     ConsoleAppender appender = getOrCreateConsoleAppender();
-                    Level consoleLevel = getConsoleLevel();
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(appender);
-                        int intLevel = Level.DEBUG.intLevel();
-                        if (logger.getLevel() != null) {
-                            intLevel = logger.getLevel().intLevel();
-                        }
-                        if (intLevel > consoleLevel.intLevel()) {
-                            logger.setLevel(level);
-                        }
                     }
                 }
 
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Message msg,
                                      Throwable t) {
-                    process(logger, level);
+                    process(logger);
                     return Result.NEUTRAL;
                 }
 
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, Object msg,
                                      Throwable t) {
-                    process(logger, level);
+                    process(logger);
                     return Result.NEUTRAL;
                 }
 
                 @Override
                 public Result filter(org.apache.logging.log4j.core.Logger logger, Level level, Marker marker, String msg,
                                      Object... params) {
-                    process(logger, level);
+                    process(logger);
                     return Result.NEUTRAL;
                 }
             });

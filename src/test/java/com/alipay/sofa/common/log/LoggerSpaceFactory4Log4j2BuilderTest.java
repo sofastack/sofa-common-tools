@@ -149,21 +149,22 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
     }
 
     @Test
-    public void testConsoleLogLevel(){
+    public void testConsoleLogLevel() throws Exception {
         String loggerName = "com.foo.Bar";
         LogSpace spaceInfo = new LogSpace()
-                //if turn on this, the space level will be debug,logger.isDebugEnabled() will return true
-//                .setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "info")
-                .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+            //if turn on this, the space level will be debug,logger.isDebugEnabled() will return true
+            //.setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
+            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(new SpaceId(
-                "com.alipay.sofa.rpc"), spaceInfo);
+            "com.alipay.sofa.rpc"), spaceInfo);
 
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
-                "com.alipay.sofa.rpc", this.getClass().getClassLoader());
-        Logger logger = loggerSpaceFactory.getLogger(loggerName);
+            "com.alipay.sofa.rpc", this.getClass().getClassLoader());
+        System.err.println("Set level to Info ===");
+        Logger logger = loggerSpaceFactory.setLevel(loggerName, AdapterLevel.INFO);
         Assert.assertTrue(logger.isErrorEnabled());
         Assert.assertTrue(logger.isWarnEnabled());
         Assert.assertTrue(logger.isInfoEnabled());
