@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author zhaowang
@@ -31,8 +32,8 @@ public class DefaultConfigManger implements ConfigManager{
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManger.class);
 
-    private final List<ConfigSource> configSources = new LinkedList<>();
-    private final List<ManagementListener> configListeners = new LinkedList<>();
+    private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
+    private final List<ManagementListener> configListeners = new CopyOnWriteArrayList<>();
 
     @Override
     public <T> T getOrDefault(ConfigKey<T> key) {
