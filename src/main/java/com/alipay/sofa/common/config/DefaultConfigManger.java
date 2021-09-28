@@ -17,8 +17,6 @@
 package com.alipay.sofa.common.config;
 
 import com.alipay.sofa.common.utils.OrderComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,8 +26,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
  */
 public class DefaultConfigManger implements ConfigManager{
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManger.class);
 
     private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
     private final List<ManagementListener> configListeners = new CopyOnWriteArrayList<>();
@@ -82,14 +78,18 @@ public class DefaultConfigManger implements ConfigManager{
 
     @Override
     public void addConfigSource(ConfigSource configSource) {
-        configSources.add(configSource);
-        OrderComparator.sort(configSources);
+        synchronized (this) {
+            configSources.add(configSource);
+            OrderComparator.sort(configSources);
+        }
     }
 
     @Override
     public void addConfigListener(ManagementListener configListener) {
-        configListeners.add(configListener);
-        OrderComparator.sort(configListeners);
+        synchronized (this) {
+            configListeners.add(configListener);
+            OrderComparator.sort(configListeners);
+        }
     }
 
     //visible for test
@@ -101,4 +101,5 @@ public class DefaultConfigManger implements ConfigManager{
     List<ManagementListener> getConfigListeners() {
         return configListeners;
     }
+
 }
