@@ -16,11 +16,9 @@
  */
 package com.alipay.sofa.common.log;
 
-import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.log.base.AbstraceLogTestBase;
 import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
-import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4j2Builder;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4LogbackBuilder;
 import com.alipay.sofa.common.space.SpaceId;
 import org.junit.After;
@@ -29,14 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-public class LoggerSpaceFactoryLogbackBuilderTest extends AbstraceLogTestBase {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
-    LoggerSpaceFactory4LogbackBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
-                                                                            new SpaceId(
-                                                                                "com.alipay.sofa.rpc"),
-                                                                            new SpaceInfo().putAll(LogEnvUtils
-                                                                                .processGlobalSystemLogProperties()));
-
+public class LogbackConsoleLoggingTest extends AbstraceLogTestBase {
     @Before
     @Override
     public void before() throws Exception {
@@ -51,31 +45,40 @@ public class LoggerSpaceFactoryLogbackBuilderTest extends AbstraceLogTestBase {
 
     @Test
     public void testConsoleLogLevel() throws Exception {
-        String loggerName = "com.foo.Bar";
+        String loggerName = "com.foo.bar.console";
+        String spaceName = "sofa.console";
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         LogSpace spaceInfo = new LogSpace()
-            //if turn on this, the space level will be debug,logger.isDebugEnabled() will return true.
-            .setProperty(Constants.LOG_ENV_SUFFIX, "dev1")
-            //.setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
             .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
             .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
             .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+        CommonLoggingConfigurations.appendConsoleLoggerName(loggerName);
 
-        loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(new SpaceId(
-            "com.alipay.sofa.rpc"), spaceInfo);
-
+        LoggerSpaceFactory4LogbackBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
+            new SpaceId(spaceName), spaceInfo);
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4LogbackBuilder.build(
-            "com.alipay.sofa.rpc", this.getClass().getClassLoader());
-        Logger logger = loggerSpaceFactory.setLevel(loggerName, AdapterLevel.INFO);
-        Assert.assertTrue(logger.isErrorEnabled());
-        Assert.assertTrue(logger.isWarnEnabled());
-        Assert.assertTrue(logger.isInfoEnabled());
-        //if space level below this ,will occur error
-        Assert.assertFalse(logger.isDebugEnabled());
-        Assert.assertFalse(logger.isTraceEnabled());
-        logger.trace("trace info===");
-        logger.debug("debug info===");
-        logger.info("info info===");
-        logger.warn("warn info===");
-    }
+            spaceName, this.getClass().getClassLoader());
 
+        Logger logger = loggerSpaceFactory.getLogger(loggerName);
+
+        String traceLog = "test trace info";
+        String debugLog = "test debug info";
+        String infoLog = "test info info";
+        String warnLog = "test warn info";
+        String errorLog = "test error info";
+        logger.trace(traceLog);
+        logger.debug(debugLog);
+        logger.info(infoLog);
+        logger.warn(warnLog);
+        logger.error(errorLog);
+
+        String logString = outContent.toString();
+        Assert.assertTrue(logString.contains(warnLog));
+        Assert.assertTrue(logString.contains(errorLog));
+        Assert.assertFalse(logString.contains(traceLog));
+        Assert.assertFalse(logString.contains(debugLog));
+        Assert.assertFalse(logString.contains(infoLog));
+    }
 }

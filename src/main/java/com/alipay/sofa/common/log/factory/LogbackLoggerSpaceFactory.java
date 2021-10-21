@@ -83,7 +83,7 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
-                    ConsoleAppender<ILoggingEvent> consoleAppender = getOrCreateConsoleAppender();
+                    ConsoleAppender<ILoggingEvent> consoleAppender = getOrCreateConsoleAppender(logger.getName());
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                         && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
@@ -94,14 +94,14 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
     }
 
-    private ConsoleAppender<ILoggingEvent> getOrCreateConsoleAppender() {
-        return consoleAppenders.computeIfAbsent(spaceId.getSpaceName(), k -> {
+    private ConsoleAppender<ILoggingEvent> getOrCreateConsoleAppender(String loggerName) {
+        return consoleAppenders.computeIfAbsent(loggerName, k -> {
                 ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
                 PatternLayoutEncoder encoder = new PatternLayoutEncoder();
                 String logPattern = properties.getProperty(
                         Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
                         Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
-                //create appender filter
+                // create appender filter
                 Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
                 ThresholdFilter filter = new ThresholdFilter();
                 filter.setLevel(consoleLevel.toString());
@@ -111,8 +111,9 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 encoder.start();
                 appender.setEncoder(encoder);
                 appender.setName(CONSOLE);
-                appender.start();
+                filter.start();
                 appender.addFilter(filter);
+                appender.start();
                 return appender;
             });
     }

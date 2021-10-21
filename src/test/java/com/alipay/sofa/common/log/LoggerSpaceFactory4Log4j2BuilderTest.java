@@ -22,7 +22,6 @@ import com.alipay.sofa.common.log.env.LogEnvUtils;
 import com.alipay.sofa.common.log.factory.AbstractLoggerSpaceFactory;
 import com.alipay.sofa.common.log.factory.LoggerSpaceFactory4Log4j2Builder;
 import com.alipay.sofa.common.space.SpaceId;
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -147,35 +146,4 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
         logger.debug("debug level===");
         logger.trace("trace level===");
     }
-
-    @Test
-    public void testConsoleLogLevel() throws Exception {
-        String loggerName = "com.foo.Bar";
-        LogSpace spaceInfo = new LogSpace()
-            //if turn on this, the space level will be debug,logger.isDebugEnabled() will return true
-            //.setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
-            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
-            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
-            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
-
-        loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(new SpaceId(
-            "com.alipay.sofa.rpc"), spaceInfo);
-
-        AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
-            "com.alipay.sofa.rpc", this.getClass().getClassLoader());
-        System.err.println("Set level to Info ===");
-        Logger logger = loggerSpaceFactory.setLevel(loggerName, AdapterLevel.INFO);
-        Assert.assertTrue(logger.isErrorEnabled());
-        Assert.assertTrue(logger.isWarnEnabled());
-        Assert.assertTrue(logger.isInfoEnabled());
-        //if space level below this ,will occur error
-        Assert.assertFalse(logger.isDebugEnabled());
-        Assert.assertFalse(logger.isTraceEnabled());
-        logger.trace("trace info===");
-        logger.debug("debug info===");
-        logger.info("info info===");
-        logger.warn("warn info===");
-
-    }
-
 }

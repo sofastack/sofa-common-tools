@@ -59,7 +59,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private URL                           confFile;
 
     /**
-     *key: spanId, value: consoleAppender
+     * key: loggerName, value: consoleAppender
      * each logger have their own consoleAppender if had configured
      **/
     private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
@@ -129,7 +129,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
             loggerContext.addFilter(new AbstractFilter() {
                 private void process(org.apache.logging.log4j.core.Logger logger) {
-                    ConsoleAppender appender = getOrCreateConsoleAppender();
+                    ConsoleAppender appender = getOrCreateConsoleAppender(logger.getName());
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                             && !logger.getAppenders().containsKey(CONSOLE)) {
                         logger.addAppender(appender);
@@ -185,14 +185,14 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return loggerMap.get(name);
     }
 
-    private ConsoleAppender getOrCreateConsoleAppender(){
-        return consoleAppenders.computeIfAbsent(spaceId.getSpaceName(), k -> {
+    private ConsoleAppender getOrCreateConsoleAppender(String loggerName){
+        return consoleAppenders.computeIfAbsent(loggerName, k -> {
                 String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
                         Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
                 Level level = getConsoleLevel();
                 PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
-                Filter filter = ThresholdFilter.createFilter(level, Filter.Result.NEUTRAL, Filter.Result.NEUTRAL);
-                ConsoleAppender.Builder builder = ConsoleAppender.newBuilder()
+                Filter filter = ThresholdFilter.createFilter(level, Filter.Result.NEUTRAL, Filter.Result.DENY);
+                ConsoleAppender.Builder<?> builder = ConsoleAppender.newBuilder()
                         .setLayout(patternLayout)
                         .setName(CONSOLE)
                         .setFilter(filter);
