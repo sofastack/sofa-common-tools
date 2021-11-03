@@ -24,7 +24,7 @@
     </appender>
 
     <logger name="com.alipay.sofa.common.config.digest" additivity="false">
-        <level value="into"/>
+        <level value="info"/>
         <appender-ref ref="CONFIG-APPENDER"/>
     </logger>
 
