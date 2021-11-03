@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="INFO-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <append>true</append>
+    <file>${logging.path}/console/common-default.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>${logging.path}/console/common-default.log.%d{yyyy-MM-dd}</FileNamePattern>
+      <MaxHistory>30</MaxHistory>
+    </rollingPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d %-5p %-32t - %m%n</pattern>
+      <charset>${file.encoding}</charset>
+    </encoder>
+  </appender>
+
+  <logger name="com.foo.bar.console" level="${logging.level.sofa.console}" additivity="false">
+    <appender-ref ref="INFO-APPENDER"/>
+  </logger>
+</configuration>

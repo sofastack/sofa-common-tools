@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+  <appenders>
+    <RollingFile name="INFO-APPENDER" fileName="${ctx:logging.path}/console/common-default.log" append="true"
+                 filePattern="${ctx:logging.path}/console/common-default.log.%d{yyyy-MM-dd}">
+      <PatternLayout charset="${ctx:file.encoding}">
+        <pattern>%d %-5p %-32t - %m%n %throwable</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile>
+  </appenders>
+
+  <loggers>
+    <logger name="com.foo.bar.console" level="${logging.level.sofa.console}" additivity="false">
+      <appender-ref ref="INFO-APPENDER"/>
+    </logger>
+  </loggers>
+</configuration>

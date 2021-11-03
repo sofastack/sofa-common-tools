@@ -146,5 +146,4 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
         logger.debug("debug level===");
         logger.trace("trace level===");
     }
-
 }
