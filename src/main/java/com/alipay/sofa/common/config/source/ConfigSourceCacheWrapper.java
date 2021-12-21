@@ -31,13 +31,30 @@ import java.util.concurrent.ExecutionException;
  */
 public class ConfigSourceCacheWrapper extends AbstractConfigSource {
 
+    public static final int              DEFAULT_MAX_SIZE = 1000;
+
     private AbstractConfigSource         delegate;
     private LoadingCache<String, String> cache;
+
+    public ConfigSourceCacheWrapper(AbstractConfigSource delegate, CacheBuilder<String, String> cb) {
+        this.delegate = delegate;
+        this.cache = cb.build(new CacheLoader<String, String>() {
+            @Override
+            public String load(String key) {
+                String value = delegate.doGetConfig(key);
+                if (value == null) {
+                    return "";
+                } else {
+                    return value;
+                }
+            }
+        });
+    }
 
     public ConfigSourceCacheWrapper(AbstractConfigSource delegate, long expireAfterSecond) {
         this.delegate = delegate;
         this.cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofSeconds(expireAfterSecond))
+            .expireAfterWrite(Duration.ofSeconds(expireAfterSecond)).maximumSize(DEFAULT_MAX_SIZE)
             .build(new CacheLoader<String, String>() {
                 @Override
                 public String load(String key) {

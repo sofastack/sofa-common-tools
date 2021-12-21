@@ -20,10 +20,13 @@ import com.alipay.sofa.common.config.source.AbstractConfigSource;
 import com.alipay.sofa.common.config.source.ConfigSourceCacheWrapper;
 import com.alipay.sofa.common.config.source.ConfigSourceOrder;
 import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
+import com.google.common.cache.CacheBuilder;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.time.Duration;
 
 /**
  * @author zhaowang
@@ -115,6 +118,29 @@ public class ConfigSourceCacheWrapperTest {
         Thread.sleep(500);
         Assert.assertEquals("value4", cacheWrapper.doGetConfig("key3"));
         System.clearProperty("key3");
+    }
+
+    @Test
+    public void testConstructWithCacheBuild() {
+        CacheBuilder cb = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofSeconds(1))
+            .maximumSize(1);
+        ConfigSourceCacheWrapper wrapper = new ConfigSourceCacheWrapper(
+            new SystemPropertyConfigSource(), cb);
+
+        String key = "key3";
+        String notExist = "notExist";
+        String value = "value3";
+        String difValue = "difValue";
+        System.setProperty(key, value);
+        Assert.assertEquals(value, wrapper.doGetConfig(key));
+        System.setProperty(key, difValue);
+        // load from cache
+        Assert.assertEquals(value, wrapper.doGetConfig(key));
+        // maximumSize = 1 ,cache will be replaced by notExist
+        Assert.assertEquals("", wrapper.doGetConfig(notExist));
+        // load from delegate
+        Assert.assertEquals(difValue, wrapper.doGetConfig(key));
+        System.clearProperty(value);
     }
 
     public class ExceptionConfigSource extends AbstractConfigSource {
