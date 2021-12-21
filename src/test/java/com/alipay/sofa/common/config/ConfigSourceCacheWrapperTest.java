@@ -32,7 +32,7 @@ import org.junit.Test;
 public class ConfigSourceCacheWrapperTest {
 
     private ConfigSourceCacheWrapper cacheWrapper = new ConfigSourceCacheWrapper(
-            new SystemPropertyConfigSource(), 1);
+                                                      new SystemPropertyConfigSource(), 1);
 
     @BeforeClass
     public static void beforeClass() {
@@ -65,7 +65,7 @@ public class ConfigSourceCacheWrapperTest {
         NullPointerException NPE = new NullPointerException();
         ExceptionConfigSource exceptionConfigSource = new ExceptionConfigSource(NPE);
         ConfigSourceCacheWrapper cacheWrapper = new ConfigSourceCacheWrapper(exceptionConfigSource,
-                1);
+            1);
         try {
             cacheWrapper.doGetConfig("");
             Assert.fail();
@@ -81,7 +81,18 @@ public class ConfigSourceCacheWrapperTest {
             Assert.assertTrue(t instanceof NullPointerException);
             Assert.assertSame(NPE, t);
         }
+    }
 
+    @Test
+    public void testNotExist() throws InterruptedException {
+        String notExistKey = "key3";
+        String value = "value3";
+        System.clearProperty(notExistKey);
+        Assert.assertEquals("", cacheWrapper.doGetConfig(notExistKey));
+        System.setProperty(notExistKey, value);
+        Assert.assertEquals("", cacheWrapper.doGetConfig(notExistKey));
+        Thread.sleep(1000);
+        Assert.assertEquals(value, cacheWrapper.doGetConfig(notExistKey));
     }
 
     @Test

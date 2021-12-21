@@ -41,7 +41,12 @@ public class ConfigSourceCacheWrapper extends AbstractConfigSource {
             .build(new CacheLoader<String, String>() {
                 @Override
                 public String load(String key) {
-                    return delegate.doGetConfig(key);
+                    String value = delegate.doGetConfig(key);
+                    if (value == null) {
+                        return "";
+                    } else {
+                        return value;
+                    }
                 }
             });
     }
