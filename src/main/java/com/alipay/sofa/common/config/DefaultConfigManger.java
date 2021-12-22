@@ -20,6 +20,7 @@ import com.alipay.sofa.common.utils.OrderComparator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class DefaultConfigManger implements ConfigManager {
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(expireAfterSecond))
                 .maximumSize(maximumSize)
-                .build(new CacheLoader<ConfigKey,Object >() {
+                .build(new CacheLoader<ConfigKey, Object>() {
                     @Override
                     public Object load(ConfigKey key) {
                         Object config = getConfig(key, null);
@@ -78,10 +79,18 @@ public class DefaultConfigManger implements ConfigManager {
     }
 
     private <T> T getConfigWithCache(ConfigKey<T> key, T defaultValue) {
-        Object result = cache.getUnchecked(key);
-        if(result == EMPTY){
+        Object result = null;
+        try {
+            result = cache.getUnchecked(key);
+        } catch (UncheckedExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+        }
+        if (result == EMPTY) {
             return defaultValue;
-        }else{
+        } else {
             return (T) result;
         }
     }
@@ -91,14 +100,14 @@ public class DefaultConfigManger implements ConfigManager {
         beforeConfigLoading(key);
         for (ConfigSource configSource : configSources) {
             result = configSource.getConfig(key);
-            if(result != null){
-                onConfigLoaded(key,configSource);
+            if (result != null) {
+                onConfigLoaded(key, configSource);
                 return result;
             }
         }
 
 
-        onLoadDefaultValue(key,defaultValue);
+        onLoadDefaultValue(key, defaultValue);
         return defaultValue;
     }
 

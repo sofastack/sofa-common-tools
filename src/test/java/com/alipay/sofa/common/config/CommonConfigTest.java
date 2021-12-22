@@ -158,7 +158,72 @@ public class CommonConfigTest {
 
     }
 
+    @Test
+    public void testCache() throws InterruptedException {
+        String DEFAULT = "default";
+        String custom = "custom";
+        ConfigKey<String> configKey = ConfigKey.build("key1", DEFAULT, true, COMMON_LOG_FILE.getDescription());
+        MapConfigSource configSource = new MapConfigSource(Ordered.HIGHEST_PRECEDENCE);
+        Map<String, String> map = configSource.map;
+        SofaConfigs.addConfigSource(configSource);
+        // test null
+        Assert.assertEquals(DEFAULT, SofaConfigs.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(null, SofaConfigs.getOrCustomDefaultWithCache(configKey, null));
+        // test custom
+        Assert.assertEquals(custom, SofaConfigs.getOrCustomDefaultWithCache(configKey, custom));
 
+        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
+        configManger.addConfigSource(configSource);
+
+        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey, custom));
+        map.put("key1", "value1");
+        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey, custom));
+        Thread.sleep(1000);
+        Assert.assertEquals("value1", configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals("value1", configManger.getOrCustomDefaultWithCache(configKey, custom));
+    }
+
+    @Test
+    public void testException() {
+        String DEFAULT = "default";
+        String custom = "custom";
+        // test exception
+        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
+        ExceptionConfigSource exceptionConfigSource = new ExceptionConfigSource(Ordered.HIGHEST_PRECEDENCE);
+        configManger.addConfigSource(exceptionConfigSource);
+        ConfigKey<String> configKey = ConfigKey.build("key1", DEFAULT, true, COMMON_LOG_FILE.getDescription());
+        RuntimeException expect = exceptionConfigSource.getRuntimeException();
+
+        try{
+            configManger.getOrDefault(configKey);
+            Assert.fail();
+        }catch (NullPointerException e){
+            Assert.assertSame(expect,e);
+        }
+
+        try{
+            configManger.getOrDefaultWithCache(configKey);
+            Assert.fail();
+        }catch (NullPointerException e){
+            Assert.assertSame(expect,e);
+        }
+
+        try{
+            configManger.getOrCustomDefault(configKey,custom);
+            Assert.fail();
+        }catch (NullPointerException e){
+            Assert.assertSame(expect,e);
+        }
+
+        try{
+            configManger.getOrCustomDefaultWithCache(configKey, custom);
+            Assert.fail();
+        }catch (NullPointerException e){
+            Assert.assertSame(expect,e);
+        }
+    }
 
     static class OrderConfigSource extends AbstractConfigSource {
 
@@ -187,35 +252,6 @@ public class CommonConfigTest {
         public int getOrder() {
             return order;
         }
-    }
-
-    @Test
-    public void testCache() throws InterruptedException {
-        String DEFAULT = "default";
-        String custom = "custom";
-        ConfigKey<String> configKey = ConfigKey.build("key1", DEFAULT,true, COMMON_LOG_FILE.getDescription());
-        MapConfigSource configSource = new MapConfigSource(Ordered.HIGHEST_PRECEDENCE);
-        Map<String, String> map = configSource.map;
-        SofaConfigs.addConfigSource(configSource);
-        // test null
-        Assert.assertEquals(DEFAULT, SofaConfigs.getOrDefaultWithCache(configKey));
-        Assert.assertEquals(null, SofaConfigs.getOrCustomDefaultWithCache(configKey,null));
-        // test custom
-        Assert.assertEquals(custom, SofaConfigs.getOrCustomDefaultWithCache(configKey, custom));
-
-        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
-        configManger.addConfigSource(configSource);
-
-        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
-        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey,custom));
-        map.put("key1","value1");
-        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
-        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey,custom));
-        Thread.sleep(1000);
-        Assert.assertEquals("value1", configManger.getOrDefaultWithCache(configKey));
-        Assert.assertEquals("value1", configManger.getOrCustomDefaultWithCache(configKey,custom));
-
-
     }
 
     static class OrderConfigListener extends AbstractConfigListener {
@@ -253,6 +289,38 @@ public class CommonConfigTest {
         @Override
         public boolean hasKey(String key) {
             return map.containsKey(key);
+        }
+    }
+
+    static class ExceptionConfigSource extends OrderConfigSource {
+
+        private RuntimeException runtimeException = new NullPointerException();
+
+        public ExceptionConfigSource(int order) {
+            super(order);
+        }
+
+        public RuntimeException getRuntimeException() {
+            return runtimeException;
+        }
+
+        public void setRuntimeException(RuntimeException runtimeException) {
+            this.runtimeException = runtimeException;
+        }
+
+        @Override
+        public String getName() {
+            return "ExceptionConfigSource";
+        }
+
+        @Override
+        public String doGetConfig(String key) {
+            throw runtimeException;
+        }
+
+        @Override
+        public boolean hasKey(String key) {
+            throw runtimeException;
         }
     }
 
