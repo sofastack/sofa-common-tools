@@ -26,6 +26,10 @@ public interface ConfigManager {
 
     <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault);
 
+    <T> T getOrDefaultWithCache(ConfigKey<T> key);
+
+    <T> T getOrCustomDefaultWithCache(ConfigKey<T> key, T customDefault);
+
     void addConfigSource(ConfigSource configSource);
 
     void addConfigListener(ManagementListener configListener);

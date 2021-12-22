@@ -20,6 +20,9 @@ import com.alipay.sofa.common.config.listener.LogConfigListener;
 import com.alipay.sofa.common.config.source.SystemEnvConfigSource;
 import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
 
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_CONFIG_CACHE_EXPIRE_TIME;
+import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_CONFIG_CACHE_MAX_SIZE;
+
 /**
  * @author zhaowang
  * @version : SofaCommonConfig.java, v 0.1 2020年12月01日 11:54 上午 zhaowang Exp $
@@ -27,9 +30,16 @@ import com.alipay.sofa.common.config.source.SystemPropertyConfigSource;
 public class SofaConfigs {
 
     private static final DefaultConfigManger INSTANCE;
+    public static final String               DEFAULT_EXPIRE_AFTER_SECOND = "5";
+    public static final String               DEFAULT_MAX_SIZE            = "1000";
 
     static {
-        INSTANCE = new DefaultConfigManger();
+        long expireAfterSecond = Long.parseLong(System.getProperty(
+            SOFA_MIDDLEWARE_CONFIG_CACHE_EXPIRE_TIME, DEFAULT_EXPIRE_AFTER_SECOND));
+        long maxSize = Long.parseLong(System.getProperty(SOFA_MIDDLEWARE_CONFIG_CACHE_MAX_SIZE,
+            DEFAULT_MAX_SIZE));
+
+        INSTANCE = new DefaultConfigManger(expireAfterSecond, maxSize);
         // add ConfigSource
         INSTANCE.addConfigSource(new SystemPropertyConfigSource());
         INSTANCE.addConfigSource(new SystemEnvConfigSource());
@@ -44,6 +54,14 @@ public class SofaConfigs {
 
     public static <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault) {
         return INSTANCE.getOrCustomDefault(key, customDefault);
+    }
+
+    public static <T> T getOrCustomDefaultWithCache(ConfigKey<T> key, T customDefault) {
+        return INSTANCE.getOrCustomDefaultWithCache(key, customDefault);
+    }
+
+    public static <T> T getOrDefaultWithCache(ConfigKey<T> key) {
+        return INSTANCE.getOrDefaultWithCache(key);
     }
 
     public static void addConfigSource(ConfigSource configSource) {

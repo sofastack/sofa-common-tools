@@ -24,9 +24,11 @@ import com.alipay.sofa.common.utils.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.alipay.sofa.common.CommonToolConfigKeys.COMMON_LOG_FILE;
 import static com.alipay.sofa.common.CommonToolConfigKeys.COMMON_THREAD_LOG_PERIOD;
 
 /**
@@ -51,7 +53,7 @@ public class CommonConfigTest {
 
         System.setProperty(COMMON_THREAD_LOG_PERIOD.getAlias()[0], "");
         config = SofaConfigs.getOrCustomDefault(COMMON_THREAD_LOG_PERIOD,
-            COMMON_THREAD_LOG_PERIOD.getDefaultValue() + 1);
+                COMMON_THREAD_LOG_PERIOD.getDefaultValue() + 1);
         Assert.assertEquals(COMMON_THREAD_LOG_PERIOD.getDefaultValue() + 1, config.longValue());
     }
 
@@ -138,7 +140,7 @@ public class CommonConfigTest {
 
     @Test
     public void testLogListenerOrder() {
-        DefaultConfigManger config = new DefaultConfigManger();
+        DefaultConfigManger config = new DefaultConfigManger(1, 100);
 
         config.addConfigListener(new OrderConfigListener(1));
         config.addConfigListener(new OrderConfigListener(2));
@@ -155,6 +157,8 @@ public class CommonConfigTest {
         Assert.assertEquals(Ordered.LOWEST_PRECEDENCE, listener.getOrder());
 
     }
+
+
 
     static class OrderConfigSource extends AbstractConfigSource {
 
@@ -185,6 +189,35 @@ public class CommonConfigTest {
         }
     }
 
+    @Test
+    public void testCache() throws InterruptedException {
+        String DEFAULT = "default";
+        String custom = "custom";
+        ConfigKey<String> configKey = ConfigKey.build("key1", DEFAULT,true, COMMON_LOG_FILE.getDescription());
+        MapConfigSource configSource = new MapConfigSource(Ordered.HIGHEST_PRECEDENCE);
+        Map<String, String> map = configSource.map;
+        SofaConfigs.addConfigSource(configSource);
+        // test null
+        Assert.assertEquals(DEFAULT, SofaConfigs.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(null, SofaConfigs.getOrCustomDefaultWithCache(configKey,null));
+        // test custom
+        Assert.assertEquals(custom, SofaConfigs.getOrCustomDefaultWithCache(configKey, custom));
+
+        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
+        configManger.addConfigSource(configSource);
+
+        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey,custom));
+        map.put("key1","value1");
+        Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals(custom, configManger.getOrCustomDefaultWithCache(configKey,custom));
+        Thread.sleep(1000);
+        Assert.assertEquals("value1", configManger.getOrDefaultWithCache(configKey));
+        Assert.assertEquals("value1", configManger.getOrCustomDefaultWithCache(configKey,custom));
+
+
+    }
+
     static class OrderConfigListener extends AbstractConfigListener {
 
         private int order;
@@ -196,6 +229,30 @@ public class CommonConfigTest {
         @Override
         public int getOrder() {
             return order;
+        }
+    }
+
+    static class MapConfigSource extends OrderConfigSource {
+        public Map<String, String> map = new HashMap<>();
+        private int order;
+
+        public MapConfigSource(int order) {
+            super(order);
+        }
+
+        @Override
+        public String getName() {
+            return "MapConfigSource";
+        }
+
+        @Override
+        public String doGetConfig(String key) {
+            return map.get(key);
+        }
+
+        @Override
+        public boolean hasKey(String key) {
+            return map.containsKey(key);
         }
     }
 
