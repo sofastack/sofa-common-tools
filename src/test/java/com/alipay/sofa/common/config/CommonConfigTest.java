@@ -94,7 +94,7 @@ public class CommonConfigTest {
 
     @Test
     public void testConfigSourceOrder() {
-        DefaultConfigManger config = SofaConfigs.getInstance();
+        DefaultConfigManager config = SofaConfigs.getInstance();
 
         SofaConfigs.addConfigSource(new OrderConfigSource(1));
         SofaConfigs.addConfigSource(new OrderConfigSource(2));
@@ -117,7 +117,7 @@ public class CommonConfigTest {
 
     @Test
     public void testListenerSourceOrder() {
-        DefaultConfigManger config = SofaConfigs.getInstance();
+        DefaultConfigManager config = SofaConfigs.getInstance();
 
         SofaConfigs.addConfigListener(new OrderConfigListener(1));
         SofaConfigs.addConfigListener(new OrderConfigListener(2));
@@ -140,7 +140,7 @@ public class CommonConfigTest {
 
     @Test
     public void testLogListenerOrder() {
-        DefaultConfigManger config = new DefaultConfigManger(1, 100);
+        DefaultConfigManager config = new DefaultConfigManager(1, 100);
 
         config.addConfigListener(new OrderConfigListener(1));
         config.addConfigListener(new OrderConfigListener(2));
@@ -172,7 +172,7 @@ public class CommonConfigTest {
         // test custom
         Assert.assertEquals(custom, SofaConfigs.getOrCustomDefaultWithCache(configKey, custom));
 
-        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
+        DefaultConfigManager configManger = new DefaultConfigManager(1, 1000);
         configManger.addConfigSource(configSource);
 
         Assert.assertEquals(DEFAULT, configManger.getOrDefaultWithCache(configKey));
@@ -190,7 +190,7 @@ public class CommonConfigTest {
         String DEFAULT = "default";
         String custom = "custom";
         // test exception
-        DefaultConfigManger configManger = new DefaultConfigManger(1, 1000);
+        DefaultConfigManager configManger = new DefaultConfigManager(1, 1000);
         ExceptionConfigSource exceptionConfigSource = new ExceptionConfigSource(Ordered.HIGHEST_PRECEDENCE);
         configManger.addConfigSource(exceptionConfigSource);
         ConfigKey<String> configKey = ConfigKey.build("key1", DEFAULT, true, COMMON_LOG_FILE.getDescription());

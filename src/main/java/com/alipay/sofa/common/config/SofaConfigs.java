@@ -29,7 +29,7 @@ import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_CONFIG_CACHE_
  */
 public class SofaConfigs {
 
-    private static final DefaultConfigManger INSTANCE;
+    private static final DefaultConfigManager INSTANCE;
     public static final String               DEFAULT_EXPIRE_AFTER_SECOND = "5";
     public static final String               DEFAULT_MAX_SIZE            = "1000";
 
@@ -39,7 +39,7 @@ public class SofaConfigs {
         long maxSize = Long.parseLong(System.getProperty(SOFA_MIDDLEWARE_CONFIG_CACHE_MAX_SIZE,
             DEFAULT_MAX_SIZE));
 
-        INSTANCE = new DefaultConfigManger(expireAfterSecond, maxSize);
+        INSTANCE = new DefaultConfigManager(expireAfterSecond, maxSize);
         // add ConfigSource
         INSTANCE.addConfigSource(new SystemPropertyConfigSource());
         INSTANCE.addConfigSource(new SystemEnvConfigSource());
@@ -72,7 +72,7 @@ public class SofaConfigs {
         INSTANCE.addConfigListener(configListener);
     }
 
-    public static DefaultConfigManger getInstance() {
+    public static DefaultConfigManager getInstance() {
         return INSTANCE;
     }
 }

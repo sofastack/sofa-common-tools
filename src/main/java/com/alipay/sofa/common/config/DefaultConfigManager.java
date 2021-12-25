@@ -32,16 +32,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author zhaowang
  * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
  */
-public class DefaultConfigManger implements ConfigManager {
+public class DefaultConfigManager implements ConfigManager {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManger.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManager.class);
 
     private final Object EMPTY = new Object();
     private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
     private final List<ManagementListener> configListeners = new CopyOnWriteArrayList<>();
     private LoadingCache<ConfigKey, Object> cache;
 
-    public DefaultConfigManger(long expireAfterSecond, long maximumSize) {
+    public DefaultConfigManager(long expireAfterSecond, long maximumSize) {
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(expireAfterSecond))
                 .maximumSize(maximumSize)
