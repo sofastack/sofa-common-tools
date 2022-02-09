@@ -20,9 +20,8 @@ import com.alipay.sofa.common.utils.OrderComparator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,8 +32,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
  */
 public class DefaultConfigManager implements ConfigManager {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManager.class);
 
     private final Object EMPTY = new Object();
     private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
@@ -82,10 +79,14 @@ public class DefaultConfigManager implements ConfigManager {
         Object result = null;
         try {
             result = cache.getUnchecked(key);
+        }catch (ExecutionError error){
+            throw new IllegalStateException(error);
         } catch (UncheckedExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof RuntimeException) {
                 throw (RuntimeException) cause;
+            }else{
+                throw new IllegalStateException("Unexpected type of exception when getConfigWithCache:"+cause,cause);
             }
         }
         if (result == EMPTY) {

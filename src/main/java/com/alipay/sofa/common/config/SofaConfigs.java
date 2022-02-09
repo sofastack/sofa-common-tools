@@ -30,8 +30,8 @@ import static com.alipay.sofa.common.log.Constants.SOFA_MIDDLEWARE_CONFIG_CACHE_
 public class SofaConfigs {
 
     private static final DefaultConfigManager INSTANCE;
-    public static final String               DEFAULT_EXPIRE_AFTER_SECOND = "5";
-    public static final String               DEFAULT_MAX_SIZE            = "1000";
+    public static final String                DEFAULT_EXPIRE_AFTER_SECOND = "5";
+    public static final String                DEFAULT_MAX_SIZE            = "1000";
 
     static {
         long expireAfterSecond = Long.parseLong(System.getProperty(
