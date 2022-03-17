@@ -135,4 +135,8 @@ public interface Constants {
     String  LOGGING_CONFIG_PATH                                   = "logging.config.%s";
     // config marker
     String  SOFA_LOG_FIRST_INITIALIZE                             = "sofa.log.first.initialize";
+    // SofaConfigs cache expire time
+    String  SOFA_MIDDLEWARE_CONFIG_CACHE_EXPIRE_TIME              = "sofa.middleware.config.cache.expireTime";
+    // SofaConfigs cache max size
+    String  SOFA_MIDDLEWARE_CONFIG_CACHE_MAX_SIZE                 = "sofa.middleware.config.cache.maxSize";
 }

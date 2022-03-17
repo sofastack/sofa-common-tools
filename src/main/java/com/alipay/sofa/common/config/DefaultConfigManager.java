@@ -17,9 +17,13 @@
 package com.alipay.sofa.common.config;
 
 import com.alipay.sofa.common.utils.OrderComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,21 +31,69 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author zhaowang
  * @version : SofaCommonConfig.java, v 0.1 2020年10月20日 8:30 下午 zhaowang Exp $
  */
-public class DefaultConfigManger implements ConfigManager{
+public class DefaultConfigManager implements ConfigManager {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigManger.class);
-
+    private final Object EMPTY = new Object();
     private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
     private final List<ManagementListener> configListeners = new CopyOnWriteArrayList<>();
+    private LoadingCache<ConfigKey, Object> cache;
+
+    public DefaultConfigManager(long expireAfterSecond, long maximumSize) {
+        this.cache = CacheBuilder.newBuilder()
+                .expireAfterWrite(Duration.ofSeconds(expireAfterSecond))
+                .maximumSize(maximumSize)
+                .build(new CacheLoader<ConfigKey, Object>() {
+                    @Override
+                    public Object load(ConfigKey key) {
+                        Object config = getConfig(key, null);
+                        if (config == null) {
+                            return EMPTY;
+                        }
+                        return config;
+                    }
+                });
+    }
+
 
     @Override
     public <T> T getOrDefault(ConfigKey<T> key) {
-        return getConfig(key,key.getDefaultValue());
+        return getConfig(key, key.getDefaultValue());
     }
 
     @Override
     public <T> T getOrCustomDefault(ConfigKey<T> key, T customDefault) {
-        return getConfig(key,customDefault);
+        return getConfig(key, customDefault);
+    }
+
+    @Override
+    public <T> T getOrDefaultWithCache(ConfigKey<T> key) {
+        return getConfigWithCache(key, key.getDefaultValue());
+    }
+
+    @Override
+    public <T> T getOrCustomDefaultWithCache(ConfigKey<T> key, T customDefault) {
+        return getConfigWithCache(key, customDefault);
+    }
+
+    private <T> T getConfigWithCache(ConfigKey<T> key, T defaultValue) {
+        Object result = null;
+        try {
+            result = cache.getUnchecked(key);
+        }catch (ExecutionError error){
+            throw new IllegalStateException(error);
+        } catch (UncheckedExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }else{
+                throw new IllegalStateException("Unexpected type of exception when getConfigWithCache:"+cause,cause);
+            }
+        }
+        if (result == EMPTY) {
+            return defaultValue;
+        } else {
+            return (T) result;
+        }
     }
 
     public <T> T getConfig(ConfigKey<T> key, T defaultValue) {
@@ -49,33 +101,33 @@ public class DefaultConfigManger implements ConfigManager{
         beforeConfigLoading(key);
         for (ConfigSource configSource : configSources) {
             result = configSource.getConfig(key);
-            if(result != null){
-                onConfigLoaded(key,configSource);
+            if (result != null) {
+                onConfigLoaded(key, configSource);
                 return result;
             }
         }
 
 
-        onLoadDefaultValue(key,defaultValue);
+        onLoadDefaultValue(key, defaultValue);
         return defaultValue;
     }
 
     private <T> void onLoadDefaultValue(ConfigKey<T> key, Object defaultValue) {
         for (ManagementListener configListener : configListeners) {
-            configListener.onLoadDefaultValue(key,defaultValue);
+            configListener.onLoadDefaultValue(key, defaultValue);
         }
     }
 
 
     private <T> void beforeConfigLoading(ConfigKey<T> key) {
         for (ManagementListener configListener : configListeners) {
-            configListener.beforeConfigLoading(key,configSources);
+            configListener.beforeConfigLoading(key, configSources);
         }
     }
 
     private <T> void onConfigLoaded(ConfigKey<T> key, ConfigSource configSource) {
         for (ManagementListener configListener : configListeners) {
-            configListener.afterConfigLoaded(key,configSource,configSources);
+            configListener.afterConfigLoaded(key, configSource, configSources);
         }
     }
 
