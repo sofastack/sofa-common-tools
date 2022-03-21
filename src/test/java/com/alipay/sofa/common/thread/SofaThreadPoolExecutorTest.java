@@ -54,6 +54,35 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
     }
 
     @Test
+    public void testThreadQueueCapacityChanged() throws InterruptedException {
+        threadPool = new SofaThreadPoolExecutor(1, 1, 10, TimeUnit.SECONDS, new VariableLinkedBlockingQueue<>(1));
+        VariableLinkedBlockingQueue<Runnable> queue = (VariableLinkedBlockingQueue<Runnable>) threadPool.getQueue();
+        for (int i = 0; i < 2; i++) {
+            threadPool.execute(() -> {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        Thread.sleep(50L);
+        Assert.assertEquals(1, queue.size());
+
+        //try to change queue's capacity, and make another thread to run.
+        queue.setCapacity(2);
+        threadPool.execute(() -> {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        //now queue size have to be changed to 2
+        Assert.assertEquals(2, queue.size());
+    }
+
+    @Test
     public void testDecayedTask() throws Exception {
         Assert.assertTrue(isMatch(getInfoViaIndex(0), INFO, String.format(
             "Thread pool '\\S+' started with period: %s %s", threadPool.getConfig().getPeriod(),
