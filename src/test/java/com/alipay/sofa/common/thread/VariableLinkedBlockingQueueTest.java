@@ -19,11 +19,14 @@ package com.alipay.sofa.common.thread;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class VariableLinkedBlockingQueueTest {
 
     @Test
-    public void test() throws Exception {
+    public void commonTest() throws Exception {
         VariableLinkedBlockingQueue<String> queue = new VariableLinkedBlockingQueue<>(Arrays.asList("a"));
         Assert.assertEquals(1, queue.size());
 
@@ -72,9 +75,39 @@ public class VariableLinkedBlockingQueueTest {
             Assert.assertEquals("a", it.next());
             it.remove();
         }
+        queue = new VariableLinkedBlockingQueue<>(1);
+        queue.offer("a");
+        queue.toString();
+        Assert.assertTrue(queue.remove("a"));
         queue.clear();
 
+        //cover timeout logic
+        queue = new VariableLinkedBlockingQueue<>(1);
         queue.offer("a");
-        System.out.println(queue.peek());
+        //offer timeout
+        queue.offer("a", 1, TimeUnit.MILLISECONDS);
+        Thread.sleep(3);
+        queue.poll();
+        queue.poll();
+        //poll timeout
+        queue.poll(1, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testSerializable() throws Exception {
+        BlockingQueue<String> queue = new VariableLinkedBlockingQueue<>(1);
+        queue.offer("a");
+        FileOutputStream fileOut = new FileOutputStream("/tmp/queue.ser");
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(queue);
+        out.close();
+        fileOut.close();
+
+        FileInputStream fileIn = new FileInputStream("/tmp/queue.ser");
+        ObjectInputStream in = new ObjectInputStream(fileIn);
+        queue = (VariableLinkedBlockingQueue) in.readObject();
+        in.close();
+        fileIn.close();
+        Assert.assertEquals("a", queue.poll());
     }
 }
