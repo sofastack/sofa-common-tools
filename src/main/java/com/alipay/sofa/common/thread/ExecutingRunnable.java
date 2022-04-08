@@ -23,7 +23,7 @@ import java.util.Objects;
  * @author huzijie
  * @version ExecutingRunnable.java, v 0.1 2020年10月26日 4:22 下午 huzijie Exp $
  */
-class ExecutingRunnable implements Runnable {
+public class ExecutingRunnable implements Runnable {
 
     public Runnable          originRunnable;
 
