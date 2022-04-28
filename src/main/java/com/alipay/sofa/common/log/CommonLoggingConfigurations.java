@@ -30,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CommonLoggingConfigurations {
     // Logger set that console appender attaches
-    private static Set<String>               loggerConsoleWhiteSet;
+    private static Set<String> loggerConsoleWhiteSet;
+    private static Set<String> loggerConsolePrefixSet;
 
     // For configurations from outside, especially Spring Boot
     private final static Map<String, String> externalConfigurations = new ConcurrentHashMap<>();
@@ -64,6 +65,18 @@ public class CommonLoggingConfigurations {
         loggerConsoleWhiteSet.add(loggerName);
     }
 
+    public static void appendConsolePrefixLoggerName(String loggerName) {
+        if (loggerConsolePrefixSet == null) {
+            synchronized (CommonLoggingConfigurations.class) {
+                if (loggerConsolePrefixSet == null) {
+                    loggerConsolePrefixSet = Collections.synchronizedSet(new HashSet<>());
+                }
+            }
+        }
+
+        loggerConsolePrefixSet.add(loggerName);
+    }
+
     public static void addAllConsoleLogger(Set<String> set) {
         if (loggerConsoleWhiteSet == null) {
             synchronized (CommonLoggingConfigurations.class) {
@@ -82,9 +95,13 @@ public class CommonLoggingConfigurations {
     }
 
     public static boolean shouldAttachConsoleAppender(String loggerName) {
-        if (loggerConsoleWhiteSet == null) {
+        if (loggerConsoleWhiteSet == null && loggerConsolePrefixSet == null) {
             return false;
         }
-        return loggerConsoleWhiteSet.contains(loggerName);
+        if (loggerConsoleWhiteSet != null && loggerConsoleWhiteSet.contains(loggerName)) {
+            return true;
+        } else {
+            return loggerConsolePrefixSet != null && loggerConsolePrefixSet.stream().anyMatch(loggerName::startsWith);
+        }
     }
 }
