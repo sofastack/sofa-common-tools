@@ -163,10 +163,10 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                                     }
                                 }
 
-                                String loggerConsolePrefixSetStr = properties.getProperty(LOGGER_CONSOLE_PREFIX_SET_KEY);
+                                String loggerConsolePrefixSetStr = properties.getProperty(LOGGER_CONSOLE_PREFIX_WHITE_SET_KEY);
                                 if (StringUtil.isNotEmpty(loggerConsolePrefixSetStr)) {
                                     for (String logger: loggerConsolePrefixSetStr.split(",")) {
-                                        CommonLoggingConfigurations.appendConsolePrefixLoggerName(logger);
+                                        CommonLoggingConfigurations.appendConsolePrefixWhiteLoggerName(logger);
                                     }
                                 }
                             } finally {

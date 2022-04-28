@@ -37,15 +37,61 @@ public class Log4j2ConsoleLoggingTest {
 
         // Flip the global console logging switch on and set the level to WARN
         LogSpace spaceInfo = new LogSpace()
-            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
-            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
-            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
+                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
+                .putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
-            new SpaceId(spaceName), spaceInfo);
+                new SpaceId(spaceName), spaceInfo);
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
-            spaceName, this.getClass().getClassLoader());
+                spaceName, this.getClass().getClassLoader());
         CommonLoggingConfigurations.appendConsoleLoggerName(loggerName);
+
+        Logger logger = loggerSpaceFactory.getLogger(loggerName);
+        Assert.assertTrue(logger.isErrorEnabled());
+        Assert.assertTrue(logger.isWarnEnabled());
+        Assert.assertTrue(logger.isInfoEnabled());
+        Assert.assertFalse(logger.isDebugEnabled());
+        Assert.assertFalse(logger.isTraceEnabled());
+
+        String traceLog = "test trace info";
+        String debugLog = "test debug info";
+        String infoLog = "test info info";
+        String warnLog = "test warn info";
+        String errorLog = "test error info";
+        logger.trace(traceLog);
+        logger.debug(debugLog);
+        logger.info(infoLog);
+        logger.warn(warnLog);
+        logger.error(errorLog);
+
+        String logString = outContent.toString();
+        Assert.assertTrue(logString.contains(warnLog));
+        Assert.assertTrue(logString.contains(errorLog));
+        Assert.assertFalse(logString.contains(traceLog));
+        Assert.assertFalse(logString.contains(debugLog));
+        Assert.assertFalse(logString.contains(infoLog));
+    }
+
+    @Test
+    public void testConsolePrefixLogLevel() throws Exception {
+        String loggerPrefix = "com.foo";
+        String loggerName = "com.foo.bar.console";
+        String spaceName = "sofa.console";
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Flip the global console logging switch on and set the level to WARN
+        LogSpace spaceInfo = new LogSpace()
+                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
+                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
+                .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+
+        LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
+                new SpaceId(spaceName), spaceInfo);
+        AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
+                spaceName, this.getClass().getClassLoader());
+        CommonLoggingConfigurations.appendConsolePrefixWhiteLoggerName(loggerPrefix);
 
         Logger logger = loggerSpaceFactory.getLogger(loggerName);
         Assert.assertTrue(logger.isErrorEnabled());
