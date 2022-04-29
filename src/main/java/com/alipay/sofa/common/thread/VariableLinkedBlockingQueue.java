@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Copyright (c) 2007-2020 VMware, Inc. or its affiliates.  All rights reserved.
 //
 // This software, the RabbitMQ Java client library, is triple-licensed under the
@@ -69,8 +85,8 @@ import java.util.*;
  * @param <E> the type of elements held in this collection
  *
  **/
-public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
-    implements BlockingQueue<E>, java.io.Serializable {
+public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>,
+                                                                    java.io.Serializable {
     private static final long serialVersionUID = -6903933977591709194L;
 
     /*
@@ -93,33 +109,36 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
     static class Node<E> {
         /** The item, volatile to ensure barrier separating write and read */
         volatile E item;
-        Node<E> next;
-        Node(E x) { item = x; }
+        Node<E>    next;
+
+        Node(E x) {
+            item = x;
+        }
     }
 
     /** The capacity bound, or Integer.MAX_VALUE if none */
-    private int capacity;
+    private int                 capacity;
 
     /** Current number of elements */
-    private final AtomicInteger count = new AtomicInteger(0);
+    private final AtomicInteger count    = new AtomicInteger(0);
 
     /** Head of linked list */
-    private transient Node<E> head;
+    private transient Node<E>   head;
 
     /** Tail of linked list */
-    private transient Node<E> last;
+    private transient Node<E>   last;
 
     /** Lock held by take, poll, etc */
     private final ReentrantLock takeLock = new ReentrantLock();
 
     /** Wait queue for waiting takes */
-    private final Condition notEmpty = takeLock.newCondition();
+    private final Condition     notEmpty = takeLock.newCondition();
 
     /** Lock held by put, offer, etc */
-    private final ReentrantLock putLock = new ReentrantLock();
+    private final ReentrantLock putLock  = new ReentrantLock();
 
     /** Wait queue for waiting puts */
-    private final Condition notFull = putLock.newCondition();
+    private final Condition     notFull  = putLock.newCondition();
 
     /**
      * Signal a waiting take. Called only from put/offer (which do not
@@ -184,7 +203,6 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
         putLock.unlock();
     }
 
-
     /**
      * Creates a <tt>LinkedBlockingQueue</tt> with a capacity of
      * {@link Integer#MAX_VALUE}.
@@ -201,7 +219,8 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      *         than zero.
      */
     public VariableLinkedBlockingQueue(int capacity) {
-        if (capacity <= 0) throw new IllegalArgumentException();
+        if (capacity <= 0)
+            throw new IllegalArgumentException();
         this.capacity = capacity;
         last = head = new Node<E>(null);
     }
@@ -220,7 +239,6 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
         for (Iterator<? extends E> it = c.iterator(); it.hasNext();)
             add(it.next());
     }
-
 
     // this doc comment is overridden to remove the reference to collections
     // greater in size than Integer.MAX_VALUE
@@ -276,7 +294,8 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      */
     @Override
     public void put(E o) throws InterruptedException {
-        if (o == null) throw new NullPointerException();
+        if (o == null)
+            throw new NullPointerException();
         // Note: convention in all put/take/etc is to preset
         // local var holding count  negative to indicate failure unless set.
         int c = -1;
@@ -325,10 +344,10 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      * @throws NullPointerException if the specified element is <tt>null</tt>.
      */
     @Override
-    public boolean offer(E o, long timeout, TimeUnit unit)
-        throws InterruptedException {
+    public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException {
 
-        if (o == null) throw new NullPointerException();
+        if (o == null)
+            throw new NullPointerException();
         long nanos = unit.toNanos(timeout);
         int c = -1;
         final ReentrantLock putLock = this.putLock;
@@ -371,7 +390,8 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      */
     @Override
     public boolean offer(E o) {
-        if (o == null) throw new NullPointerException();
+        if (o == null)
+            throw new NullPointerException();
         final AtomicInteger count = this.count;
         if (count.get() >= capacity)
             return false;
@@ -392,7 +412,6 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
             signalNotEmpty();
         return c >= 0;
     }
-
 
     @Override
     public E take() throws InterruptedException {
@@ -480,7 +499,6 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
         return x;
     }
 
-
     @Override
     public E peek() {
         if (count.get() == 0)
@@ -500,7 +518,8 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public boolean remove(Object o) {
-        if (o == null) return false;
+        if (o == null)
+            return false;
         boolean removed = false;
         fullyLock();
         try {
@@ -548,12 +567,12 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
         try {
             int size = count.get();
             if (a.length < size)
-                a = (T[])java.lang.reflect.Array.newInstance
-                    (a.getClass().getComponentType(), size);
+                a = (T[]) java.lang.reflect.Array
+                    .newInstance(a.getClass().getComponentType(), size);
 
             int k = 0;
             for (Node<?> p = head.next; p != null; p = p.next)
-                a[k++] = (T)p.item;
+                a[k++] = (T) p.item;
             return a;
         } finally {
             fullyUnlock();
@@ -660,7 +679,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
          */
         private Node<E> current;
         private Node<E> lastRet;
-        private E currentElement;
+        private E       currentElement;
 
         Itr() {
             final ReentrantLock putLock = VariableLinkedBlockingQueue.this.putLock;
@@ -742,8 +761,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      * followed by a null
      * @param s the stream
      */
-    private void writeObject(java.io.ObjectOutputStream s)
-        throws java.io.IOException {
+    private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
 
         fullyLock();
         try {
@@ -766,8 +784,8 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
      * deserialize it).
      * @param s the stream
      */
-    private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream s) throws java.io.IOException,
+                                                        ClassNotFoundException {
         // Read in capacity, and any hidden stuff
         s.defaultReadObject();
 
@@ -777,7 +795,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E>
         // Read in all elements and place in queue
         for (;;) {
             @SuppressWarnings("unchecked")
-            E item = (E)s.readObject();
+            E item = (E) s.readObject();
             if (item == null)
                 break;
             add(item);

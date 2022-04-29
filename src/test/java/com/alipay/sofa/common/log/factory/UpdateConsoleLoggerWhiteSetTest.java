@@ -34,18 +34,18 @@ public class UpdateConsoleLoggerWhiteSetTest {
         SpaceId spaceId = new SpaceId(spaceName);
         SpaceInfo spaceInfo = new SpaceInfo();
         new LoggerSpaceFactory4LogbackBuilder(spaceId, spaceInfo).getSpaceLogConfigFileURL(this
-                .getClass().getClassLoader(), "com.alipay.sofa");
+            .getClass().getClassLoader(), "com.alipay.sofa");
         //name config
         Assert.assertEquals(2, CommonLoggingConfigurations.getLoggerConsoleWhiteSet().size());
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsoleWhiteSet().contains(
-                "testLoggerName1"));
+            "testLoggerName1"));
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsoleWhiteSet().contains(
-                "testLoggerName2"));
+            "testLoggerName2"));
         //prefix config
         Assert.assertEquals(2, CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().size());
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().contains(
-                "com.test1"));
+            "com.test1"));
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().contains(
-                "com.test2"));
+            "com.test2"));
     }
 }

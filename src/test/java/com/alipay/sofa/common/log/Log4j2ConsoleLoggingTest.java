@@ -37,14 +37,14 @@ public class Log4j2ConsoleLoggingTest {
 
         // Flip the global console logging switch on and set the level to WARN
         LogSpace spaceInfo = new LogSpace()
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
-                .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
+            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
-                new SpaceId(spaceName), spaceInfo);
+            new SpaceId(spaceName), spaceInfo);
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
-                spaceName, this.getClass().getClassLoader());
+            spaceName, this.getClass().getClassLoader());
         CommonLoggingConfigurations.appendConsoleLoggerName(loggerName);
 
         Logger logger = loggerSpaceFactory.getLogger(loggerName);
@@ -83,14 +83,14 @@ public class Log4j2ConsoleLoggingTest {
 
         // Flip the global console logging switch on and set the level to WARN
         LogSpace spaceInfo = new LogSpace()
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
-                .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
-                .putAll(LogEnvUtils.processGlobalSystemLogProperties());
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH, "true")
+            .setProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_LEVEL, "WARN")
+            .putAll(LogEnvUtils.processGlobalSystemLogProperties());
 
         LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
-                new SpaceId(spaceName), spaceInfo);
+            new SpaceId(spaceName), spaceInfo);
         AbstractLoggerSpaceFactory loggerSpaceFactory = loggerSpaceFactory4Log4j2Builder.build(
-                spaceName, this.getClass().getClassLoader());
+            spaceName, this.getClass().getClassLoader());
         CommonLoggingConfigurations.appendConsolePrefixWhiteLoggerName(loggerPrefix);
 
         Logger logger = loggerSpaceFactory.getLogger(loggerName);
