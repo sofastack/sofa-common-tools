@@ -162,6 +162,13 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
                                         CommonLoggingConfigurations.appendConsoleLoggerName(logger);
                                     }
                                 }
+
+                                String loggerConsolePrefixSetStr = properties.getProperty(LOGGER_CONSOLE_PREFIX_WHITE_SET_KEY);
+                                if (StringUtil.isNotEmpty(loggerConsolePrefixSetStr)) {
+                                    for (String logger: loggerConsolePrefixSetStr.split(",")) {
+                                        CommonLoggingConfigurations.appendConsolePrefixWhiteLoggerName(logger);
+                                    }
+                                }
                             } finally {
                                 if (inputStream != null) {
                                     inputStream.close();

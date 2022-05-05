@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CommonLoggingConfigurations {
     // Logger set that console appender attaches
-    private static Set<String>               loggerConsoleWhiteSet;
-
+    private static       Set<String>         loggerConsoleWhiteSet;
+    private static       Set<String>         loggerConsolePrefixWhiteSet;
     // For configurations from outside, especially Spring Boot
     private final static Map<String, String> externalConfigurations = new ConcurrentHashMap<>();
 
@@ -64,6 +64,22 @@ public class CommonLoggingConfigurations {
         loggerConsoleWhiteSet.add(loggerName);
     }
 
+    public static void setLoggerConsolePrefixWhiteSet(Set<String> loggerConsolePrefixWhiteSet) {
+        CommonLoggingConfigurations.loggerConsolePrefixWhiteSet = loggerConsolePrefixWhiteSet;
+    }
+
+    public static void appendConsolePrefixWhiteLoggerName(String loggerName) {
+        if (loggerConsolePrefixWhiteSet == null) {
+            synchronized (CommonLoggingConfigurations.class) {
+                if (loggerConsolePrefixWhiteSet == null) {
+                    loggerConsolePrefixWhiteSet = Collections.synchronizedSet(new HashSet<>());
+                }
+            }
+        }
+
+        loggerConsolePrefixWhiteSet.add(loggerName);
+    }
+
     public static void addAllConsoleLogger(Set<String> set) {
         if (loggerConsoleWhiteSet == null) {
             synchronized (CommonLoggingConfigurations.class) {
@@ -81,10 +97,18 @@ public class CommonLoggingConfigurations {
         return loggerConsoleWhiteSet;
     }
 
+    public static Set<String> getLoggerConsolePrefixWhiteSet() {
+        return loggerConsolePrefixWhiteSet;
+    }
+
     public static boolean shouldAttachConsoleAppender(String loggerName) {
-        if (loggerConsoleWhiteSet == null) {
+        if (loggerConsoleWhiteSet == null && loggerConsolePrefixWhiteSet == null) {
             return false;
         }
-        return loggerConsoleWhiteSet.contains(loggerName);
+        if (loggerConsoleWhiteSet != null && loggerConsoleWhiteSet.contains(loggerName)) {
+            return true;
+        } else {
+            return loggerConsolePrefixWhiteSet != null && loggerConsolePrefixWhiteSet.stream().anyMatch(loggerName::startsWith);
+        }
     }
 }

@@ -17,8 +17,8 @@
 package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
-import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.space.SpaceId;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,10 +35,17 @@ public class UpdateConsoleLoggerWhiteSetTest {
         SpaceInfo spaceInfo = new SpaceInfo();
         new LoggerSpaceFactory4LogbackBuilder(spaceId, spaceInfo).getSpaceLogConfigFileURL(this
             .getClass().getClassLoader(), "com.alipay.sofa");
+        //name config
         Assert.assertEquals(2, CommonLoggingConfigurations.getLoggerConsoleWhiteSet().size());
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsoleWhiteSet().contains(
             "testLoggerName1"));
         Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsoleWhiteSet().contains(
             "testLoggerName2"));
+        //prefix config
+        Assert.assertEquals(2, CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().size());
+        Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().contains(
+            "com.test1"));
+        Assert.assertTrue(CommonLoggingConfigurations.getLoggerConsolePrefixWhiteSet().contains(
+            "com.test2"));
     }
 }

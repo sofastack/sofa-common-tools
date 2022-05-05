@@ -37,6 +37,7 @@ public interface Constants {
     String  LOG_CONFIG_PROPERTIES                                 = "config.properties";
     String  PRIORITY_KEY                                          = "priority";
     String  LOGGER_CONSOLE_WHITE_SET_KEY                          = "console";
+    String  LOGGER_CONSOLE_PREFIX_WHITE_SET_KEY                   = "console.prefix";
 
     String  LOG_PATH                                              = "logging.path";
     String  LOG_PATH_PREFIX                                       = "logging.path.";

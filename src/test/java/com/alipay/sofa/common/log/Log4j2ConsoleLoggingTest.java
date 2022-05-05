@@ -29,7 +29,7 @@ import java.io.PrintStream;
 
 public class Log4j2ConsoleLoggingTest {
     @Test
-    public void testConsoleLogLevel() throws Exception {
+    public void testConsoleLogLevel() {
         String loggerName = "com.foo.bar.console";
         String spaceName = "sofa.console";
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -66,6 +66,30 @@ public class Log4j2ConsoleLoggingTest {
         logger.error(errorLog);
 
         String logString = outContent.toString();
+        Assert.assertTrue(logString.contains(warnLog));
+        Assert.assertTrue(logString.contains(errorLog));
+        Assert.assertFalse(logString.contains(traceLog));
+        Assert.assertFalse(logString.contains(debugLog));
+        Assert.assertFalse(logString.contains(infoLog));
+        outContent.reset();
+
+        String loggerPrefix = "com.foo";
+        CommonLoggingConfigurations.appendConsolePrefixWhiteLoggerName(loggerPrefix);
+        loggerName = "com.foo.bar.console.children";
+        logger = loggerSpaceFactory.getLogger(loggerName);
+        Assert.assertTrue(logger.isErrorEnabled());
+        Assert.assertTrue(logger.isWarnEnabled());
+        Assert.assertTrue(logger.isInfoEnabled());
+        Assert.assertFalse(logger.isDebugEnabled());
+        Assert.assertFalse(logger.isTraceEnabled());
+
+        logger.trace(traceLog);
+        logger.debug(debugLog);
+        logger.info(infoLog);
+        logger.warn(warnLog);
+        logger.error(errorLog);
+
+        logString = outContent.toString();
         Assert.assertTrue(logString.contains(warnLog));
         Assert.assertTrue(logString.contains(errorLog));
         Assert.assertFalse(logString.contains(traceLog));
