@@ -154,6 +154,7 @@ public final class LogEnvUtils {
         if (StringUtil.isNotEmpty(loggingPath)) {
             properties.put(LOG_PATH, loggingPath);
             properties.put(OLD_LOG_PATH, loggingRoot);
+            useDefaultSystemProperties = false;
         } else {
             // Defaults to $HOME/logs
             properties.putIfAbsent(LOG_PATH, LOGGING_PATH_DEFAULT);
