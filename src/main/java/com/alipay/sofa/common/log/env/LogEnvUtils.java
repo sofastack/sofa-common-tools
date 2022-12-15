@@ -39,6 +39,8 @@ public final class LogEnvUtils {
 
     private static volatile Map<String, String> globalSystemProperties;
 
+    private static volatile boolean             useDefaultSystemProperties;
+
     private LogEnvUtils() {
     }
 
@@ -156,6 +158,7 @@ public final class LogEnvUtils {
             // Defaults to $HOME/logs
             properties.putIfAbsent(LOG_PATH, LOGGING_PATH_DEFAULT);
             properties.putIfAbsent(OLD_LOG_PATH, LOGGING_PATH_DEFAULT);
+            useDefaultSystemProperties = true;
         }
 
         globalSystemProperties = properties;
@@ -226,5 +229,13 @@ public final class LogEnvUtils {
     @Deprecated
     public static boolean filterAllLogConfig(String key) {
         return isSofaCommonLoggingConfig(key);
+    }
+
+    public static void clearGlobalSystemProperties() {
+        globalSystemProperties = null;
+    }
+
+    public static boolean isUseDefaultSystemProperties() {
+        return useDefaultSystemProperties;
     }
 }
