@@ -24,6 +24,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
+import static com.alipay.sofa.common.log.Constants.*;
+
 /**
  * @author qilong.zql 17/11/15-上午11:00
  */
@@ -48,4 +52,30 @@ public class LogEnvUtilsTest extends AbstraceLogTestBase {
         Assert.assertEquals(Strings.EMPTY, LogEnvUtils.getLogConfEnvSuffix("app3"));
         Assert.assertEquals(Strings.EMPTY, LogEnvUtils.getLogConfEnvSuffix("app4"));
     }
+
+    @Test
+    public void testClearGlobalSystemProperties() {
+        String oldLogPath = System.getProperty(LOG_PATH);
+
+        Map<String, String> properties = LogEnvUtils.processGlobalSystemLogProperties();
+        Assert.assertEquals(properties.get(LOG_PATH), LOGGING_PATH_DEFAULT);
+        Assert.assertEquals(properties.get(OLD_LOG_PATH), LOGGING_PATH_DEFAULT);
+        Assert.assertTrue(LogEnvUtils.isUseDefaultSystemProperties());
+        Assert.assertNull(properties.get("abc"));
+
+        LogEnvUtils.clearGlobalSystemProperties();
+        CommonLoggingConfigurations.loadExternalConfiguration("abc", "efg");
+        System.setProperty(LOG_PATH, LOGGING_PATH_DEFAULT + "test");
+        System.setProperty(OLD_LOG_PATH, LOGGING_PATH_DEFAULT + "test");
+        properties = LogEnvUtils.processGlobalSystemLogProperties();
+        Assert.assertEquals(properties.get(LOG_PATH), LOGGING_PATH_DEFAULT + "test");
+        Assert.assertEquals(properties.get(OLD_LOG_PATH), LOGGING_PATH_DEFAULT + "test");
+        Assert.assertFalse(LogEnvUtils.isUseDefaultSystemProperties());
+        Assert.assertEquals(properties.get("abc"), "efg");
+
+        if (oldLogPath != null) {
+            System.setProperty(LOG_PATH, oldLogPath);
+        }
+    }
+
 }
