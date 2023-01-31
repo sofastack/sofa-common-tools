@@ -30,7 +30,7 @@ public abstract class AbstractLoggerSpaceFactory implements ILoggerFactory {
 
     protected static final String CONSOLE = "CONSOLE";
 
-    private String                source;
+    private final String          source;
 
     /***
      * 改变指定日志的级别,子类需要复写此方法来实现动态改变日志级别

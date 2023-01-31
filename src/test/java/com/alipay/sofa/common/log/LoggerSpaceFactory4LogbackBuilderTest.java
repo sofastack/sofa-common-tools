@@ -37,7 +37,7 @@ public class LoggerSpaceFactory4LogbackBuilderTest extends AbstraceLogTestBase {
     LoggerSpaceFactory4LogbackBuilder loggerSpaceFactory4LogbackBuilder = new LoggerSpaceFactory4LogbackBuilder(
                                                                             new SpaceId(
                                                                                 "com.alipay.sofa.rpc"),
-                                                                            new SpaceInfo().putAll(LogEnvUtils
+                                                                            new LogSpace().putAll(LogEnvUtils
                                                                                 .processGlobalSystemLogProperties()));
 
     @Before
@@ -83,7 +83,7 @@ public class LoggerSpaceFactory4LogbackBuilderTest extends AbstraceLogTestBase {
 
     @Test
     public void testLoggingLevelDebug() {
-        SpaceInfo spaceInfo = new SpaceInfo().setProperty(
+        LogSpace spaceInfo = new LogSpace().setProperty(
             Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug").putAll(
             LogEnvUtils.processGlobalSystemLogProperties());
 

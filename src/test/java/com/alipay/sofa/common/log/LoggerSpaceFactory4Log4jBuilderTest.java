@@ -37,7 +37,7 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
     LoggerSpaceFactory4Log4jBuilder loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(
                                                                         new SpaceId(
                                                                             "com.alipay.sofa.rpc"),
-                                                                        new SpaceInfo().putAll(LogEnvUtils
+                                                                        new LogSpace().putAll(LogEnvUtils
                                                                             .processGlobalSystemLogProperties()));
 
     @Before
@@ -80,7 +80,7 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
 
-        SpaceInfo spaceInfo = new SpaceInfo().setProperty(
+        LogSpace spaceInfo = new LogSpace().setProperty(
             Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug").putAll(
             LogEnvUtils.processGlobalSystemLogProperties());
         loggerSpaceFactory4Log4jBuilder = new LoggerSpaceFactory4Log4jBuilder(new SpaceId(
@@ -116,8 +116,8 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
         System.err.println("Change level to Debug ===");
         Logger logger1 = loggerSpaceFactory.setLevel(loggerName, AdapterLevel.DEBUG);
         //log4j1
-        Assert
-            .assertTrue(logger1 instanceof org.slf4j.impl.Log4jLoggerAdapter && logger == logger1);
+        Assert.assertTrue(logger1 instanceof org.slf4j.reload4j.Reload4jLoggerAdapter
+                          && logger == logger1);
         Assert.assertTrue(logger.isErrorEnabled());
         Assert.assertTrue(logger.isWarnEnabled());
         Assert.assertTrue(logger.isInfoEnabled());
@@ -132,8 +132,8 @@ public class LoggerSpaceFactory4Log4jBuilderTest extends AbstraceLogTestBase {
         System.err.println("Change level to TRACE ===");
         Logger logger2 = loggerSpaceFactory.setLevel(loggerName, AdapterLevel.TRACE);
         //log4j1
-        Assert
-            .assertTrue(logger2 instanceof org.slf4j.impl.Log4jLoggerAdapter && logger == logger2);
+        Assert.assertTrue(logger2 instanceof org.slf4j.reload4j.Reload4jLoggerAdapter
+                          && logger == logger2);
         Assert.assertTrue(logger.isErrorEnabled());
         Assert.assertTrue(logger.isWarnEnabled());
         Assert.assertTrue(logger.isInfoEnabled());

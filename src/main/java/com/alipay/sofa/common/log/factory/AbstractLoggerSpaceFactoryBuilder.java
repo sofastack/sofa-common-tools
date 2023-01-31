@@ -42,10 +42,9 @@ import static com.alipay.sofa.common.log.Constants.*;
  * Updated by guanchao.ygc@alibaba-inc.com on 14/04/28.
  */
 public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFactoryBuilder {
-    private SpaceId  spaceId;
-    private LogSpace logSpace;
-
-    private String   spaceDirectoryPrefix;
+    private final SpaceId  spaceId;
+    private final LogSpace logSpace;
+    private final String   spaceDirectoryPrefix;
 
     public AbstractLoggerSpaceFactoryBuilder(SpaceId spaceId, LogSpace space) {
         AssertUtil.notNull(space);
@@ -120,13 +119,6 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         AssertUtil.state(configFileUrl != null, this + " build error: No " + getLoggingToolName()
                                                 + " config file (" + configFileUrl + ") found!");
         return configFileUrl;
-    }
-
-    // Use getResourceByPriority instead
-    @Deprecated
-    protected URL getResource(ClassLoader spaceClassloader, List<URL> logConfigFileUrls,
-                              List<URL> configPropertyFileUrls) throws IOException {
-        return getResourceByPriority(logConfigFileUrls, configPropertyFileUrls);
     }
 
     protected URL getResourceByPriority(List<URL> logConfigFileUrls, List<URL> logConfigPropertyFileUrls) throws IOException {

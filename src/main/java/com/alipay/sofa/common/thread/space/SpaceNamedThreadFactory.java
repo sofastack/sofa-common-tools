@@ -40,8 +40,7 @@ public class SpaceNamedThreadFactory implements ThreadFactory {
     }
 
     public SpaceNamedThreadFactory(String threadPoolName, String spaceName, boolean daemon) {
-        SecurityManager s = System.getSecurityManager();
-        group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        group = Thread.currentThread().getThreadGroup();
         namePrefix = spaceName + "-" + threadPoolName + "-"
                      + ThreadPoolGovernor.getInstance().getSpaceNameThreadPoolNumber(spaceName)
                      + "-thread-";

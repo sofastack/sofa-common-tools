@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2017/07/03
  */
 public class SpaceId {
-    private static Map<String, SpaceId> GLOBAL_SPACE_ID_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, SpaceId> GLOBAL_SPACE_ID_CACHE = new ConcurrentHashMap<>();
 
     private final Map<String, String> tags = new HashMap<>();
 

@@ -35,6 +35,7 @@ import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.slf4j.Log4jLogger;
+import org.apache.logging.slf4j.Log4jMarkerFactory;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
@@ -52,17 +53,19 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
-    private SpaceId                       spaceId;
-    private Properties                    properties;
-    private LoggerContext                 loggerContext;
-    private URL                           confFile;
+    private final ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
+    private final SpaceId                       spaceId;
+    private final Properties                    properties;
+    private final LoggerContext                 loggerContext;
+    private final URL                           confFile;
+
+    private final Log4jMarkerFactory markerFactory = new Log4jMarkerFactory();
 
     /**
      * key: loggerName, value: consoleAppender
      * each logger have their own consoleAppender if had configured
      **/
-    private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
 
     /**
      * @param source logback,log4j2,log4j,temp,nop
@@ -170,11 +173,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return getLogger(loggerName);
     }
 
-    @Deprecated
-    public void reInitialize(Map<String, String> environment) {
-        // for compatibility
-    }
-
     @Override
     public Logger getLogger(String name) {
         Logger logger = loggerMap.get(name);
@@ -211,28 +209,22 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private Logger newLogger(String name, LoggerContext loggerContext) {
         final String key = Logger.ROOT_LOGGER_NAME.equals(name) ? LogManager.ROOT_LOGGER_NAME
             : name;
-        return new Log4jLogger(loggerContext.getLogger(key), name);
+        return new Log4jLogger(markerFactory, loggerContext.getLogger(key), name);
     }
 
     private Level toLog4j2Level(AdapterLevel adapterLevel) {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to log4j2.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to log4j2.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to log4j2.");
+        };
     }
 
 }

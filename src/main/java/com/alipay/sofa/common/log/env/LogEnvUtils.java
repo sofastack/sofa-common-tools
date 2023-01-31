@@ -226,12 +226,6 @@ public final class LogEnvUtils {
                || key.equals(LOG_ENCODING_PROP_KEY);
     }
 
-    // Use isSofaCommonLoggingConfig instead
-    @Deprecated
-    public static boolean filterAllLogConfig(String key) {
-        return isSofaCommonLoggingConfig(key);
-    }
-
     public static void clearGlobalSystemProperties() {
         globalSystemProperties = null;
     }

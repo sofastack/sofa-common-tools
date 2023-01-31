@@ -26,6 +26,7 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.core.util.OptionHelper;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
@@ -47,15 +48,15 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private SpaceId                              spaceId;
-    private LoggerContext                        loggerContext;
-    private Properties                           properties;
+    private final SpaceId                              spaceId;
+    private final LoggerContext                        loggerContext;
+    private final Properties                           properties;
 
     /**
      * key: spanId, value: consoleAppender
      * each logger have their own consoleAppender if had configured
      **/
-    private ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -106,7 +107,13 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 ThresholdFilter filter = new ThresholdFilter();
                 filter.setLevel(consoleLevel.toString());
 
-                encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
+            String pattern;
+            try {
+                pattern = OptionHelper.substVars(logPattern, loggerContext);
+            } catch (ScanException e) {
+                throw new IllegalArgumentException("Failed to subst vars pattern: " + logPattern, e);
+            }
+            encoder.setPattern(pattern);
                 encoder.setContext(loggerContext);
                 encoder.start();
                 appender.setEncoder(encoder);
@@ -149,29 +156,18 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return logbackLogger;
     }
 
-    @Deprecated
-    public void reInitialize(Map<String, String> environment) {
-        // for compatibility
-    }
-
     private Level toLogbackLevel(AdapterLevel adapterLevel) {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to logback.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to logback.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to logback.");
+        };
     }
 }

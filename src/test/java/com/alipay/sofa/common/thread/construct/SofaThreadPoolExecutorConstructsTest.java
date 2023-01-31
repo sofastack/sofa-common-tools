@@ -46,8 +46,6 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
 
     private static RejectedExecutionHandler rejectedExecutionHandler;
 
-    private static RejectedExecutionHandler defaultRejectedExecutionHandler;
-
     @BeforeClass
     public static void setup() throws NoSuchFieldException, IllegalAccessException {
         queue = new LinkedBlockingQueue<>(1000);
@@ -55,9 +53,6 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         defaultThreadFactory = Arrays.stream(Executors.class.getDeclaredClasses()).
                 filter(aClass -> aClass.getName().contains("DefaultThreadFactory")).findFirst().get();
         rejectedExecutionHandler = (r, executor) -> { };
-        Field field = ThreadPoolExecutor.class.getDeclaredField("defaultHandler");
-        field.setAccessible(true);
-        defaultRejectedExecutionHandler = (RejectedExecutionHandler) field.get(null);
     }
 
     @Test
@@ -160,8 +155,8 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
         Assert.assertEquals(spaceThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
-        Assert.assertEquals(defaultRejectedExecutionHandler,
-            threadPoolExecutor.getRejectedExecutionHandler());
+        Assert
+            .assertTrue(threadPoolExecutor.getRejectedExecutionHandler() instanceof ThreadPoolExecutor.AbortPolicy);
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
         Assert.assertEquals("testSpace", threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertEquals("testSpace-testThreadPool", threadPoolExecutor.getConfig()
@@ -185,8 +180,8 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
         Assert.assertEquals(NamedThreadFactory.class, threadPoolExecutor.getThreadFactory()
             .getClass());
-        Assert.assertEquals(defaultRejectedExecutionHandler,
-            threadPoolExecutor.getRejectedExecutionHandler());
+        Assert
+            .assertTrue(threadPoolExecutor.getRejectedExecutionHandler() instanceof ThreadPoolExecutor.AbortPolicy);
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getThreadPoolName());
         Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
         Assert.assertEquals("testThreadPool", threadPoolExecutor.getConfig().getIdentity());
@@ -208,8 +203,8 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
         Assert.assertEquals(defaultThreadFactory, threadPoolExecutor.getThreadFactory().getClass());
-        Assert.assertEquals(defaultRejectedExecutionHandler,
-            threadPoolExecutor.getRejectedExecutionHandler());
+        Assert
+            .assertTrue(threadPoolExecutor.getRejectedExecutionHandler() instanceof ThreadPoolExecutor.AbortPolicy);
         Assert.assertTrue(Pattern.matches(SofaThreadPoolExecutor.class.getSimpleName() + "\\S+",
             threadPoolExecutor.getConfig().getThreadPoolName()));
         Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());
@@ -233,8 +228,8 @@ public class SofaThreadPoolExecutorConstructsTest extends ThreadPoolTestBase {
         Assert.assertEquals(60, threadPoolExecutor.getKeepAliveTime(TimeUnit.SECONDS));
         Assert.assertEquals(queue, threadPoolExecutor.getQueue());
         Assert.assertEquals(threadFactory, threadPoolExecutor.getThreadFactory());
-        Assert.assertEquals(defaultRejectedExecutionHandler,
-            threadPoolExecutor.getRejectedExecutionHandler());
+        Assert
+            .assertTrue(threadPoolExecutor.getRejectedExecutionHandler() instanceof ThreadPoolExecutor.AbortPolicy);
         Assert.assertTrue(Pattern.matches(SofaThreadPoolExecutor.class.getSimpleName() + "\\S+",
             threadPoolExecutor.getConfig().getThreadPoolName()));
         Assert.assertNull(threadPoolExecutor.getConfig().getSpaceName());

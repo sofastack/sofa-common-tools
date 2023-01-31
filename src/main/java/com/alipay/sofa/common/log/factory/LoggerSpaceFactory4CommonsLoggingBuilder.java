@@ -54,7 +54,7 @@ public class LoggerSpaceFactory4CommonsLoggingBuilder extends AbstractLoggerSpac
                                               URL url) {
 
         try {
-            final LoggerRepository repo = new Hierarchy(new RootLogger((Level) Level.WARN));
+            final LoggerRepository repo = new Hierarchy(new RootLogger(Level.WARN));
 
             DOMConfigurator domConfigurator = new DOMConfigurator();
             Field field = DOMConfigurator.class.getDeclaredField("props");
@@ -81,7 +81,7 @@ public class LoggerSpaceFactory4CommonsLoggingBuilder extends AbstractLoggerSpac
 
                 @Override
                 public Logger getLogger(String name) {
-                    JCLLoggerAdapter slf4jLogger = (JCLLoggerAdapter) this.loggerMap.get(name);
+                    JCLLoggerAdapter slf4jLogger = this.loggerMap.get(name);
                     if (slf4jLogger != null) {
                         return slf4jLogger;
                     }
@@ -114,21 +114,15 @@ public class LoggerSpaceFactory4CommonsLoggingBuilder extends AbstractLoggerSpac
                         throw new IllegalStateException(
                             "AdapterLevel is NULL when adapter common-logging and log4j.");
                     }
-                    switch (adapterLevel) {
-                        case TRACE:
-                            return org.apache.log4j.Level.TRACE;
-                        case DEBUG:
-                            return org.apache.log4j.Level.DEBUG;
-                        case INFO:
-                            return org.apache.log4j.Level.INFO;
-                        case WARN:
-                            return org.apache.log4j.Level.WARN;
-                        case ERROR:
-                            return org.apache.log4j.Level.ERROR;
-                        default:
-                            throw new IllegalStateException(
+                    return switch (adapterLevel) {
+                        case TRACE -> Level.TRACE;
+                        case DEBUG -> Level.DEBUG;
+                        case INFO -> Level.INFO;
+                        case WARN -> Level.WARN;
+                        case ERROR -> Level.ERROR;
+                        default -> throw new IllegalStateException(
                                 adapterLevel + " is unknown when adapter common-logging and log4j.");
-                    }
+                    };
                 }
             };
 

@@ -44,7 +44,7 @@ public class LogCode2Description {
     }
 
     public static String convert(SpaceId spaceId, String code) {
-        LogCode2Description logCode2Description = null;
+        LogCode2Description logCode2Description;
         if (isCodeSpaceInitialized(spaceId)) {
             logCode2Description = LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
         } else {
@@ -99,8 +99,8 @@ public class LogCode2Description {
         LOG_CODE_2_DESCRIPTION_MAP.remove(spaceId);
     }
 
-    private String     logFormat;
-    private Map<String, String> codeMap = new ConcurrentHashMap<>();
+    private final String     logFormat;
+    private final Map<String, String> codeMap = new ConcurrentHashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
         logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";

@@ -19,7 +19,6 @@ package com.alipay.sofa.common.log.factory;
 import ch.qos.logback.classic.LoggerContext;
 import com.alipay.sofa.common.log.LogSpace;
 import com.alipay.sofa.common.space.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
 
 import java.net.URL;
 
@@ -28,10 +27,6 @@ import java.net.URL;
  * Updated by guanchao.ygc@alibaba-inc.com on 14/04/28.
  */
 public class LoggerSpaceFactory4LogbackBuilder extends AbstractLoggerSpaceFactoryBuilder {
-    @Deprecated
-    public LoggerSpaceFactory4LogbackBuilder(SpaceId spaceId, SpaceInfo spaceInfo) {
-        super(spaceId, spaceInfo);
-    }
 
     public LoggerSpaceFactory4LogbackBuilder(SpaceId spaceId, LogSpace logSpace) {
         super(spaceId, logSpace);

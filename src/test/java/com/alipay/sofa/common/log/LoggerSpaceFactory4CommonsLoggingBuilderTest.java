@@ -38,7 +38,7 @@ public class LoggerSpaceFactory4CommonsLoggingBuilderTest extends AbstraceLogTes
     LoggerSpaceFactory4CommonsLoggingBuilder loggerSpaceFactory4CommonsLoggingBuilder = new LoggerSpaceFactory4CommonsLoggingBuilder(
                                                                                           new SpaceId(
                                                                                               "com.alipay.sofa.rpc"),
-                                                                                          new SpaceInfo()
+                                                                                          new LogSpace()
                                                                                               .putAll(LogEnvUtils
                                                                                                   .processGlobalSystemLogProperties()));
 
@@ -80,7 +80,7 @@ public class LoggerSpaceFactory4CommonsLoggingBuilderTest extends AbstraceLogTes
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
 
-        SpaceInfo spaceInfo = new SpaceInfo().setProperty(
+        LogSpace spaceInfo = new LogSpace().setProperty(
             Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug").putAll(
             LogEnvUtils.processGlobalSystemLogProperties());
         LoggerSpaceFactory4CommonsLoggingBuilder loggerSpaceFactory4CommonsLoggingBuilder = new LoggerSpaceFactory4CommonsLoggingBuilder(

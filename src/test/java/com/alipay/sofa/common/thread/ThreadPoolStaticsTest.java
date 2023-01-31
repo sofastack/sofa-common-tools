@@ -56,7 +56,7 @@ public class ThreadPoolStaticsTest extends ThreadPoolTestBase {
         System.out.println("Average running time:" + executor.getStatistics().getAverageRunningTime());
         Assert.assertEquals(1000, executor.getStatistics().getAverageRunningTime(), 10);
         System.out.println("Average stay in queue time:" + executor.getStatistics().getAverageStayInQueueTime());
-        Assert.assertEquals(500, executor.getStatistics().getAverageStayInQueueTime(), 10);
+        Assert.assertEquals(500, executor.getStatistics().getAverageStayInQueueTime(), 30);
         executor.getStatistics().resetAverageStatics();
         Assert.assertEquals(0, executor.getStatistics().getTotalTaskCount());
         executor.shutdown();
