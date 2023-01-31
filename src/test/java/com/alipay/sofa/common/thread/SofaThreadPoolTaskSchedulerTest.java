@@ -59,7 +59,7 @@ public class SofaThreadPoolTaskSchedulerTest extends ThreadPoolTestBase {
             "0,1,0,1,1", "1,0,1,1,0", "0,420\\d", "0,1,0,1,0", "0,1,0,1,0", "0,1,0,1,1",
             "0,1,0,1,1", "1,0,1,1,0", "0,420\\d"));
         Assert.assertTrue(isMatch(lastWarnString().split("\n")[0], WARN, String.format(
-            "Task \\S+ in thread pool (%s\\S+) started on \\S+ \\S+ with traceId \\S+ "
+            "Task .+ in thread pool (%s\\S+) started on \\S+ \\S+ with traceId \\S+ "
                     + "exceeds the limit of \\S+ execution time with stack trace:",
             SofaThreadPoolTaskScheduler.SIMPLE_CLASS_NAME)));
         future.cancel(true);

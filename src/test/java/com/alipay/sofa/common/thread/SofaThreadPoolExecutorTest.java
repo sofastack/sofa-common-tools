@@ -108,7 +108,7 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
             "1,1,0,1,1", "0,1,0,1,0", "\\d,420\\d", "0,1,0,1,0", "0,1,0,1,1", "0,1,0,1,1",
             "0,0,1,1,0", "420\\d,420\\d"));
         Assert.assertTrue(isMatch(lastWarnString().split("\n")[0], WARN,
-            "Task \\S+ in thread pool \\S+ started on \\S+ \\S+ with traceId \\S+ "
+            "Task .+ in thread pool \\S+ started on \\S+ \\S+ with traceId \\S+ "
                     + "exceeds the limit of \\S+ execution time with stack trace:"));
 
         threadPool.shutdown();
