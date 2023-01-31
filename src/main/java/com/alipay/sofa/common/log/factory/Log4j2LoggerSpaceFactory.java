@@ -37,7 +37,6 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.apache.logging.slf4j.Log4jMarkerFactory;
 import org.slf4j.Logger;
-import org.slf4j.impl.StaticMarkerBinder;
 
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -59,6 +58,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private Properties                    properties;
     private LoggerContext                 loggerContext;
     private URL                           confFile;
+
+    private final Log4jMarkerFactory markerFactory = new Log4jMarkerFactory();
 
     /**
      * key: loggerName, value: consoleAppender
@@ -208,7 +209,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private Logger newLogger(String name, LoggerContext loggerContext) {
         final String key = Logger.ROOT_LOGGER_NAME.equals(name) ? LogManager.ROOT_LOGGER_NAME
             : name;
-        return new Log4jLogger((Log4jMarkerFactory) StaticMarkerBinder.getSingleton().getMarkerFactory(), loggerContext.getLogger(key), name);
+        return new Log4jLogger(markerFactory, loggerContext.getLogger(key), name);
     }
 
     private Level toLog4j2Level(AdapterLevel adapterLevel) {
