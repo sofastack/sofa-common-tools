@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.log.factory;
 
+import com.alipay.sofa.common.log.LogSpace;
 import com.alipay.sofa.common.space.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,32 +34,30 @@ public class LoggerSpaceOverrideUsageTest {
     @Test
     public void testGetResource() throws IOException {
         LoggerSpaceFactory4LogbackBuilder builder = new LoggerSpaceFactory4LogbackBuilder(
-            new SpaceId("test"), new SpaceInfo());
+            new SpaceId("test"), new LogSpace());
         ClassLoader classLoader = LoggerSpaceOverrideUsageTest.class.getClassLoader();
 
-        Assert.assertNull(builder.getResource(classLoader, null, null));
+        Assert.assertNull(builder.getResourceByPriority(null, null));
 
         List<URL> configFileUrls = new ArrayList<URL>();
 
         List<URL> propertyFileUrls = new ArrayList<URL>();
-        Assert.assertNull(builder.getResource(classLoader, configFileUrls, null));
+        Assert.assertNull(builder.getResourceByPriority(configFileUrls, null));
 
         URL url1 = classLoader.getResource("com/alipay/sofa/testover1/log/log4j/log-conf.xml");
         configFileUrls.add(url1);
-        Assert.assertEquals(url1, builder.getResource(classLoader, configFileUrls, null));
+        Assert.assertEquals(url1, builder.getResourceByPriority(configFileUrls, null));
 
         URL url2 = classLoader.getResource("com/alipay/sofa/testover2/log/log4j/log-conf.xml");
         URL p2 = classLoader.getResource("com/alipay/sofa/testover2/log/log4j/config.properties");
         configFileUrls.add(url2);
         propertyFileUrls.add(p2);
-        Assert.assertEquals(url2,
-            builder.getResource(classLoader, configFileUrls, propertyFileUrls));
+        Assert.assertEquals(url2, builder.getResourceByPriority(configFileUrls, propertyFileUrls));
 
         URL url3 = classLoader.getResource("com/alipay/sofa/testover3/log/log4j/log-conf.xml");
         URL p3 = classLoader.getResource("com/alipay/sofa/testover3/log/log4j/config.properties");
         configFileUrls.add(url3);
         propertyFileUrls.add(p3);
-        Assert.assertEquals(url2,
-            builder.getResource(classLoader, configFileUrls, propertyFileUrls));
+        Assert.assertEquals(url2, builder.getResourceByPriority(configFileUrls, propertyFileUrls));
     }
 }

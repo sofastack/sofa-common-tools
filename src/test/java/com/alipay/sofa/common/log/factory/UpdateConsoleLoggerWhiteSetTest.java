@@ -17,7 +17,7 @@
 package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
-import com.alipay.sofa.common.log.SpaceInfo;
+import com.alipay.sofa.common.log.LogSpace;
 import com.alipay.sofa.common.space.SpaceId;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class UpdateConsoleLoggerWhiteSetTest {
     @Test
     public void test() {
         SpaceId spaceId = new SpaceId(spaceName);
-        SpaceInfo spaceInfo = new SpaceInfo();
+        LogSpace spaceInfo = new LogSpace();
         new LoggerSpaceFactory4LogbackBuilder(spaceId, spaceInfo).getSpaceLogConfigFileURL(this
             .getClass().getClassLoader(), "com.alipay.sofa");
         //name config

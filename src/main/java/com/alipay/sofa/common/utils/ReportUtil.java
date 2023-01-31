@@ -35,15 +35,6 @@ public class ReportUtil {
     }
 
     /**
-     * keep compatible
-     * @param msg message
-     */
-    @Deprecated
-    public static void report(String msg) {
-        reportDebug(msg);
-    }
-
-    /**
      * print Info message
      * @param msg message
      */

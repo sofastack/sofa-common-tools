@@ -122,13 +122,6 @@ public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFa
         return configFileUrl;
     }
 
-    // Use getResourceByPriority instead
-    @Deprecated
-    protected URL getResource(ClassLoader spaceClassloader, List<URL> logConfigFileUrls,
-                              List<URL> configPropertyFileUrls) throws IOException {
-        return getResourceByPriority(logConfigFileUrls, configPropertyFileUrls);
-    }
-
     protected URL getResourceByPriority(List<URL> logConfigFileUrls, List<URL> logConfigPropertyFileUrls) throws IOException {
         if (logConfigFileUrls == null || logConfigFileUrls.isEmpty()) {
             return null;

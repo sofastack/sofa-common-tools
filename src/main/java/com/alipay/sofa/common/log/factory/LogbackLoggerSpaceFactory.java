@@ -26,6 +26,7 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.core.util.OptionHelper;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
@@ -106,7 +107,13 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
                 ThresholdFilter filter = new ThresholdFilter();
                 filter.setLevel(consoleLevel.toString());
 
-                encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
+            String pattern;
+            try {
+                pattern = OptionHelper.substVars(logPattern, loggerContext);
+            } catch (ScanException e) {
+                throw new IllegalArgumentException("Failed to subst vars pattern: " + logPattern, e);
+            }
+            encoder.setPattern(pattern);
                 encoder.setContext(loggerContext);
                 encoder.start();
                 appender.setEncoder(encoder);
@@ -147,11 +154,6 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         Level logbackLevel = this.toLogbackLevel(adapterLevel);
         logbackLogger.setLevel(logbackLevel);
         return logbackLogger;
-    }
-
-    @Deprecated
-    public void reInitialize(Map<String, String> environment) {
-        // for compatibility
     }
 
     private Level toLogbackLevel(AdapterLevel adapterLevel) {
