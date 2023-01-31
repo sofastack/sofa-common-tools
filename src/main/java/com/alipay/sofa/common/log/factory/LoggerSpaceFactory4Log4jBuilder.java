@@ -54,7 +54,7 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
                                               URL url) {
 
         try {
-            final LoggerRepository repo = new Hierarchy(new RootLogger((Level) Level.WARN));
+            final LoggerRepository repo = new Hierarchy(new RootLogger(Level.WARN));
 
             DOMConfigurator domConfigurator = new DOMConfigurator();
             final Field field = DOMConfigurator.class.getDeclaredField("props");
@@ -65,7 +65,7 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
 
             return new AbstractLoggerSpaceFactory(getLoggingToolName()) {
 
-                ConcurrentMap<String, Reload4jLoggerAdapter> loggerMap = new ConcurrentHashMap<String, Reload4jLoggerAdapter>();
+                final ConcurrentMap<String, Reload4jLoggerAdapter> loggerMap = new ConcurrentHashMap<>();
 
                 @Override
                 public Logger setLevel(String loggerName, AdapterLevel adapterLevel)
@@ -96,21 +96,15 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
                         throw new IllegalStateException(
                             "AdapterLevel is NULL when adapter to log4j.");
                     }
-                    switch (adapterLevel) {
-                        case TRACE:
-                            return org.apache.log4j.Level.TRACE;
-                        case DEBUG:
-                            return org.apache.log4j.Level.DEBUG;
-                        case INFO:
-                            return org.apache.log4j.Level.INFO;
-                        case WARN:
-                            return org.apache.log4j.Level.WARN;
-                        case ERROR:
-                            return org.apache.log4j.Level.ERROR;
-                        default:
-                            throw new IllegalStateException(adapterLevel
-                                                            + " is unknown when adapter to log4j.");
-                    }
+                    return switch (adapterLevel) {
+                        case TRACE -> Level.TRACE;
+                        case DEBUG -> Level.DEBUG;
+                        case INFO -> Level.INFO;
+                        case WARN -> Level.WARN;
+                        case ERROR -> Level.ERROR;
+                        default -> throw new IllegalStateException(adapterLevel
+                                + " is unknown when adapter to log4j.");
+                    };
                 }
 
                 private Reload4jLoggerAdapter createSlf4jLogger(String name) {
@@ -132,5 +126,4 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
             throw new IllegalStateException("Log4j loggerSpaceFactory build error!", e);
         }
     }
-
 }

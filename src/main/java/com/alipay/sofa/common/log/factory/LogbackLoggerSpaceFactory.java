@@ -48,15 +48,15 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private SpaceId                              spaceId;
-    private LoggerContext                        loggerContext;
-    private Properties                           properties;
+    private final SpaceId                              spaceId;
+    private final LoggerContext                        loggerContext;
+    private final Properties                           properties;
 
     /**
      * key: spanId, value: consoleAppender
      * each logger have their own consoleAppender if had configured
      **/
-    private ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -160,20 +160,14 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to logback.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to logback.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to logback.");
+        };
     }
 }

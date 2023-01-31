@@ -25,8 +25,8 @@ import org.slf4j.Marker;
  */
 public class LoggerProxy implements Logger {
 
-    private TemporaryILoggerFactory.LoggerSelector loggerSelector;
-    private String                                 name;
+    private final TemporaryILoggerFactory.LoggerSelector loggerSelector;
+    private final String                                 name;
 
     public LoggerProxy(TemporaryILoggerFactory.LoggerSelector loggerSelector, String name) {
         AssertUtil.notNull(loggerSelector);

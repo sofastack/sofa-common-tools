@@ -53,11 +53,11 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
-    private SpaceId                       spaceId;
-    private Properties                    properties;
-    private LoggerContext                 loggerContext;
-    private URL                           confFile;
+    private final ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
+    private final SpaceId                       spaceId;
+    private final Properties                    properties;
+    private final LoggerContext                 loggerContext;
+    private final URL                           confFile;
 
     private final Log4jMarkerFactory markerFactory = new Log4jMarkerFactory();
 
@@ -65,7 +65,7 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
      * key: loggerName, value: consoleAppender
      * each logger have their own consoleAppender if had configured
      **/
-    private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
 
     /**
      * @param source logback,log4j2,log4j,temp,nop
@@ -216,21 +216,15 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to log4j2.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to log4j2.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to log4j2.");
+        };
     }
 
 }

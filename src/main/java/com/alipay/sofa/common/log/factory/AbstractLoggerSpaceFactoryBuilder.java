@@ -42,10 +42,9 @@ import static com.alipay.sofa.common.log.Constants.*;
  * Updated by guanchao.ygc@alibaba-inc.com on 14/04/28.
  */
 public abstract class AbstractLoggerSpaceFactoryBuilder implements LoggerSpaceFactoryBuilder {
-    private SpaceId  spaceId;
-    private LogSpace logSpace;
-
-    private String   spaceDirectoryPrefix;
+    private final SpaceId  spaceId;
+    private final LogSpace logSpace;
+    private final String   spaceDirectoryPrefix;
 
     public AbstractLoggerSpaceFactoryBuilder(SpaceId spaceId, LogSpace space) {
         AssertUtil.notNull(space);
