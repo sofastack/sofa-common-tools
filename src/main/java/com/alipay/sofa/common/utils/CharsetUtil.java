@@ -22,10 +22,11 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Util to determine Charsets.
+ * Util to determine Charsets, the implements fork from guava.
  *
  * @author huzijie
  * @version CharsetUtil.java, v 0.1 2023年04月14日 2:06 PM huzijie Exp $
+ * @see com.google.common.base.Utf8#isWellFormed(byte[])
  */
 public class CharsetUtil {
 
@@ -47,6 +48,24 @@ public class CharsetUtil {
      */
     public static void assertUtf8WellFormed(byte[] bytes, int off, int len) {
         checkUtf8WellFormed(bytes, off, len, 0);
+    }
+
+    /**
+     * Monitor the given byte array is well formed in UTF-8 encoding format.
+     * @param bytes The byte array to be checked.
+     */
+    public static void monitorUtf8WellFormed(byte[] bytes) {
+        checkUtf8WellFormed(bytes, 1);
+    }
+
+    /**
+     * Monitor that a portion of the given byte array is well formed in UTF-8 encoding format.
+     * @param bytes The byte array to be checked.
+     * @param off The starting position in the array to be checked.
+     * @param len The length of the portion to be checked.
+     */
+    public static void monitorUtf8WellFormed(byte[] bytes, int off, int len) {
+        checkUtf8WellFormed(bytes, off, len, 1);
     }
 
     /**
