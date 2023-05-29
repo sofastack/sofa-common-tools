@@ -30,14 +30,18 @@ import java.nio.charset.StandardCharsets;
  */
 public class CharsetUtil {
 
-    public static Logger CHARSET_MONITOR_LOG = LoggerFactory.getLogger("CHARSET_MONITOR_LOG");
+    public static Logger    CHARSET_MONITOR_LOG = LoggerFactory.getLogger("CHARSET_MONITOR_LOG");
+
+    public static final int MODEL_ASSERT        = 0;
+
+    public static final int MODEL_MONITOR       = 1;
 
     /**
      * Asserts the given byte array is well formed in UTF-8 encoding format.
      * @param bytes The byte array to be checked.
      */
-    public static void assertUtf8WellFormed(byte[] bytes) {
-        checkUtf8WellFormed(bytes, 0);
+    public static void assertUTF8WellFormed(byte[] bytes) {
+        checkUTF8WellFormed(bytes, MODEL_ASSERT);
     }
 
     /**
@@ -46,16 +50,16 @@ public class CharsetUtil {
      * @param off The starting position in the array to be checked.
      * @param len The length of the portion to be checked.
      */
-    public static void assertUtf8WellFormed(byte[] bytes, int off, int len) {
-        checkUtf8WellFormed(bytes, off, len, 0);
+    public static void assertUTF8WellFormed(byte[] bytes, int off, int len) {
+        checkUTF8WellFormed(bytes, off, len, MODEL_ASSERT);
     }
 
     /**
      * Monitor the given byte array is well formed in UTF-8 encoding format.
      * @param bytes The byte array to be checked.
      */
-    public static void monitorUtf8WellFormed(byte[] bytes) {
-        checkUtf8WellFormed(bytes, 1);
+    public static void monitorUTF8WellFormed(byte[] bytes) {
+        checkUTF8WellFormed(bytes, MODEL_MONITOR);
     }
 
     /**
@@ -64,8 +68,8 @@ public class CharsetUtil {
      * @param off The starting position in the array to be checked.
      * @param len The length of the portion to be checked.
      */
-    public static void monitorUtf8WellFormed(byte[] bytes, int off, int len) {
-        checkUtf8WellFormed(bytes, off, len, 1);
+    public static void monitorUTF8WellFormed(byte[] bytes, int off, int len) {
+        checkUTF8WellFormed(bytes, off, len, MODEL_MONITOR);
     }
 
     /**
@@ -75,8 +79,8 @@ public class CharsetUtil {
      *        <p>In model 0, it will throw IllegalArgumentException.
      *        <p>In mode 1, it will print error log in slf4j logger: CHARSET_MONITOR_LOG
      */
-    public static void checkUtf8WellFormed(byte[] bytes, int model) {
-        checkUtf8WellFormed(bytes, 0, bytes.length, model);
+    public static void checkUTF8WellFormed(byte[] bytes, int model) {
+        checkUTF8WellFormed(bytes, 0, bytes.length, model);
     }
 
     /**
@@ -88,15 +92,14 @@ public class CharsetUtil {
      *        <p>In model 0, it will throw IllegalArgumentException.
      *        <p>In mode 1, it will print error log in slf4j logger: CHARSET_MONITOR_LOG
      */
-    public static void checkUtf8WellFormed(byte[] bytes, int off, int len, int model) {
-        if (!isUtf8WellFormed(bytes, off, len)) {
+    public static void checkUTF8WellFormed(byte[] bytes, int off, int len, int model) {
+        if (!isUTF8WellFormed(bytes, off, len)) {
             switch (model) {
-                case 0:
+                case MODEL_ASSERT:
                     throw new IllegalArgumentException("Input byte array is not well formed utf-8");
-                case 1:
-                    CHARSET_MONITOR_LOG
-                        .error("Detect not well formed utf-8 input: {}"
-                               , new String(bytes, off, len, StandardCharsets.UTF_8));
+                case MODEL_MONITOR:
+                    CHARSET_MONITOR_LOG.error("Detect not well formed utf-8 input: {}", new String(
+                        bytes, off, len, StandardCharsets.UTF_8));
                 default:
             }
         }
@@ -109,8 +112,8 @@ public class CharsetUtil {
      *
      * @return true if the byte array is in well formed UTF-8 encoding format, false otherwise
      */
-    public static boolean isUtf8WellFormed(byte[] bytes) {
-        return isUtf8WellFormed(bytes, 0, bytes.length);
+    public static boolean isUTF8WellFormed(byte[] bytes) {
+        return isUTF8WellFormed(bytes, 0, bytes.length);
     }
 
     /**
@@ -123,7 +126,7 @@ public class CharsetUtil {
      *
      * @return true if the byte array is in well formed UTF-8 encoding format, false otherwise
      */
-    public static boolean isUtf8WellFormed(byte[] bytes, int off, int len) {
+    public static boolean isUTF8WellFormed(byte[] bytes, int off, int len) {
         int end = off + len;
         if (off < 0 || end < off || end > bytes.length) {
             throw new IndexOutOfBoundsException("Illegal input arguments, start: " + off

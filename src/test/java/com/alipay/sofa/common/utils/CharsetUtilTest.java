@@ -37,31 +37,31 @@ public class CharsetUtilTest {
 
     @Test
     public void testAssertUtf8WellFormed() {
-        CharsetUtil.assertUtf8WellFormed(utf8);
-        Assert.assertThrows(IllegalArgumentException.class, () -> CharsetUtil.assertUtf8WellFormed(gbk));
+        CharsetUtil.assertUTF8WellFormed(utf8);
+        Assert.assertThrows(IllegalArgumentException.class, () -> CharsetUtil.assertUTF8WellFormed(gbk));
     }
 
     @Test
     public void testMonitorUtf8WellFormed() {
-        CharsetUtil.monitorUtf8WellFormed(utf8);
-        CharsetUtil.monitorUtf8WellFormed(gbk);
+        CharsetUtil.monitorUTF8WellFormed(utf8);
+        CharsetUtil.monitorUTF8WellFormed(gbk);
     }
 
     @Test
     public void testCheckUtf8WellFormed() {
-        CharsetUtil.checkUtf8WellFormed(utf8, 0);
-        Assert.assertThrows(IllegalArgumentException.class, () -> CharsetUtil.checkUtf8WellFormed(gbk, 0));
+        CharsetUtil.checkUTF8WellFormed(utf8, 0);
+        Assert.assertThrows(IllegalArgumentException.class, () -> CharsetUtil.checkUTF8WellFormed(gbk, 0));
 
-        CharsetUtil.checkUtf8WellFormed(utf8, 1);
-        CharsetUtil.checkUtf8WellFormed(gbk, 1);
+        CharsetUtil.checkUTF8WellFormed(utf8, 1);
+        CharsetUtil.checkUTF8WellFormed(gbk, 1);
     }
 
     @Test
     public void testIsUtf8WellFormed() {
-        Assert.assertTrue(CharsetUtil.isUtf8WellFormed(utf8));
-        Assert.assertFalse(CharsetUtil.isUtf8WellFormed(gbk));
+        Assert.assertTrue(CharsetUtil.isUTF8WellFormed(utf8));
+        Assert.assertFalse(CharsetUtil.isUTF8WellFormed(gbk));
 
-        Assert.assertTrue(CharsetUtil.isUtf8WellFormed(utf8, 0, 3));
-        Assert.assertFalse(CharsetUtil.isUtf8WellFormed(gbk, 0, 3));
+        Assert.assertTrue(CharsetUtil.isUTF8WellFormed(utf8, 0, 3));
+        Assert.assertFalse(CharsetUtil.isUTF8WellFormed(gbk, 0, 3));
     }
 }
