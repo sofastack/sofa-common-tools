@@ -96,7 +96,7 @@ public class CharsetUtil {
                 case 1:
                     CHARSET_MONITOR_LOG
                         .error("Detect not well formed utf-8 input: {}"
-                               + new String(bytes, off, len, StandardCharsets.UTF_8));
+                               , new String(bytes, off, len, StandardCharsets.UTF_8));
                 default:
             }
         }
