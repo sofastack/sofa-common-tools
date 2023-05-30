@@ -98,8 +98,8 @@ public class CharsetUtil {
                 case MODE_ASSERT:
                     throw new IllegalArgumentException("Input byte array is not well formed utf-8");
                 case MODE_MONITOR:
-                    CHARSET_MONITOR_LOG.error("Detect not well formed utf-8 input: {}", new String(
-                        bytes, off, len, StandardCharsets.UTF_8));
+                    CHARSET_MONITOR_LOG.error("Detect not well formed utf-8 input: {}, trace:{}",
+                        new String(bytes, off, len, StandardCharsets.UTF_8), currentStackTrace());
                 default:
             }
         }
@@ -198,5 +198,16 @@ public class CharsetUtil {
                 }
             }
         }
+    }
+
+    private static String currentStackTrace() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        // 5 means the caller method
+        for (int i = 5; i < stackTraceElements.length; i++) {
+            sb.append("    ").append(stackTraceElements[i]).append("\n");
+        }
+        return sb.toString();
     }
 }
