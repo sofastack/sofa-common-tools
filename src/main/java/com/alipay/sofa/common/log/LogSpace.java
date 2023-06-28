@@ -26,8 +26,8 @@ import java.util.Properties;
  * Created on 2020/12/4
  */
 public class LogSpace {
+    private final Properties           properties;
     private AbstractLoggerSpaceFactory abstractLoggerSpaceFactory;
-    private Properties                 properties;
     private ClassLoader                spaceClassloader;
 
     public LogSpace() {

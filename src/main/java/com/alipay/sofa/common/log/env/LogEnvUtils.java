@@ -65,7 +65,7 @@ public final class LogEnvUtils {
     public static boolean isLog4jUsable(ClassLoader spaceClassloader) {
         AssertUtil.notNull(spaceClassloader);
         try {
-            return (spaceClassloader.loadClass("org.slf4j.impl.Log4jLoggerFactory") != null);
+            return (spaceClassloader.loadClass("org.slf4j.reload4j.Reload4jLoggerFactory") != null);
         } catch (ClassNotFoundException e) {
             // logger.debug("log4j dependency is not existed.");
             return false;
@@ -224,12 +224,6 @@ public final class LogEnvUtils {
     public static boolean isSofaCommonLoggingConfig(String key) {
         return isSofaCommonLoggingPrefix(key) || key.equals(LOG_PATH) || key.equals(OLD_LOG_PATH)
                || key.equals(LOG_ENCODING_PROP_KEY);
-    }
-
-    // Use isSofaCommonLoggingConfig instead
-    @Deprecated
-    public static boolean filterAllLogConfig(String key) {
-        return isSofaCommonLoggingConfig(key);
     }
 
     public static void clearGlobalSystemProperties() {

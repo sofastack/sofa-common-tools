@@ -39,7 +39,7 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
     LoggerSpaceFactory4Log4j2Builder loggerSpaceFactory4Log4j2Builder = new LoggerSpaceFactory4Log4j2Builder(
                                                                           new SpaceId(
                                                                               "com.alipay.sofa.rpc"),
-                                                                          new SpaceInfo().putAll(LogEnvUtils
+                                                                          new LogSpace().putAll(LogEnvUtils
                                                                               .processGlobalSystemLogProperties()));
 
     @Before
@@ -80,7 +80,7 @@ public class LoggerSpaceFactory4Log4j2BuilderTest extends AbstraceLogTestBase {
     public void testLoggingLevelDebug() {
         System.clearProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc");
 
-        SpaceInfo spaceInfo = new SpaceInfo()
+        LogSpace spaceInfo = new LogSpace()
             .setProperty(Constants.LOG_LEVEL_PREFIX + "com.alipay.sofa.rpc", "debug")
             .setProperty(LOG_ENCODING_PROP_KEY, "gbk")
             .putAll(LogEnvUtils.processGlobalSystemLogProperties());

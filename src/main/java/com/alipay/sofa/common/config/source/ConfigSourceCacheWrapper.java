@@ -38,7 +38,7 @@ public class ConfigSourceCacheWrapper extends AbstractConfigSource {
 
     public ConfigSourceCacheWrapper(AbstractConfigSource delegate, CacheBuilder<String, String> cb) {
         this.delegate = delegate;
-        this.cache = cb.build(new CacheLoader<String, String>() {
+        this.cache = cb.build(new CacheLoader<>() {
             @Override
             public String load(String key) {
                 String value = delegate.doGetConfig(key);
@@ -55,7 +55,7 @@ public class ConfigSourceCacheWrapper extends AbstractConfigSource {
         this.delegate = delegate;
         this.cache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofSeconds(expireAfterSecond)).maximumSize(DEFAULT_MAX_SIZE)
-            .build(new CacheLoader<String, String>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public String load(String key) {
                     String value = delegate.doGetConfig(key);

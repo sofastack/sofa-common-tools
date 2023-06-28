@@ -77,7 +77,7 @@ public class DefaultConverter implements Converter {
         } else if (type == Long.class || type == long.class) {
             return Long.valueOf(value);
         } else if (type == Character.class || type == char.class) {
-            return Character.valueOf(value.toCharArray()[0]);
+            return value.toCharArray()[0];
         } else if (type == Boolean.class || type == boolean.class) {
             return Boolean.valueOf(value);
         } else if (type == List.class) {

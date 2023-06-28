@@ -26,6 +26,7 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.core.util.OptionHelper;
 import com.alipay.sofa.common.log.CommonLoggingConfigurations;
 import com.alipay.sofa.common.log.Constants;
@@ -38,8 +39,6 @@ import org.slf4j.Marker;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qilong.zql
@@ -47,15 +46,10 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private SpaceId                              spaceId;
-    private LoggerContext                        loggerContext;
-    private Properties                           properties;
-
-    /**
-     * key: spanId, value: consoleAppender
-     * each logger have their own consoleAppender if had configured
-     **/
-    private ConcurrentMap<String, ConsoleAppender<ILoggingEvent>> consoleAppenders = new ConcurrentHashMap<>();
+    private final SpaceId                  spaceId;
+    private final LoggerContext            loggerContext;
+    private final Properties               properties;
+    private ConsoleAppender<ILoggingEvent> consoleAppender;
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -79,11 +73,11 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
             value = properties.getProperty(Constants.SOFA_MIDDLEWARE_ALL_LOG_CONSOLE_SWITCH);
         }
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
+            consoleAppender = createConsoleAppender();
             loggerContext.addTurboFilter(new TurboFilter() {
                 @Override
                 public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
                                           Level level, String format, Object[] params, Throwable t) {
-                    ConsoleAppender<ILoggingEvent> consoleAppender = getOrCreateConsoleAppender(logger.getName());
                     if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
                         && !logger.isAttached(consoleAppender)) {
                         logger.addAppender(consoleAppender);
@@ -94,28 +88,32 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
     }
 
-    private ConsoleAppender<ILoggingEvent> getOrCreateConsoleAppender(String loggerName) {
-        return consoleAppenders.computeIfAbsent(loggerName, k -> {
-                ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
-                PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-                String logPattern = properties.getProperty(
-                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
-                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
-                // create appender filter
-                Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
-                ThresholdFilter filter = new ThresholdFilter();
-                filter.setLevel(consoleLevel.toString());
+    private ConsoleAppender<ILoggingEvent> createConsoleAppender() {
+        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        String logPattern = properties.getProperty(
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN,
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOGBACK_PATTERN_DEFAULT);
+        // create appender filter
+        Level consoleLevel = getConsoleLevel(spaceId.getSpaceName());
+        ThresholdFilter filter = new ThresholdFilter();
+        filter.setLevel(consoleLevel.toString());
 
-                encoder.setPattern(OptionHelper.substVars(logPattern, loggerContext));
-                encoder.setContext(loggerContext);
-                encoder.start();
-                appender.setEncoder(encoder);
-                appender.setName(CONSOLE);
-                filter.start();
-                appender.addFilter(filter);
-                appender.start();
-                return appender;
-            });
+        String pattern;
+        try {
+            pattern = OptionHelper.substVars(logPattern, loggerContext);
+        } catch (ScanException e) {
+            throw new IllegalArgumentException("Failed to subst vars pattern: " + logPattern, e);
+        }
+        encoder.setPattern(pattern);
+        encoder.setContext(loggerContext);
+        encoder.start();
+        appender.setEncoder(encoder);
+        appender.setName(CONSOLE);
+        filter.start();
+        appender.addFilter(filter);
+        appender.start();
+        return appender;
     }
 
     public SpaceId getSpaceId() {
@@ -149,29 +147,18 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return logbackLogger;
     }
 
-    @Deprecated
-    public void reInitialize(Map<String, String> environment) {
-        // for compatibility
-    }
-
     private Level toLogbackLevel(AdapterLevel adapterLevel) {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to logback.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to logback.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to logback.");
+        };
     }
 }

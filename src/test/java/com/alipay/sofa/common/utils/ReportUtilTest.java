@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.common.utils;
 
-import com.alipay.sofa.common.log.ReportUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

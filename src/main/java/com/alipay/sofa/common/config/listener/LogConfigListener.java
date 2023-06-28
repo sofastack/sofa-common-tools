@@ -51,7 +51,7 @@ public class LogConfigListener extends AbstractConfigListener {
                 defaultValue);
         } else {
             LOGGER.warn("Config {}'s defaultValue {} does not equals to actually defaultValue {}",
-                key.toString(), key.getDefaultValue(), defaultValue);
+                key, key.getDefaultValue(), defaultValue);
 
         }
     }

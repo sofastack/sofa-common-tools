@@ -36,13 +36,13 @@ public class DefaultConfigManager implements ConfigManager {
     private final Object EMPTY = new Object();
     private final List<ConfigSource> configSources = new CopyOnWriteArrayList<>();
     private final List<ManagementListener> configListeners = new CopyOnWriteArrayList<>();
-    private LoadingCache<ConfigKey, Object> cache;
+    private final LoadingCache<ConfigKey, Object> cache;
 
     public DefaultConfigManager(long expireAfterSecond, long maximumSize) {
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(expireAfterSecond))
                 .maximumSize(maximumSize)
-                .build(new CacheLoader<ConfigKey, Object>() {
+                .build(new CacheLoader<>() {
                     @Override
                     public Object load(ConfigKey key) {
                         Object config = getConfig(key, null);
@@ -97,7 +97,7 @@ public class DefaultConfigManager implements ConfigManager {
     }
 
     public <T> T getConfig(ConfigKey<T> key, T defaultValue) {
-        T result = null;
+        T result;
         beforeConfigLoading(key);
         for (ConfigSource configSource : configSources) {
             result = configSource.getConfig(key);

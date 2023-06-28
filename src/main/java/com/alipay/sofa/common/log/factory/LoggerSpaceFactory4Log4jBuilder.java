@@ -17,16 +17,15 @@
 package com.alipay.sofa.common.log.factory;
 
 import com.alipay.sofa.common.log.LogSpace;
-import com.alipay.sofa.common.space.SpaceId;
-import com.alipay.sofa.common.log.SpaceInfo;
 import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
+import com.alipay.sofa.common.space.SpaceId;
 import org.apache.log4j.Hierarchy;
 import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.RootLogger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
-import org.slf4j.impl.Log4jLoggerAdapter;
+import org.slf4j.reload4j.Reload4jLoggerAdapter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -40,10 +39,6 @@ import java.util.concurrent.ConcurrentMap;
  * Created by yangguanchao on 17/01/17.
  */
 public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryBuilder {
-
-    public LoggerSpaceFactory4Log4jBuilder(SpaceId spaceId, SpaceInfo spaceInfo) {
-        super(spaceId, spaceInfo);
-    }
 
     public LoggerSpaceFactory4Log4jBuilder(SpaceId spaceId, LogSpace logSpace) {
         super(spaceId, logSpace);
@@ -59,7 +54,7 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
                                               URL url) {
 
         try {
-            final LoggerRepository repo = new Hierarchy(new RootLogger((Level) Level.WARN));
+            final LoggerRepository repo = new Hierarchy(new RootLogger(Level.WARN));
 
             DOMConfigurator domConfigurator = new DOMConfigurator();
             final Field field = DOMConfigurator.class.getDeclaredField("props");
@@ -70,12 +65,12 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
 
             return new AbstractLoggerSpaceFactory(getLoggingToolName()) {
 
-                ConcurrentMap<String, Log4jLoggerAdapter> loggerMap = new ConcurrentHashMap<String, Log4jLoggerAdapter>();
+                final ConcurrentMap<String, Reload4jLoggerAdapter> loggerMap = new ConcurrentHashMap<>();
 
                 @Override
                 public Logger setLevel(String loggerName, AdapterLevel adapterLevel)
                                                                                     throws Exception {
-                    Log4jLoggerAdapter log4jLoggerAdapter = (Log4jLoggerAdapter) this
+                    Reload4jLoggerAdapter log4jLoggerAdapter = (Reload4jLoggerAdapter) this
                         .getLogger(loggerName);
                     org.apache.log4j.Logger log4jLogger = repo.getLogger(loggerName);
                     //level
@@ -86,13 +81,13 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
 
                 @Override
                 public Logger getLogger(String name) {
-                    Log4jLoggerAdapter log4jLoggerAdapter = this.loggerMap.get(name);
+                    Reload4jLoggerAdapter log4jLoggerAdapter = this.loggerMap.get(name);
                     if (log4jLoggerAdapter != null) {
                         return log4jLoggerAdapter;
                     }
 
-                    Log4jLoggerAdapter newInst = createSlf4jLogger(name);
-                    Log4jLoggerAdapter oldInst = this.loggerMap.putIfAbsent(name, newInst);
+                    Reload4jLoggerAdapter newInst = createSlf4jLogger(name);
+                    Reload4jLoggerAdapter oldInst = this.loggerMap.putIfAbsent(name, newInst);
                     return oldInst == null ? newInst : oldInst;
                 }
 
@@ -101,28 +96,22 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
                         throw new IllegalStateException(
                             "AdapterLevel is NULL when adapter to log4j.");
                     }
-                    switch (adapterLevel) {
-                        case TRACE:
-                            return org.apache.log4j.Level.TRACE;
-                        case DEBUG:
-                            return org.apache.log4j.Level.DEBUG;
-                        case INFO:
-                            return org.apache.log4j.Level.INFO;
-                        case WARN:
-                            return org.apache.log4j.Level.WARN;
-                        case ERROR:
-                            return org.apache.log4j.Level.ERROR;
-                        default:
-                            throw new IllegalStateException(adapterLevel
-                                                            + " is unknown when adapter to log4j.");
-                    }
+                    return switch (adapterLevel) {
+                        case TRACE -> Level.TRACE;
+                        case DEBUG -> Level.DEBUG;
+                        case INFO -> Level.INFO;
+                        case WARN -> Level.WARN;
+                        case ERROR -> Level.ERROR;
+                        default -> throw new IllegalStateException(adapterLevel
+                                + " is unknown when adapter to log4j.");
+                    };
                 }
 
-                private Log4jLoggerAdapter createSlf4jLogger(String name) {
+                private Reload4jLoggerAdapter createSlf4jLogger(String name) {
                     org.apache.log4j.Logger log4jLogger = repo.getLogger(name);
                     //反射实例化
                     try {
-                        Constructor<Log4jLoggerAdapter> constructor = Log4jLoggerAdapter.class
+                        Constructor<Reload4jLoggerAdapter> constructor = Reload4jLoggerAdapter.class
                             .getDeclaredConstructor(org.apache.log4j.Logger.class);
                         constructor.setAccessible(true);
                         return constructor.newInstance(log4jLogger);
@@ -137,5 +126,4 @@ public class LoggerSpaceFactory4Log4jBuilder extends AbstractLoggerSpaceFactoryB
             throw new IllegalStateException("Log4j loggerSpaceFactory build error!", e);
         }
     }
-
 }

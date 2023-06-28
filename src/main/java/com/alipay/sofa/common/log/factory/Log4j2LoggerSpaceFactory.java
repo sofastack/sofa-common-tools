@@ -35,10 +35,9 @@ import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.slf4j.Log4jLogger;
+import org.apache.logging.slf4j.Log4jMarkerFactory;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -52,17 +51,13 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
-    private ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
-    private SpaceId                       spaceId;
-    private Properties                    properties;
-    private LoggerContext                 loggerContext;
-    private URL                           confFile;
-
-    /**
-     * key: loggerName, value: consoleAppender
-     * each logger have their own consoleAppender if had configured
-     **/
-    private ConcurrentMap<String, ConsoleAppender> consoleAppenders = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<>();
+    private final SpaceId                       spaceId;
+    private final Properties                    properties;
+    private final LoggerContext                 loggerContext;
+    private final URL                           confFile;
+    private final Log4jMarkerFactory markerFactory = new Log4jMarkerFactory();
+    private ConsoleAppender appender;
 
     /**
      * @param source logback,log4j2,log4j,temp,nop
@@ -84,22 +79,8 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
 
         LoggerContext context = new LoggerContext(spaceId.getSpaceName(), null, confFile.toURI());
-
-        Configuration config = null;
-        ConfigurationFactory configurationFactory = ConfigurationFactory.getInstance();
-        try {
-            // log4j-core 2.3 version
-            Method getConfigurationMethod = configurationFactory.getClass().getMethod(
-                "getConfiguration", String.class, URI.class, ClassLoader.class);
-            config = (Configuration) getConfigurationMethod.invoke(configurationFactory,
-                spaceId.getSpaceName(), confFile.toURI(), this.getClass().getClassLoader());
-        } catch (NoSuchMethodException noSuchMethodException) {
-            // log4j-core 2.7+ version
-            Method getConfigurationMethod = configurationFactory.getClass().getMethod(
-                "getConfiguration", LoggerContext.class, String.class, URI.class, ClassLoader.class);
-            config = (Configuration) getConfigurationMethod.invoke(configurationFactory, context,
-                spaceId.getSpaceName(), confFile.toURI(), this.getClass().getClassLoader());
-        }
+        Configuration config = ConfigurationFactory.getInstance().getConfiguration(context, spaceId.getSpaceName(),
+                confFile.toURI(), this.getClass().getClassLoader());
         if (config == null) {
             throw new RuntimeException("No log4j2 configuration are found.");
         }
@@ -127,12 +108,11 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         }
 
         if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
+            appender = createConsoleAppender();
             loggerContext.addFilter(new AbstractFilter() {
                 private void process(org.apache.logging.log4j.core.Logger logger) {
-                    ConsoleAppender appender = getOrCreateConsoleAppender(logger.getName());
-                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())
-                            && !logger.getAppenders().containsKey(CONSOLE)) {
-                        logger.addAppender(appender);
+                    if (CommonLoggingConfigurations.shouldAttachConsoleAppender(logger.getName())) {
+                        logger.get().addAppender(appender, logger.getLevel(), null);
                     }
                 }
 
@@ -170,11 +150,6 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return getLogger(loggerName);
     }
 
-    @Deprecated
-    public void reInitialize(Map<String, String> environment) {
-        // for compatibility
-    }
-
     @Override
     public Logger getLogger(String name) {
         Logger logger = loggerMap.get(name);
@@ -185,21 +160,19 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
         return loggerMap.get(name);
     }
 
-    private ConsoleAppender getOrCreateConsoleAppender(String loggerName){
-        return consoleAppenders.computeIfAbsent(loggerName, k -> {
-                String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
-                        Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
-                Level level = getConsoleLevel();
-                PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
-                Filter filter = ThresholdFilter.createFilter(level, Filter.Result.NEUTRAL, Filter.Result.DENY);
-                ConsoleAppender.Builder<?> builder = ConsoleAppender.newBuilder()
-                        .setLayout(patternLayout)
-                        .setName(CONSOLE)
-                        .setFilter(filter);
-                ConsoleAppender appender = builder.build();
-                appender.start();
-                return appender;
-            });
+    private ConsoleAppender createConsoleAppender(){
+        String logPattern = properties.getProperty(Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN,
+                Constants.SOFA_MIDDLEWARE_LOG_CONSOLE_LOG4J2_PATTERN_DEFAULT);
+        Level level = getConsoleLevel();
+        PatternLayout patternLayout = PatternLayout.newBuilder().withPattern(logPattern).build();
+        Filter filter = ThresholdFilter.createFilter(level, Filter.Result.NEUTRAL, Filter.Result.DENY);
+        ConsoleAppender.Builder<?> builder = ConsoleAppender.newBuilder()
+                .setLayout(patternLayout)
+                .setName(CONSOLE)
+                .setFilter(filter);
+        ConsoleAppender appender = builder.build();
+        appender.start();
+        return appender;
     }
 
     private Level getConsoleLevel() {
@@ -211,28 +184,22 @@ public class Log4j2LoggerSpaceFactory extends AbstractLoggerSpaceFactory {
     private Logger newLogger(String name, LoggerContext loggerContext) {
         final String key = Logger.ROOT_LOGGER_NAME.equals(name) ? LogManager.ROOT_LOGGER_NAME
             : name;
-        return new Log4jLogger(loggerContext.getLogger(key), name);
+        return new Log4jLogger(markerFactory, loggerContext.getLogger(key), name);
     }
 
     private Level toLog4j2Level(AdapterLevel adapterLevel) {
         if (adapterLevel == null) {
             throw new IllegalStateException("AdapterLevel is NULL when adapter to log4j2.");
         }
-        switch (adapterLevel) {
-            case TRACE:
-                return Level.TRACE;
-            case DEBUG:
-                return Level.DEBUG;
-            case INFO:
-                return Level.INFO;
-            case WARN:
-                return Level.WARN;
-            case ERROR:
-                return Level.ERROR;
-            default:
-                throw new IllegalStateException(adapterLevel
-                                                + " is unknown when adapter to log4j2.");
-        }
+        return switch (adapterLevel) {
+            case TRACE -> Level.TRACE;
+            case DEBUG -> Level.DEBUG;
+            case INFO -> Level.INFO;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            default -> throw new IllegalStateException(adapterLevel
+                    + " is unknown when adapter to log4j2.");
+        };
     }
 
 }

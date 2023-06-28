@@ -28,11 +28,11 @@ import org.slf4j.Logger;
  */
 public class TemporaryILoggerFactory extends AbstractLoggerSpaceFactory {
 
-    private final String      space;
-    private final ClassLoader spaceClassLoader;
-    private final Logger      tempLogger;
-    private final SpaceId     spaceId;
-    private LoggerSelector    loggerSelector;
+    private final String         space;
+    private final ClassLoader    spaceClassLoader;
+    private final Logger         tempLogger;
+    private final SpaceId        spaceId;
+    private final LoggerSelector loggerSelector;
 
     public TemporaryILoggerFactory(String space, ClassLoader spaceClassLoader, Logger tempLogger) {
         this(new SpaceId(space), spaceClassLoader, tempLogger);

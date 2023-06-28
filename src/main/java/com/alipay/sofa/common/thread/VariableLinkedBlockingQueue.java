@@ -204,7 +204,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
     }
 
     /**
-     * Creates a <tt>LinkedBlockingQueue</tt> with a capacity of
+     * Creates a {@code LinkedBlockingQueue} with a capacity of
      * {@link Integer#MAX_VALUE}.
      */
     public VariableLinkedBlockingQueue() {
@@ -212,10 +212,10 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
     }
 
     /**
-     * Creates a <tt>LinkedBlockingQueue</tt> with the given (fixed) capacity.
+     * Creates a {@code LinkedBlockingQueue} with the given (fixed) capacity.
      *
      * @param capacity the capacity of this queue.
-     * @throws IllegalArgumentException if <tt>capacity</tt> is not greater
+     * @throws IllegalArgumentException if {@code capacity} is not greater
      *         than zero.
      */
     public VariableLinkedBlockingQueue(int capacity) {
@@ -226,13 +226,13 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
     }
 
     /**
-     * Creates a <tt>LinkedBlockingQueue</tt> with a capacity of
+     * Creates a {@code LinkedBlockingQueue} with a capacity of
      * {@link Integer#MAX_VALUE}, initially containing the elements of the
      * given collection,
      * added in traversal order of the collection's iterator.
      * @param c the collection of elements to initially contain
-     * @throws NullPointerException if <tt>c</tt> or any element within it
-     * is <tt>null</tt>
+     * @throws NullPointerException if {@code c} or any element within it
+     * is {@code null}
      */
     public VariableLinkedBlockingQueue(Collection<? extends E> c) {
         this(Integer.MAX_VALUE);
@@ -273,11 +273,11 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
      * Returns the number of elements that this queue can ideally (in
      * the absence of memory or resource constraints) accept without
      * blocking. This is always equal to the initial capacity of this queue
-     * less the current <tt>size</tt> of this queue.
+     * less the current {@code size} of this queue.
      * <p>Note that you <em>cannot</em> always tell if
-     * an attempt to <tt>add</tt> an element will succeed by
-     * inspecting <tt>remainingCapacity</tt> because it may be the
-     * case that a waiting consumer is ready to <tt>take</tt> an
+     * an attempt to {@code add} an element will succeed by
+     * inspecting {@code remainingCapacity} because it may be the
+     * case that a waiting consumer is ready to {@code take} an
      * element out of an otherwise full queue.
      */
     @Override
@@ -290,7 +290,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
      * necessary for space to become available.
      * @param o the element to add
      * @throws InterruptedException if interrupted while waiting.
-     * @throws NullPointerException if the specified element is <tt>null</tt>.
+     * @throws NullPointerException if the specified element is {@code null}.
      */
     @Override
     public void put(E o) throws InterruptedException {
@@ -335,13 +335,13 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
      * necessary up to the specified wait time for space to become available.
      * @param o the element to add
      * @param timeout how long to wait before giving up, in units of
-     * <tt>unit</tt>
-     * @param unit a <tt>TimeUnit</tt> determining how to interpret the
-     * <tt>timeout</tt> parameter
-     * @return <tt>true</tt> if successful, or <tt>false</tt> if
+     * {@code unit}
+     * @param unit a {@code TimeUnit} determining how to interpret the
+     * {@code timeout} parameter
+     * @return {@code true} if successful, or {@code false} if
      * the specified waiting time elapses before space is available.
      * @throws InterruptedException if interrupted while waiting.
-     * @throws NullPointerException if the specified element is <tt>null</tt>.
+     * @throws NullPointerException if the specified element is {@code null}.
      */
     @Override
     public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException {
@@ -384,9 +384,9 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
      * returning immediately if this queue is full.
      *
      * @param o the element to add.
-     * @return <tt>true</tt> if it was possible to add the element to
-     *         this queue, else <tt>false</tt>
-     * @throws NullPointerException if the specified element is <tt>null</tt>
+     * @return {@code true} if it was possible to add the element to
+     *         this queue, else {@code false}
+     * @throws NullPointerException if the specified element is {@code null}
      */
     @Override
     public boolean offer(E o) {
@@ -658,7 +658,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
 
     /**
      * Returns an iterator over the elements in this queue in proper sequence.
-     * The returned <tt>Iterator</tt> is a "weakly consistent" iterator that
+     * The returned {@code Iterator} is a "weakly consistent" iterator that
      * will never throw {@link java.util.ConcurrentModificationException},
      * and guarantees to traverse elements as they existed upon
      * construction of the iterator, and may (but is not guaranteed to)
@@ -757,7 +757,7 @@ public class VariableLinkedBlockingQueue<E> extends AbstractQueue<E> implements 
      * Save the state to a stream (that is, serialize it).
      *
      * @serialData The capacity is emitted (int), followed by all of
-     * its elements (each an <tt>Object</tt>) in the proper order,
+     * its elements (each an {@code Object}) in the proper order,
      * followed by a null
      * @param s the stream
      */

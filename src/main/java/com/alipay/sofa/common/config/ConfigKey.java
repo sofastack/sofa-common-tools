@@ -17,6 +17,7 @@
 package com.alipay.sofa.common.config;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author zhaowang
@@ -48,11 +49,7 @@ public class ConfigKey<T> {
         preCheckNotNull("description", description);
 
         this.key = key;
-        if (null == alias) {
-            this.alias = new String[0];
-        } else {
-            this.alias = alias;
-        }
+        this.alias = Objects.requireNonNullElseGet(alias, () -> new String[0]);
         this.defaultValue = defaultValue;
         this.modifiable = modifiable;
         this.description = description;
