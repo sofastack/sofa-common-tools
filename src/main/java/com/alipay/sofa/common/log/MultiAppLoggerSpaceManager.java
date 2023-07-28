@@ -93,6 +93,11 @@ public class MultiAppLoggerSpaceManager {
         ReportUtil.reportInfo("Logger Space: \"" + spaceId.toString() + "\" init ok.");
     }
 
+    @Deprecated
+    public static void init(com.alipay.sofa.common.log.SpaceId spaceId, Map<String, String> props, ClassLoader spaceClassloader) {
+        init((SpaceId) spaceId, props, spaceClassloader);
+    }
+
     static void doInit(String spaceName, Map<String, String> props, ClassLoader spaceClassloader) {
         doInit(SpaceId.withSpaceName(spaceName), props, spaceClassloader);
     }
@@ -136,6 +141,11 @@ public class MultiAppLoggerSpaceManager {
         return getLoggerBySpace(name, spaceId, callerClassLoader);
     }
 
+    @Deprecated
+    public static Logger getLoggerBySpace(String name, com.alipay.sofa.common.log.SpaceId spaceId) {
+        return getLoggerBySpace(name, (SpaceId) spaceId);
+    }
+
     /**
      * Get logger from specified spaceName
      * The return logger is obtained from corresponding LoggerFactory which is configured by its own log configs
@@ -163,6 +173,11 @@ public class MultiAppLoggerSpaceManager {
         AbstractLoggerSpaceFactory abstractLoggerSpaceFactory = getILoggerFactoryBySpaceName(
             spaceId, spaceClassloader);
         return abstractLoggerSpaceFactory.getLogger(name);
+    }
+
+    @Deprecated
+    public static Logger getLoggerBySpace(String name, com.alipay.sofa.common.log.SpaceId spaceId, ClassLoader spaceClassloader) {
+        return getLoggerBySpace(name, (SpaceId) spaceId, spaceClassloader);
     }
 
     private static AbstractLoggerSpaceFactory getILoggerFactoryBySpaceName(SpaceId spaceId,
@@ -206,6 +221,12 @@ public class MultiAppLoggerSpaceManager {
         return abstractLoggerSpaceFactory.getLogger(loggerName);
     }
 
+    @Deprecated
+    public static Logger setLoggerLevel(String loggerName, com.alipay.sofa.common.log.SpaceId spaceId,
+                                        AdapterLevel adapterLevel) {
+        return setLoggerLevel(loggerName, (SpaceId) spaceId, adapterLevel);
+    }
+
     public static ILoggerFactory removeILoggerFactoryBySpaceName(String spaceName) {
         return removeILoggerFactoryBySpaceId(new SpaceId(spaceName));
     }
@@ -228,6 +249,11 @@ public class MultiAppLoggerSpaceManager {
         return oldFactory;
     }
 
+    @Deprecated
+    public static ILoggerFactory removeILoggerFactoryBySpaceId(com.alipay.sofa.common.log.SpaceId spaceId) {
+        return removeILoggerFactoryBySpaceId((SpaceId) spaceId);
+    }
+
     public static boolean isSpaceInitialized(String spaceName) {
         return isSpaceInitialized(new SpaceId(spaceName));
     }
@@ -236,9 +262,19 @@ public class MultiAppLoggerSpaceManager {
         return LOG_FACTORY_MAP.containsKey(spaceId);
     }
 
+    @Deprecated
+    public static boolean isSpaceInitialized(com.alipay.sofa.common.log.SpaceId spaceId) {
+        return LOG_FACTORY_MAP.containsKey(spaceId);
+    }
+
     private static boolean isSpaceILoggerFactoryExisted(SpaceId spaceId) {
         return isSpaceInitialized(spaceId)
                 && LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory() != null;
+    }
+
+    @Deprecated
+    public static Map getSpacesMap() {
+        return Collections.emptyMap();
     }
 
     private static AbstractLoggerSpaceFactory createILoggerFactory(SpaceId spaceId,
