@@ -36,6 +36,7 @@ public interface Constants {
     String  LOG_XML_CONFIG_FILE_ENV_PATTERN                       = "log-conf-%s.xml";
     String  LOG_CONFIG_PROPERTIES                                 = "config.properties";
     String  PRIORITY_KEY                                          = "priority";
+    String  DOC_URL_KEY                                           = "docUrl";
     String  LOGGER_CONSOLE_WHITE_SET_KEY                          = "console";
     String  LOGGER_CONSOLE_PREFIX_WHITE_SET_KEY                   = "console.prefix";
 

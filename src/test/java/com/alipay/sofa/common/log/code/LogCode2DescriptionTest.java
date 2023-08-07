@@ -40,14 +40,20 @@ public class LogCode2DescriptionTest {
         Locale.setDefault(new Locale("Unknown"));
 
         LogCode2Description logCode2Description = LogCode2Description.create(COMPONENT_NAME);
-        Assert.assertEquals("SOFA-TEST-00-00000: All is well",
-            logCode2Description.convert("00-00000"));
-        Assert.assertEquals("SOFA-TEST-01-00001: Some things goes wrong",
-            logCode2Description.convert("01-00001"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-00-00000: All is well, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-00-00000",
+                logCode2Description.convert("00-00000"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-01-00001: Some things goes wrong, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-01-00001",
+                logCode2Description.convert("01-00001"));
         Assert.assertEquals("SOFA-TEST-11-11111: Unknown Code",
             logCode2Description.convert("11-11111"));
-        Assert.assertEquals("SOFA-TEST-02-00000: ABC with argument 123",
-            logCode2Description.convert("02-00000", "ABC", 123));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-02-00000: ABC with argument 123, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-02-00000",
+                logCode2Description.convert("02-00000", "ABC", 123));
     }
 
     @Test
@@ -55,8 +61,14 @@ public class LogCode2DescriptionTest {
         Locale.setDefault(new Locale("zh", "CN"));
 
         LogCode2Description logCode2Description = LogCode2Description.create(COMPONENT_NAME);
-        Assert.assertEquals("SOFA-TEST-00-00000: 一切都好", logCode2Description.convert("00-00000"));
-        Assert.assertEquals("SOFA-TEST-01-00001: 出现了问题", logCode2Description.convert("01-00001"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-00-00000: 一切都好, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-00-00000",
+                logCode2Description.convert("00-00000"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-01-00001: 出现了问题, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-01-00001",
+                logCode2Description.convert("01-00001"));
         Assert.assertEquals("SOFA-TEST-11-11111: Unknown Code",
             logCode2Description.convert("11-11111"));
     }
@@ -72,9 +84,13 @@ public class LogCode2DescriptionTest {
     public void testDirectConvert() {
         Locale.setDefault(new Locale("zh", "CN"));
 
-        Assert.assertEquals("SOFA-TEST-00-00000: 一切都好",
-            LogCode2Description.convert(COMPONENT_NAME, "00-00000"));
-        Assert.assertEquals("SOFA-TEST-01-00001: 出现了问题",
-            LogCode2Description.convert(COMPONENT_NAME, "01-00001"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-00-00000: 一切都好, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-00-00000",
+                LogCode2Description.convert(COMPONENT_NAME, "00-00000"));
+        Assert
+            .assertEquals(
+                "SOFA-TEST-01-00001: 出现了问题, Please see doc http://www.sofaboot.com?errorcode=SOFA-TEST-01-00001",
+                LogCode2Description.convert(COMPONENT_NAME, "01-00001"));
     }
 }

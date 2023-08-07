@@ -101,10 +101,13 @@ public class LogCode2Description {
     }
 
     private String logFormat;
+    private String logPrefix;
+    private String docUrl;
     private Map<String, Pair> codeMap = new ConcurrentHashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
-        logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
+        logPrefix = spaceId.getSpaceName().toUpperCase();
+        logFormat = logPrefix + "-%s: %s";
         String prefix = spaceId.getSpaceName().replace(".", "/") + "/log-codes";
         String encoding = Locale.getDefault().toString();
         if (StringUtil.isEmpty(encoding)) {
@@ -142,11 +145,17 @@ public class LogCode2Description {
                         if (exist != null && exist.getPriority() > priority) {
                             continue;
                         }
+                        if (key.equals(Constants.DOC_URL_KEY)) {
+                            docUrl = (String) entry.getValue();
+                        }
                         codeMap.put(key, new Pair(priority, String.format(logFormat, key, entry.getValue())));
                     }
                 } catch (Throwable e) {
                     ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
                 }
+            }
+            if (StringUtil.isNotEmpty(docUrl)) {
+                codeMap.forEach((key, value) -> value.setValue(value.getValue() + String.format(docUrl, logPrefix, key)));
             }
         }
     }
@@ -177,8 +186,8 @@ public class LogCode2Description {
     }
 
     private static class Pair {
-        private final Integer priority;
-        private final String value;
+        private Integer priority;
+        private String value;
 
         public Pair(Integer priority, String value) {
             this.priority = priority;
@@ -187,6 +196,10 @@ public class LogCode2Description {
 
         public Integer getPriority() {
             return priority;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
 
         public String getValue() {
