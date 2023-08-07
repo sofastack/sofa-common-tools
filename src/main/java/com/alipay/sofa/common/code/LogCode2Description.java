@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.code;
 
+import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.ReportUtil;
 import com.alipay.sofa.common.utils.StringUtil;
@@ -61,14 +62,14 @@ public class LogCode2Description {
     public static LogCode2Description create(SpaceId spaceId) {
         if (isCodeSpaceInitialized(spaceId)) {
             ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
-                                  + "\" is already initialized!");
+                    + "\" is already initialized!");
             return LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
         }
 
         synchronized (spaceId) {
             if (isCodeSpaceInitialized(spaceId)) {
                 ReportUtil.reportWarn("Code space: \"" + spaceId.getSpaceName()
-                                      + "\" is already initialized!");
+                        + "\" is already initialized!");
                 return LOG_CODE_2_DESCRIPTION_MAP.get(spaceId);
             }
             LogCode2Description logCode2Description = doCreate(spaceId);
@@ -99,8 +100,8 @@ public class LogCode2Description {
         LOG_CODE_2_DESCRIPTION_MAP.remove(spaceId);
     }
 
-    private String     logFormat;
-    private Map<String, String> codeMap = new ConcurrentHashMap<>();
+    private String logFormat;
+    private Map<String, Pair> codeMap = new ConcurrentHashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
         logFormat = spaceId.getSpaceName().toUpperCase() + "-%s: %s";
@@ -126,9 +127,22 @@ public class LogCode2Description {
                         InputStreamReader reader = new InputStreamReader(in);
                         properties.load(reader);
                     }
-                    for (Map.Entry<?, ?> entry: properties.entrySet()) {
+
+                    int priority = Constants.DEFAULT_PRIORITY;
+                    String priorityString = properties.getProperty(Constants.PRIORITY_KEY);
+                    if (StringUtil.isNotEmpty(priorityString)) {
+                        priority = Integer.parseInt(priorityString);
+                    }
+
+
+                    for (Map.Entry<?, ?> entry : properties.entrySet()) {
                         String key = (String) entry.getKey();
-                        codeMap.put(key, String.format(logFormat, key, entry.getValue()));
+                        Pair exist = codeMap.get(key);
+                        // high priority value exist, skip
+                        if (exist != null && exist.getPriority() > priority) {
+                            continue;
+                        }
+                        codeMap.put(key, new Pair(priority, String.format(logFormat, key, entry.getValue())));
                     }
                 } catch (Throwable e) {
                     ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
@@ -138,7 +152,7 @@ public class LogCode2Description {
     }
 
     public String convert(String code) {
-        return codeMap.computeIfAbsent(code, k -> String.format(logFormat, k, "Unknown Code"));
+        return codeMap.computeIfAbsent(code, k -> new Pair(0, String.format(logFormat, k, "Unknown Code"))).getValue();
     }
 
     public String convert(String code, Object... args) {
@@ -160,5 +174,23 @@ public class LogCode2Description {
             return null;
         }
         return rtn;
+    }
+
+    private static class Pair {
+        private final Integer priority;
+        private final String value;
+
+        public Pair(Integer priority, String value) {
+            this.priority = priority;
+            this.value = value;
+        }
+
+        public Integer getPriority() {
+            return priority;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }
