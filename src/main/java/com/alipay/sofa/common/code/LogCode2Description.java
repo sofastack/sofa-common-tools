@@ -102,7 +102,7 @@ public class LogCode2Description {
 
     private String logFormat;
     private String logPrefix;
-    private String docUrl;
+    private String logValueSuffix;
     private Map<String, Pair> codeMap = new ConcurrentHashMap<>();
 
     private LogCode2Description(SpaceId spaceId) {
@@ -145,8 +145,8 @@ public class LogCode2Description {
                         if (exist != null && exist.getPriority() > priority) {
                             continue;
                         }
-                        if (key.equals(Constants.DOC_URL_KEY)) {
-                            docUrl = (String) entry.getValue();
+                        if (key.equals(Constants.LOG_VALUE_SUFFIX_KEY)) {
+                            logValueSuffix = (String) entry.getValue();
                         }
                         codeMap.put(key, new Pair(priority, String.format(logFormat, key, entry.getValue())));
                     }
@@ -154,8 +154,8 @@ public class LogCode2Description {
                     ReportUtil.reportError(String.format("Code space \"%s\" initializing failed!", spaceId.getSpaceName()), e);
                 }
             }
-            if (StringUtil.isNotEmpty(docUrl)) {
-                codeMap.forEach((key, value) -> value.setValue(value.getValue() + String.format(docUrl, logPrefix, key)));
+            if (StringUtil.isNotEmpty(logValueSuffix)) {
+                codeMap.forEach((key, value) -> value.setValue(value.getValue() + String.format(logValueSuffix, logPrefix, key)));
             }
         }
     }
