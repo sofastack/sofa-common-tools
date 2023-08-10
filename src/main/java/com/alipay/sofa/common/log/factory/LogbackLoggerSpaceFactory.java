@@ -20,10 +20,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.LogbackException;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.spi.ScanException;
@@ -34,8 +36,11 @@ import com.alipay.sofa.common.log.adapter.level.AdapterLevel;
 import com.alipay.sofa.common.space.SpaceId;
 import com.alipay.sofa.common.utils.StringUtil;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import org.slf4j.Marker;
+import org.slf4j.spi.MDCAdapter;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -46,10 +51,25 @@ import java.util.Properties;
  */
 public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
 
+    private static final Method            logContextSetMDCAdapterMethod;
+
     private final SpaceId                  spaceId;
     private final LoggerContext            loggerContext;
     private final Properties               properties;
     private ConsoleAppender<ILoggingEvent> consoleAppender;
+
+    static {
+        // Resolve logContext#setMDCAdapter method if logback version >= 1.4.8
+        Method logContextSetMDCAdapter;
+        try {
+            logContextSetMDCAdapter = LoggerContext.class.getDeclaredMethod("setMDCAdapter",
+                MDCAdapter.class);
+        } catch (Throwable t) {
+            logContextSetMDCAdapter = null;
+        }
+
+        logContextSetMDCAdapterMethod = logContextSetMDCAdapter;
+    }
 
     public LogbackLoggerSpaceFactory(SpaceId spaceId, LoggerContext loggerContext,
                                      Properties properties, URL confFile, String source) {
@@ -62,9 +82,19 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
             loggerContext.putProperty((String) entry.getKey(), (String) entry.getValue());
         }
         try {
-            new ContextInitializer(loggerContext).configureByResource(confFile);
+            new ContextInitializer(loggerContext);
+            configureByResource(confFile, loggerContext);
         } catch (JoranException e) {
             throw new IllegalStateException("Logback loggerSpaceFactory build error", e);
+        }
+
+        // invoke loggerContext.setMDCAdapter(MDC.getMDCAdapter());
+        if (logContextSetMDCAdapterMethod != null) {
+            try {
+                logContextSetMDCAdapterMethod.invoke(loggerContext, MDC.getMDCAdapter());
+            } catch (Throwable t) {
+                throw new IllegalStateException("Failed to invoke setMDCAdapter method", t);
+            }
         }
 
         String value = properties.getProperty(String.format(
@@ -160,5 +190,22 @@ public class LogbackLoggerSpaceFactory extends AbstractLoggerSpaceFactory {
             default -> throw new IllegalStateException(adapterLevel
                     + " is unknown when adapter to logback.");
         };
+    }
+
+    // logback 1.4.8 remove this method: https://github.com/qos-ch/logback/commit/4b06e062488e4cb87f22be6ae96e4d7d6350ed6b
+    public static void configureByResource(URL url, LoggerContext loggerContext)
+                                                                                throws JoranException {
+        if (url == null) {
+            throw new IllegalArgumentException("URL argument cannot be null");
+        }
+        final String urlString = url.toString();
+        if (urlString.endsWith("xml")) {
+            JoranConfigurator configurator = new JoranConfigurator();
+            configurator.setContext(loggerContext);
+            configurator.doConfigure(url);
+        } else {
+            throw new LogbackException("Unexpected filename extension of file [" + url
+                                       + "]. Should be .xml");
+        }
     }
 }

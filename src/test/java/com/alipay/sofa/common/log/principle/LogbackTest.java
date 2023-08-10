@@ -20,6 +20,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
+import com.alipay.sofa.common.log.factory.LogbackLoggerSpaceFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +36,8 @@ public class LogbackTest {
 
         URL url1 = LogbackTest.class.getResource("/com/alipay/sofa/rpc/log/logback/log-conf.xml");
         LoggerContext loggerContext1 = new LoggerContext();
-        new ContextInitializer(loggerContext1).configureByResource(url1);
+        new ContextInitializer(loggerContext1);
+        LogbackLoggerSpaceFactory.configureByResource(url1, loggerContext1);
         ch.qos.logback.classic.Logger logger1 = loggerContext1.getLogger("com.foo.Bar");
         logger1.info("log4j2 - 1");
         Assert.assertNotNull(logger1);
@@ -44,7 +46,8 @@ public class LogbackTest {
 
         URL url2 = LogbackTest.class.getResource("/com/alipay/sofa/rpc/log/logback/logback_b.xml");
         LoggerContext loggerContext2 = new LoggerContext();
-        new ContextInitializer(loggerContext2).configureByResource(url2);
+        new ContextInitializer(loggerContext2);
+        LogbackLoggerSpaceFactory.configureByResource(url2, loggerContext2);
         Logger logger2 = loggerContext2.getLogger("com.foo.Bar2");
         logger2.info("log4j2 - 222");
         Assert.assertNotNull(logger2);
