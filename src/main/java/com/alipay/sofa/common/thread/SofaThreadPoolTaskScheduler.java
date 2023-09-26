@@ -43,6 +43,8 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
 
     protected long                            period;
 
+    protected boolean                         sofaTracerTransmit;
+
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
                                                  RejectedExecutionHandler rejectedExecutionHandler) {
@@ -54,6 +56,7 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
         SofaScheduledThreadPoolExecutor executor = new SofaScheduledThreadPoolExecutor(
             getPoolSize(), threadFactory, rejectedExecutionHandler, threadPoolName, spaceName,
             taskTimeout, period, TimeUnit.MILLISECONDS);
+        executor.setSofaTracerTransmit(sofaTracerTransmit);
 
         Boolean removeOnCancelPolicy = ClassUtil.getField("removeOnCancelPolicy", this);
         if (removeOnCancelPolicy) {
@@ -125,5 +128,9 @@ public class SofaThreadPoolTaskScheduler extends ThreadPoolTaskScheduler {
             return TimeUnit.MILLISECONDS;
         }
         return sofaScheduledThreadPoolExecutor.getConfig().getTimeUnit();
+    }
+
+    public void setSofaTracerTransmit(boolean sofaTracerTransmit) {
+        this.sofaTracerTransmit = sofaTracerTransmit;
     }
 }

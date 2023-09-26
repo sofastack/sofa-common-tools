@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread.construct;
 
+import com.alipay.sofa.common.thread.SofaScheduledThreadPoolExecutor;
 import com.alipay.sofa.common.thread.SofaThreadPoolTaskScheduler;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author huzijie
@@ -61,6 +64,11 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerA).getPeriod());
         Assert.assertTrue(sofaThreadPoolTaskSchedulerA.getScheduledThreadPoolExecutor()
             .getRemoveOnCancelPolicy());
+        ScheduledExecutorService scheduledExecutorService = sofaThreadPoolTaskSchedulerA
+            .getScheduledExecutor();
+        Assert.assertTrue(scheduledExecutorService instanceof SofaScheduledThreadPoolExecutor);
+        Assert.assertTrue(((SofaScheduledThreadPoolExecutor) scheduledExecutorService)
+            .isSofaTracerTransmit());
         sofaThreadPoolTaskSchedulerA.shutdown();
     }
 
@@ -81,6 +89,11 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             ((SofaThreadPoolTaskScheduler) sofaThreadPoolTaskSchedulerB).getPeriod());
         Assert.assertTrue(sofaThreadPoolTaskSchedulerB.getScheduledThreadPoolExecutor()
             .getRemoveOnCancelPolicy());
+        ScheduledExecutorService scheduledExecutorService = sofaThreadPoolTaskSchedulerB
+            .getScheduledExecutor();
+        Assert.assertTrue(scheduledExecutorService instanceof SofaScheduledThreadPoolExecutor);
+        Assert.assertTrue(((SofaScheduledThreadPoolExecutor) scheduledExecutorService)
+            .isSofaTracerTransmit());
         sofaThreadPoolTaskSchedulerB.shutdown();
     }
 
@@ -97,6 +110,7 @@ public class SofaThreadPoolTaskSchedulerConstructsTest {
             sofaThreadPoolTaskScheduler.setTaskTimeout(3000);
             sofaThreadPoolTaskScheduler.setPeriod(5000);
             sofaThreadPoolTaskScheduler.setRemoveOnCancelPolicy(true);
+            sofaThreadPoolTaskScheduler.setSofaTracerTransmit(true);
             return sofaThreadPoolTaskScheduler;
         }
     }

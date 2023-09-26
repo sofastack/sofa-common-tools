@@ -21,8 +21,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author huzijie
@@ -134,5 +136,82 @@ public class SofaScheduledThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
         Assert.assertEquals(numThreads, aberrantListAppender.list.size());
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));
+    }
+
+    @Test
+    public void testNoTracerTransmit() throws InterruptedException {
+        AtomicInteger success = new AtomicInteger(0);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        threadPool.schedule(() -> {
+            try {
+                assertTraceSpanNotExist();
+                success.incrementAndGet();
+            } finally {
+                countDownLatch.countDown();
+            }
+        }, 10, TimeUnit.MILLISECONDS);
+        countDownLatch.await();
+        Assert.assertEquals(success.get(), 1);
+    }
+
+    @Test
+    public void testEnableTracerTransmit() throws InterruptedException {
+        threadPool.setSofaTracerTransmit(true);
+
+        AtomicInteger fail = new AtomicInteger(0);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        threadPool.schedule(() -> {
+            try {
+                assertTraceSpanExist();
+            } catch (Throwable t) {
+                fail.incrementAndGet();
+            } finally {
+                countDownLatch.countDown();
+            }
+        }, 10, TimeUnit.MILLISECONDS);
+        Assert.assertTrue(countDownLatch.await(20, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(fail.get(), 0);
+
+        fail.set(0);
+        threadPool.schedule(() -> {
+            try {
+                return assertTraceSpanExist();
+            } catch (Throwable t) {
+                fail.incrementAndGet();
+                return null;
+            } finally {
+                countDownLatch.countDown();
+            }
+        }, 10, TimeUnit.MILLISECONDS);
+        Assert.assertTrue(countDownLatch.await(20, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(fail.get(), 0);
+
+        fail.set(0);
+        CountDownLatch fixRateCountDownLatch = new CountDownLatch(2);
+        threadPool.scheduleAtFixedRate(() -> {
+            try {
+                assertTraceSpanExist();
+            } catch (Throwable t) {
+                fail.incrementAndGet();
+            } finally {
+                fixRateCountDownLatch.countDown();
+            }
+        }, 10, 10, TimeUnit.MILLISECONDS);
+        Assert.assertTrue(fixRateCountDownLatch.await(30, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(fail.get(), 0);
+
+        fail.set(0);
+        CountDownLatch fixDelayCountDownLatch = new CountDownLatch(2);
+        threadPool.scheduleWithFixedDelay(() -> {
+            try {
+                assertTraceSpanExist();
+            } catch (Throwable t) {
+                fail.incrementAndGet();
+            } finally {
+                fixDelayCountDownLatch.countDown();
+            }
+        }, 10, 10, TimeUnit.MILLISECONDS);
+        Assert.assertTrue(fixDelayCountDownLatch.await(30, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(fail.get(), 0);
     }
 }
