@@ -4,7 +4,7 @@
 
     <groupId>com.alipay.sofa.common</groupId>
     <artifactId>sofa-common-tools</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -30,6 +30,7 @@
         <spring.boot.version>3.0.2</spring.boot.version>
         <junit.version>4.13.1</junit.version>
         <guava.version>27.0-jre</guava.version>
+        <sofa.tracer.version>4.0.0</sofa.tracer.version>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>tracer-core</artifactId>
+            <version>${sofa.tracer.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

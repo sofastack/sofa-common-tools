@@ -22,7 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:guaner.zzx@alipay.com">Alaneuler</a>
@@ -172,5 +174,49 @@ public class SofaThreadPoolExecutorTest extends ThreadPoolTestBase {
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
         Assert.assertEquals(numThreads, aberrantListAppender.list.size());
         Assert.assertTrue(isLastInfoMatch("Thread pool with name '\\S+' unregistered"));
+    }
+
+    @Test
+    public void testNoTracerTransmit() throws InterruptedException {
+        AtomicInteger success = new AtomicInteger(0);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        threadPool.execute(() -> {
+            try {
+                assertTraceSpanNotExist();
+                success.incrementAndGet();
+            } finally {
+                countDownLatch.countDown();
+            }
+        });
+        Assert.assertTrue(countDownLatch.await(20, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(success.get(), 1);
+    }
+
+    @Test
+    public void testEnableTracerTransmit() throws InterruptedException {
+        threadPool.setSofaTracerTransmit(true);
+
+        AtomicInteger success = new AtomicInteger(0);
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        threadPool.execute(() -> {
+            try {
+                assertTraceSpanExist();
+                success.incrementAndGet();
+            } finally {
+                countDownLatch.countDown();
+            }
+        });
+
+        threadPool.submit(() -> {
+            try {
+                String id = assertTraceSpanExist();
+                success.incrementAndGet();
+                return id;
+            } finally {
+                countDownLatch.countDown();
+            }
+        });
+        Assert.assertTrue(countDownLatch.await(20, TimeUnit.MILLISECONDS));
+        Assert.assertEquals(success.get(), 2);
     }
 }

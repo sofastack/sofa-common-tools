@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.common.thread.construct;
 
+import com.alipay.sofa.common.thread.SofaThreadPoolExecutor;
 import com.alipay.sofa.common.thread.SofaThreadPoolTaskExecutor;
 import com.alipay.sofa.common.thread.bean.TestTaskDecorator;
 import org.junit.Assert;
@@ -31,6 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author huzijie
@@ -60,6 +62,9 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         Assert.assertEquals(2000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getTaskTimeout());
         Assert.assertEquals(10000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorA).getPeriod());
         Assert.assertTrue(sofaThreadPoolTaskExecutorA.getThreadPoolExecutor().allowsCoreThreadTimeOut());
+        ThreadPoolExecutor sofaThreadPoolExecutor = sofaThreadPoolTaskExecutorA.getThreadPoolExecutor();
+        Assert.assertTrue(sofaThreadPoolExecutor instanceof SofaThreadPoolExecutor);
+        Assert.assertTrue(((SofaThreadPoolExecutor) sofaThreadPoolExecutor).isSofaTracerTransmit());
         TestTaskDecorator.clearCount();
         sofaThreadPoolTaskExecutorA.submit(() -> { }).get();
         Assert.assertEquals(1, TestTaskDecorator.count.get());
@@ -77,6 +82,9 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
         Assert.assertEquals("testSpaceB", ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getSpaceName());
         Assert.assertEquals(3000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getTaskTimeout());
         Assert.assertEquals(5000, ((SofaThreadPoolTaskExecutor) sofaThreadPoolTaskExecutorB).getPeriod());
+        ThreadPoolExecutor sofaThreadPoolExecutor = sofaThreadPoolTaskExecutorB.getThreadPoolExecutor();
+        Assert.assertTrue(sofaThreadPoolExecutor instanceof SofaThreadPoolExecutor);
+        Assert.assertTrue(((SofaThreadPoolExecutor) sofaThreadPoolExecutor).isSofaTracerTransmit());
         TestTaskDecorator.clearCount();
         sofaThreadPoolTaskExecutorB.submit(() -> { }).get();
         Assert.assertEquals(1, TestTaskDecorator.count.get());
@@ -99,6 +107,7 @@ public class SofaThreadPoolTaskExecutorConstructsTest {
             sofaThreadPoolTaskExecutor.setPeriod(5000);
             sofaThreadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
             sofaThreadPoolTaskExecutor.setTaskDecorator(taskDecorator);
+            sofaThreadPoolTaskExecutor.setSofaTracerTransmit(true);
             return sofaThreadPoolTaskExecutor;
         }
     }
