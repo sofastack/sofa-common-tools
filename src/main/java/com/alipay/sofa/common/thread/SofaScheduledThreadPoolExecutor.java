@@ -20,7 +20,9 @@ import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.thread.space.SpaceNamedThreadFactory;
 import com.alipay.sofa.common.utils.StringUtil;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -32,11 +34,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version SofaScheduledThreadPoolExecutor.java, v 0.1 2020年11月09日 2:19 下午 huzijie Exp $
  */
 public class SofaScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
-    private static final String        SIMPLE_CLASS_NAME = SofaScheduledThreadPoolExecutor.class
-                                                             .getSimpleName();
-    private static final AtomicInteger POOL_COUNTER      = new AtomicInteger(0);
+    private static final String        SIMPLE_CLASS_NAME  = SofaScheduledThreadPoolExecutor.class
+                                                              .getSimpleName();
+    private static final AtomicInteger POOL_COUNTER       = new AtomicInteger(0);
     private final ThreadPoolConfig     config;
     private final ThreadPoolStatistics statistics;
+    private boolean                    sofaTracerTransmit = false;
 
     /**
      * Basic constructor
@@ -193,4 +196,43 @@ public class SofaScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
     public ThreadPoolStatistics getStatistics() {
         return statistics;
     }
+
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        if (sofaTracerTransmit) {
+            command = SofaTracerCommandFactory.ofRunnable(command);
+        }
+        return super.schedule(command, delay, unit);
+    }
+
+    public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
+        if (sofaTracerTransmit) {
+            callable = SofaTracerCommandFactory.ofCallable(callable);
+        }
+        return super.schedule(callable, delay, unit);
+    }
+
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period,
+                                                  TimeUnit unit) {
+        if (sofaTracerTransmit) {
+            command = SofaTracerCommandFactory.ofRunnable(command);
+        }
+        return super.scheduleAtFixedRate(command, initialDelay, period, unit);
+    }
+
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay,
+                                                     long delay, TimeUnit unit) {
+        if (sofaTracerTransmit) {
+            command = SofaTracerCommandFactory.ofRunnable(command);
+        }
+        return super.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+    }
+
+    public void setSofaTracerTransmit(boolean sofaTracerTransmit) {
+        this.sofaTracerTransmit = sofaTracerTransmit;
+    }
+
+    public boolean isSofaTracerTransmit() {
+        return sofaTracerTransmit;
+    }
+
 }

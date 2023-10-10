@@ -29,11 +29,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created on 2020/3/16
  */
 public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
-    private static final String        SIMPLE_CLASS_NAME = SofaThreadPoolExecutor.class
-                                                             .getSimpleName();
-    private static final AtomicInteger POOL_COUNTER      = new AtomicInteger(0);
+    private static final String        SIMPLE_CLASS_NAME  = SofaThreadPoolExecutor.class
+                                                              .getSimpleName();
+    private static final AtomicInteger POOL_COUNTER       = new AtomicInteger(0);
     private final ThreadPoolConfig     config;
     private final ThreadPoolStatistics statistics;
+    private boolean                    sofaTracerTransmit = false;
 
     /**
      * Basic constructor
@@ -142,7 +143,8 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     public void execute(Runnable command) {
-        ExecutingRunnable runner = new ExecutingRunnable(command);
+        ExecutingRunnable runner = sofaTracerTransmit ? SofaTracerCommandFactory
+            .ofExecutingRunnable(command) : new ExecutingRunnable(command);
         runner.setEnqueueTime(System.currentTimeMillis());
         super.execute(runner);
     }
@@ -219,6 +221,14 @@ public class SofaThreadPoolExecutor extends ThreadPoolExecutor {
 
     private String createName() {
         return SIMPLE_CLASS_NAME + String.format("%08x", POOL_COUNTER.getAndIncrement());
+    }
+
+    public void setSofaTracerTransmit(boolean sofaTracerTransmit) {
+        this.sofaTracerTransmit = sofaTracerTransmit;
+    }
+
+    public boolean isSofaTracerTransmit() {
+        return sofaTracerTransmit;
     }
 
     @Deprecated
