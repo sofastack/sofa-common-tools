@@ -19,9 +19,15 @@ package com.alipay.sofa.common.thread;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.mock.MockSofaTracer;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.common.log.Constants;
 import com.alipay.sofa.common.thread.log.ThreadLogger;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 
 import java.lang.reflect.Field;
@@ -53,6 +59,8 @@ public class ThreadPoolTestBase {
         aberrantListAppender.start();
         ((Logger) ThreadLogger.INFO_THREAD_LOGGER).addAppender(infoListAppender);
         ((Logger) ThreadLogger.WARN_THREAD_LOGGER).addAppender(aberrantListAppender);
+
+        initTracerContext();
     }
 
     @After
@@ -151,5 +159,28 @@ public class ThreadPoolTestBase {
             }
             return "sleepCallableTask";
         }
+    }
+
+    protected void initTracerContext() {
+        // clear
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        sofaTraceContext.clear();
+
+        // init tracer
+        SofaTracer sofaTracer = MockSofaTracer.getMockSofaTracer();
+        SofaTracerSpan span = (SofaTracerSpan) sofaTracer.buildSpan("test").start();
+        sofaTraceContext.push(span);
+    }
+
+    protected String assertTraceSpanExist() {
+        SofaTracerSpan tracerSpan = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
+        String traceId = tracerSpan.getSofaTracerSpanContext().getTraceId();
+        Assert.assertNotNull(traceId);
+        return traceId;
+    }
+
+    protected void assertTraceSpanNotExist() {
+        SofaTracerSpan tracerSpan = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
+        Assert.assertNull(tracerSpan);
     }
 }

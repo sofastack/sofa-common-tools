@@ -42,6 +42,8 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
 
     protected long                   period;
 
+    protected boolean                sofaTracerTransmit;
+
     @Override
     protected ExecutorService initializeExecutor(ThreadFactory threadFactory,
                                                  RejectedExecutionHandler rejectedExecutionHandler) {
@@ -73,6 +75,7 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
                 rejectedExecutionHandler, threadPoolName, spaceName, taskTimeout, period,
                 TimeUnit.MILLISECONDS);
         }
+        executor.setSofaTracerTransmit(sofaTracerTransmit);
 
         Boolean allowCoreThreadTimeOut = ClassUtil.getField("allowCoreThreadTimeOut", this);
         if (allowCoreThreadTimeOut) {
@@ -143,5 +146,13 @@ public class SofaThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
             return TimeUnit.MILLISECONDS;
         }
         return sofaThreadPoolExecutor.getConfig().getTimeUnit();
+    }
+
+    public boolean isSofaTracerTransmit() {
+        return sofaTracerTransmit;
+    }
+
+    public void setSofaTracerTransmit(boolean sofaTracerTransmit) {
+        this.sofaTracerTransmit = sofaTracerTransmit;
     }
 }
