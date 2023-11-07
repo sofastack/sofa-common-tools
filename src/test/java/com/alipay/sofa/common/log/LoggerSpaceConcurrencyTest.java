@@ -19,7 +19,7 @@ package com.alipay.sofa.common.log;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
-````
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
