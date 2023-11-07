@@ -193,6 +193,8 @@ public class MultiAppLoggerSpaceManager {
                 if (!isSpaceILoggerFactoryExisted(spaceId)) {
                     factory = createILoggerFactory(spaceId, space, spaceClassloader);
                     space.setAbstractLoggerSpaceFactory(factory);
+                } else {
+                    factory = LOG_FACTORY_MAP.get(spaceId).getAbstractLoggerSpaceFactory();
                 }
             }
         } else {
