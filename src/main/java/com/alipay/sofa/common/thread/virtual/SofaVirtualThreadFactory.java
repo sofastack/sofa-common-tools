@@ -23,9 +23,9 @@ import java.util.concurrent.ExecutorService;
  * This is a dummy version for reachability on JDK less than 21.
  *
  * @author huzijie
- * @version SofaVirtualDelegate.java, v 0.1 2023年11月20日 3:57 PM huzijie Exp $
+ * @version SofaVirtualThreadFactory.java, v 0.1 2023年11月20日 3:57 PM huzijie Exp $
  */
-public class SofaVirtualThreadDelegate {
+public class SofaVirtualThreadFactory {
 
     /**
      * Create a virtual thread with name.
