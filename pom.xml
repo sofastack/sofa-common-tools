@@ -26,7 +26,7 @@
         <commons.io.version>2.7</commons.io.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <slf4j.jcl.version>1.7.21</slf4j.jcl.version>
-        <spring.boot.version>3.0.2</spring.boot.version>
+        <spring.boot.version>3.2.0</spring.boot.version>
         <junit.version>4.13.1</junit.version>
         <guava.version>27.0-jre</guava.version>
         <sofa.tracer.version>4.0.0</sofa.tracer.version>
