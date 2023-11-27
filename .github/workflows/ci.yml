@@ -13,15 +13,16 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        jdk: [17, 21]
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 17
+    - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 17
+        java-version: ${{ matrix.jdk }}
     - name: Test with Maven
       run: mvn clean test
     - name: Codecov
