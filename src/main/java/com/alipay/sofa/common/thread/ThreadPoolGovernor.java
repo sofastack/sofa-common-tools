@@ -20,6 +20,8 @@ import com.alipay.sofa.common.thread.log.ThreadLogger;
 import com.alipay.sofa.common.thread.space.ThreadPoolSpace;
 import com.alipay.sofa.common.utils.StringUtil;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -365,5 +367,8 @@ public class ThreadPoolGovernor {
             }
         });
         ThreadLogger.info("Thread pool with spaceName '{}' rescheduled with period '{}'", spaceName, period);
+    }
+    public Collection<ThreadPoolMonitorWrapper> getAllThreadPoolWrappers() {
+        return new ArrayList<>(registry.values());
     }
 }
