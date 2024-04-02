@@ -32,6 +32,7 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -360,5 +361,9 @@ public class MultiAppLoggerSpaceManager {
         }
 
         return NOP_LOGGER_FACTORY;
+    }
+
+    public static Map<SpaceId, LogSpace> getLogFactoryMap() {
+        return new HashMap<>(LOG_FACTORY_MAP);
     }
 }
