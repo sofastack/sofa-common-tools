@@ -16,8 +16,8 @@
  */
 package com.alipay.sofa.common.insight;
 
+import com.alipay.sofa.common.config.log.ConfigLoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @date 2024年4月11日 下午2:32:31
  */
 public class RecorderManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecorderManager.class);
+    private static final Logger LOGGER = ConfigLoggerFactory.getLogger(RecorderManager.class);
     private static final AtomicReference<Recorder> RECORDER = new AtomicReference<>(NoopRecorder.INSTANCE);
 
     public static Recorder getRecorder() {
