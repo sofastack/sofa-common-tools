@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author muqingcai
- * @date 2024年4月11日 下午2:32:31
+ * @version 2024年4月11日 下午2:32:31
  */
 public class RecorderManager {
     private static final Logger LOGGER = ConfigLoggerFactory.getLogger(RecorderManager.class);

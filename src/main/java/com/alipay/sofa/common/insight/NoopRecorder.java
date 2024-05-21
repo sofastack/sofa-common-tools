@@ -18,7 +18,7 @@ package com.alipay.sofa.common.insight;
 
 /**
  * @author muqingcai
- * @date 2024年4月19日 上午9:54:51
+ * @version 2024年4月19日 上午9:54:51
  */
 public class NoopRecorder implements Recorder {
     public static final NoopRecorder INSTANCE = new NoopRecorder();

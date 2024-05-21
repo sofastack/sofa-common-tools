@@ -24,7 +24,7 @@ import java.io.PrintStream;
 
 /**
  * @author muqingcai
- * @date 2024年5月13日 下午12:45:58
+ * @version 2024年5月13日 下午12:45:58
  */
 public class SampleRecorder implements Recorder {
     private static final PrintStream TTY = System.out;

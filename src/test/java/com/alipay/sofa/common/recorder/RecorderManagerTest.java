@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  * @author muqingcai
- * @date 2024年5月13日 下午12:45:52
+ * @version 2024年5月13日 下午12:45:52
  */
 public class RecorderManagerTest {
     @Test
