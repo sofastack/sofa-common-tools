@@ -18,7 +18,7 @@ package com.alipay.sofa.common.insight;
 
 /**
  * @author muqingcai
- * @date 2024年4月11日 下午9:56:03
+ * @version 2024年4月11日 下午9:56:03
  */
 public interface Recorder {
 
