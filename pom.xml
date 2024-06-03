@@ -29,7 +29,7 @@
         <slf4j.jcl.version>1.7.21</slf4j.jcl.version>
         <spring.boot.version>3.2.0</spring.boot.version>
         <junit.version>4.13.1</junit.version>
-        <guava.version>27.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <sofa.tracer.version>4.0.0</sofa.tracer.version>
     </properties>
 
